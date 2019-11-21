@@ -1,5 +1,7 @@
 import React from 'react';
 
+import { connect } from 'react-redux';
+
 import {
     TouchableOpacity,
     Text,
@@ -7,39 +9,25 @@ import {
     StyleSheet
 } from 'react-native';
 
-import Colae, { shadow } from './styles';
+import { shadow } from './styles';
 
 const { width, height } = Dimensions.get('screen');
 
-export default class Button extends React.Component {
+class Button extends React.Component {
 
     constructor(props){
         super(props);
-        this.state = {
-            theme: Colae.lightTheme
-        }
-        this._getTheme = this._getTheme.bind(this);
     }
 
     _componentHeight = height*0.047;
     _componentWidth = ((width*0.1027)*this.props.colSpan)+((width*0.055)*(this.props.colSpan-1));
-
-    componentDidMount(){
-        this._getTheme();
-    }
-
-    async _getTheme(){
-        let s = this.state;
-        s.theme = await Colae.getColorTheme();
-        this.setState(s);
-    }
 
     render(){
         if(!this.props.textOnly){
             if(!this.props.secondary){
                 return (
                     <TouchableOpacity
-                    style={[styles.container, { height: this._componentHeight, width: this._componentWidth },this.props.blue?{ backgroundColor: this.state.theme.accent}:{ backgroundColor: this.state.theme.main}, shadow, this.props.contentContainerStyle]}
+                    style={[styles.container, { height: this._componentHeight, width: this._componentWidth },this.props.blue?{ backgroundColor: this.props.ColUITheme.accent}:{ backgroundColor: this.props.ColUITheme.main}, shadow, this.props.contentContainerStyle]}
                     onPress={this.props.onPress}>
                         <Text style={styles.label}>{this.props.label.toUpperCase()}</Text>
                     </TouchableOpacity>
@@ -47,9 +35,9 @@ export default class Button extends React.Component {
             } else {
                 return (
                     <TouchableOpacity
-                    style={[styles.container, { height: this._componentHeight, width: this._componentWidth },this.props.blue?{ borderWidth:1, borderColor: this.state.theme.accent}:{ borderWidth:1, borderColor: this.state.theme.main}, this.props.contentContainerStyle]}
+                    style={[styles.container, { height: this._componentHeight, width: this._componentWidth },this.props.blue?{ borderWidth:1, borderColor: this.props.ColUITheme.accent}:{ borderWidth:1, borderColor: this.props.ColUITheme.main}, this.props.contentContainerStyle]}
                     onPress={this.props.onPress}>
-                        <Text style={[styles.label, this.props.blue?{ color: this.state.theme.accent }:{ color: this.state.theme.main }]}>{this.props.label.toUpperCase()}</Text>
+                        <Text style={[styles.label, this.props.blue?{ color: this.props.ColUITheme.accent }:{ color: this.props.ColUITheme.main }]}>{this.props.label.toUpperCase()}</Text>
                     </TouchableOpacity>
                 );
             }
@@ -85,3 +73,15 @@ const styles = StyleSheet.create({
         letterSpacing: 2
     }
 });
+
+const mapStateToProps = (state)=>{
+    return {
+        ColUITheme: state.themesReducer.ColUITheme
+    };
+}
+
+const mapDispatchToProps = (dispatch)=>{
+    return {};
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(Button);

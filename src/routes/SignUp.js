@@ -49,6 +49,15 @@ const SignUp = createStackNavigator({
                 return <ColUI.Header noAuth navigation={navigation} title='Em Construção' />;
             }
         }
+    },
+    SU_Privacidade:{
+        screen: InConstructionScreen,
+        navigationOptions:{
+            title:'Em Construção',
+            header: ({navigation})=>{
+                return <ColUI.Header noAuth navigation={navigation} title='Em Construção' />;
+            }
+        }
     }
 },{
     initialRouteName: 'SU_BasicInfo'

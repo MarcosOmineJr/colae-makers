@@ -1,5 +1,7 @@
 import React from 'react';
 
+import { connect } from 'react-redux';
+
 import {
     StyleSheet,
     View,
@@ -17,14 +19,14 @@ const { ColUI } = ColaeAPI;
 
 const { height, width } = Dimensions.get('window');
 
-export default class Login extends React.Component {
+class SignUp3 extends React.Component {
     render(){
         return (
             <View style={styles.container}>
                 <ColaeAPI.ColUI.Background />
                 <View style={styles.cardContainer}>
                     <ColUI.Card contentContainerStyle={styles.card}>
-                        <Text style={{color: ColUI.styles.lightTheme.accent, fontSize: 30}}>Cadastro 3</Text>
+                        <Text style={{color: this.props.ColUITheme.accent, fontSize: 30}}>Cadastro 3</Text>
                     </ColUI.Card>
                 </View>
                 <View style={styles.btnContainer}>
@@ -62,3 +64,15 @@ const styles = StyleSheet.create({
         color: '#ffffff'
     }
 });
+
+const mapStateToProps = (state)=>{
+    return {
+        ColUITheme: state.themesReducer.ColUITheme
+    };
+}
+
+const mapDispatchToProps = (dispatch)=>{
+    return {};
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(SignUp3);

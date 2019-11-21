@@ -1,5 +1,7 @@
 import React from 'react';
 
+import { connect } from 'react-redux';
+
 import {
     StyleSheet,
     View,
@@ -19,7 +21,7 @@ const { ColUI } = ColaeAPI;
 
 const { height, width } = Dimensions.get('window');
 
-export default class Login extends React.Component {
+class SignUp4 extends React.Component {
 
     constructor(props){
         super(props);
@@ -37,15 +39,13 @@ export default class Login extends React.Component {
                 <ColaeAPI.ColUI.Background />
                 <View style={styles.cardContainer}>
                     <ColUI.Card contentContainerStyle={styles.card}>
-                        <Text style={{color: ColUI.styles.lightTheme.accent, fontSize: 30}}>Cadastro 4</Text>
+                        <Text style={{color: this.props.ColUITheme.accent, fontSize: 30}}>Cadastro 4</Text>
                     </ColUI.Card>
                 </View>
                 <View style={styles.btnContainer}>
                     <View style={styles.finishContainer}>
                         <ColUI.Button blue colSpan={4} label='finalizar cadastro' onPress={()=>this._signUp()} />
-                        <Button transparent onPress={()=>this.props.navigation.navigate('SU_Termos')}>
-                            <Text style={styles.warning}>Ao clicar em prosseguir você confirma que leu e concorda com o nosso Termo de Compromisso e Política de Privacidade (clique no aviso para ler)</Text>
-                        </Button>
+                        <Text style={styles.warning}>Ao clicar em prosseguir você confirma que leu e concorda com os nossos <Text style={styles.inlineButton} onPress={()=>this.props.navigation.navigate('SU_Termos')}>Termos e Condições de Uso</Text> e <Text style={styles.inlineButton} onPress={()=>this.props.navigation.navigate('SU_Privacidade')}>Política de Privacidade</Text></Text>
                     </View>
                     <View style={styles.loginContainer}>
                         <Button transparent onPress={()=>this.props.navigation.navigate('Login')}>
@@ -83,7 +83,7 @@ const styles = StyleSheet.create({
         width,
         justifyContent: 'space-between',
         alignItems: 'center',
-        paddingHorizontal: 20
+        paddingHorizontal: 50
     },
     warning:{
         color: '#ffffff',
@@ -97,5 +97,21 @@ const styles = StyleSheet.create({
     },
     btnLabel:{
         color: '#ffffff'
+    },
+    inlineButton:{
+        color: '#cccccc',
+        textDecorationLine: 'underline'
     }
 });
+
+const mapStateToProps = (state)=>{
+    return {
+        ColUITheme: state.themesReducer.ColUITheme
+    };
+}
+
+const mapDispatchToProps = (dispatch)=>{
+    return {};
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(SignUp4);

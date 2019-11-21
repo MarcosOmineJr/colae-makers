@@ -15,24 +15,6 @@ const { ColUI } = ColaeAPI;
 
 export default class InConstruction extends React.Component {
 
-    constructor(props){
-        super(props);
-        this.state = {
-            theme: ColUI.styles.lightTheme
-        }
-        this._getTheme = this._getTheme.bind(this);
-    }
-
-    componentDidMount(){
-        this._getTheme();
-    }
-
-    async _getTheme(){
-        let s = this.state;
-        s.theme = await ColUI.styles.getColorTheme();
-        this.setState(s);
-    }
-
     render(){
         return (
             <View style={styles.container}>

@@ -1,4 +1,7 @@
 import React from 'react';
+
+import { connect } from 'react-redux';
+
 import {
     StyleSheet,
     View,
@@ -6,43 +9,26 @@ import {
     Dimensions
 } from 'react-native';
 
-import Colae, { shadow } from './styles';
+import { shadow } from './styles';
 
-const { width, height } = Dimensions.get('window');
+const { width } = Dimensions.get('window');
 
-export default class Card extends React.Component {
-    constructor(props){
-        super(props);
-        this.state = {
-            theme: Colae.lightTheme
-        }
-        this._getTheme = this._getTheme.bind(this);
-    }
+class Card extends React.Component {
 
     _componentWidth = ((width*0.1027)*this.props.colSpan)+((width*0.055)*(this.props.colSpan-1));
-
-    componentDidMount(){
-        this._getTheme();
-    }
-
-    async _getTheme(){
-        let s = this.state;
-        s.theme = await Colae.getColorTheme();
-        this.setState(s);
-    }
 
     render(){
         if(!this.props.header){
             return (
-                <View style={[styles.container, !this.props.noShadow?{...shadow }:{}, { width: this._componentWidth, backgroundColor: this.state.theme.background }, styles.headerCard, this.props.contentContainerStyle]}>
+                <View style={[styles.container, !this.props.noShadow?{...shadow }:{}, { width: this._componentWidth, backgroundColor: this.props.ColUITheme.background }, styles.headerCard, this.props.contentContainerStyle]}>
                     {this.props.children}
                 </View>
             );
         } else {
             return (
-                <View style={[styles.container, !this.props.noShadow?{...shadow }:{}, { width: this._componentWidth, backgroundColor: this.state.theme.background }, styles.noHeaderCard, this.props.contentContainerStyle]}>
+                <View style={[styles.container, !this.props.noShadow?{...shadow }:{}, { width: this._componentWidth, backgroundColor: this.props.ColUITheme.background }, styles.noHeaderCard, this.props.contentContainerStyle]}>
                     <View style={styles.generalContainer}>
-                        <View style={[styles.headerStyle, { backgroundColor: this.state.theme.main }, this.props.headerContainerStyle]}>
+                        <View style={[styles.headerStyle, { backgroundColor: this.props.ColUITheme.main }, this.props.headerContainerStyle]}>
                             <Text style={[styles.headerTextStyle, this.props.headerTextStyle]}>
                                 {this.props.headerText}
                             </Text>
@@ -99,3 +85,15 @@ const styles = StyleSheet.create({
         padding: 0
     }
 });
+
+const mapStateToProps = (state)=>{
+    return {
+        ColUITheme: state.themesReducer.ColUITheme
+    };
+}
+
+const mapDispatchToProps = (dispatch)=>{
+    return {};
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(Card);

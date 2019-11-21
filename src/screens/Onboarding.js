@@ -1,4 +1,7 @@
 import React from 'react';
+
+import { connect } from 'react-redux';
+
 import {
     View,
     Text,
@@ -19,42 +22,30 @@ import ColaeAPI from '../api';
 const { ColUI } = ColaeAPI;
 const { width, height } = Dimensions.get('window');
 
-export default class AuthCheck extends React.Component {
+class Onboarding extends React.Component {
 
     constructor(props){
         super(props);
         this.state = {
-            onboardingData: ['Onboarding 1', 'Onboarding 2', 'Onboarding 3', 'Onboarding 4', 'Onboarding 5'],
-            theme: ColaeAPI.ColUI.styles.lightTheme
+            onboardingData: ['Onboarding 1', 'Onboarding 2', 'Onboarding 3', 'Onboarding 4', 'Onboarding 5']
         }
         this._renderItem = this._renderItem.bind(this);
-        this._getTheme = this._getTheme.bind(this);
     }
     
     _scrollX = new Animated.Value(0);
 
-    componentDidMount(){
-        this._getTheme;
-    }
-
     _renderItem(item, i){
         return (
             <View style={styles.itemContainerStyle} key={i}>
-                <Text style={{fontSize: 30, color: this.state.theme.accent}} onPress={()=>{Linking.openURL('https://google.com.br')}}>{item}</Text>
+                <Text style={{fontSize: 30, color: this.props.ColUITheme.accent}} onPress={()=>{Linking.openURL('https://google.com.br')}}>{item}</Text>
             </View>
         );
-    }
-
-    async _getTheme(){
-        let s = this.state;
-        s.theme = await ColaeAPI.ColUI.styles.getColorTheme();
-        this.setState(s);
     }
 
     render(){
         return (
             <View style={styles.container}>
-                <Header noShadow androidStatusBarColor={this.state.theme.background} style={{ backgroundColor:'transparent' }} />
+                <Header noShadow androidStatusBarColor={this.props.ColUITheme.background} style={{ backgroundColor:'transparent' }} />
                 <StatusBar barStyle='dark-content' />
                 <Animated.ScrollView
                 contentContainerStyle={styles.onboardingContainer}
@@ -124,3 +115,15 @@ const styles = StyleSheet.create({
         alignItems: 'center'
     }
 });
+
+const mapStateToProps = (state)=>{
+    return {
+        ColUITheme: state.themesReducer.ColUITheme
+    };
+}
+
+const mapDispatchToProps = (dispatch)=>{
+    return {};
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(Onboarding);

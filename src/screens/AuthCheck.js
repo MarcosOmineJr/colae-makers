@@ -1,4 +1,7 @@
 import React from 'react';
+
+import { connect } from 'react-redux';
+
 import {
     View,
     ActivityIndicator,
@@ -6,27 +9,15 @@ import {
 } from 'react-native';
 import AsyncStorage from '@react-native-community/async-storage';
 
-import ColaeAPI from '../api';
-
-export default class AuthCheck extends React.Component {
+class AuthCheck extends React.Component {
     
     constructor(props){
         super(props);
-        this.state = {
-            theme: ColaeAPI.ColUI.styles.lightTheme
-        }
-        this._getTheme = this._getTheme.bind(this);
+        this._checkAuthentication = this._checkAuthentication.bind(this);
     }
 
     componentDidMount(){
-        this._getTheme();
         this._checkAuthentication();
-    }
-
-    async _getTheme(){
-        let s = this.state;
-        s.theme = await ColaeAPI.ColUI.styles.getColorTheme();
-        this.setState(s);
     }
 
     async _checkAuthentication(){
@@ -40,8 +31,8 @@ export default class AuthCheck extends React.Component {
 
     render(){
         return (
-            <View style={[styles.container, {backgroundColor: this.state.theme.background}]}>
-                <ActivityIndicator size='large' color={this.state.theme.main} />
+            <View style={[styles.container, {backgroundColor: this.props.ColUITheme.background}]}>
+                <ActivityIndicator size='large' color={this.props.ColUITheme.main} />
             </View>
         );
     }
@@ -57,3 +48,16 @@ const styles = StyleSheet.create({
         fontSize: 30
     }
 });
+
+
+const mapStateToProps = (state)=>{
+    return {
+        ColUITheme: state.themesReducer.ColUITheme
+    };
+}
+
+const mapDispatchToProps = (dispatch)=>{
+    return {};
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(AuthCheck);

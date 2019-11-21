@@ -5,8 +5,6 @@ import {
     StyleSheet
 } from 'react-native';
 
-import ColaeAPI from '../api';
-
 export default class AuthCheck extends React.Component {
 
     render(){

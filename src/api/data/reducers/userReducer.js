@@ -1,6 +1,6 @@
 const initialState = {
-    name: 'José Santos',
-    username: '@josesantos',
+    name: 'Marcos Yoshinori Omine Junior',
+    username: '@marcosominejr',
     profile_image_url: 'https://icon-library.net/images/default-user-icon/default-user-icon-4.jpg',
     location: 'São Paulo - SP'
 };
