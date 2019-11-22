@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "442285448748",
+    "firebase_url": "https://colae-makers.firebaseio.com",
+    "project_id": "colae-makers",
+    "storage_bucket": "colae-makers.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:442285448748:android:a2fd62ae0dd2a49a17fb89",
+        "android_client_info": {
+          "package_name": "com.makers"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "442285448748-6qnk3jv4cd5fgrh32aj5vubdf1d6ihcr.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAiLWEkYTpMjyKvpVhyLdgdnVVp4K6H__M"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "442285448748-6qnk3jv4cd5fgrh32aj5vubdf1d6ihcr.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
