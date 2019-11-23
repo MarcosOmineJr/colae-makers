@@ -47,6 +47,7 @@ class MyProfileScreen extends React.Component {
                 </ColUI.Card>
                 <ColUI.TextInput label='Nome' onChangeText={t=>this.props.setName(t)} />
                 <ColUI.Button colSpan={4} label='sair' onPress={()=>this._logOut()} />
+                <Text>{this.props.events[0].description}</Text>
             </ScrollView>
         );
     }
@@ -86,7 +87,8 @@ const mapStateToProps = (state)=>{
         username: state.userReducer.username,
         profile_image_url: state.userReducer.profile_image_url,
         location: state.userReducer.location,
-        ColUITheme: state.themesReducer.ColUITheme
+        ColUITheme: state.themesReducer.ColUITheme,
+        events: state.managedEventsReducer
     };
 }
 

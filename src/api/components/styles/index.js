@@ -1,5 +1,5 @@
 import shadow from './Shadow';
 
-export default {
+export {
     shadow
 };

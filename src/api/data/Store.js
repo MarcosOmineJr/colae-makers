@@ -6,7 +6,7 @@ import Reducers from './reducers';
 const persistedReducer = persistReducer({
     key:'root',
     storage: AsyncStorage,
-    whitelist: ['userReducer', 'themesReducer'],
+    whitelist: ['userReducer', 'themesReducer', 'managedReducer'],
     //blacklist: []
 }, Reducers);
 
