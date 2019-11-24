@@ -1,32 +1,28 @@
 import React from 'react';
-import {
-    View,
-    Text,
-    ScrollView,
-    FlatList,
-    Image,
-    StyleSheet,
-    ActivityIndicator,
-    Dimensions,
-    TouchableOpacity
-} from 'react-native';
-import { Icon } from 'native-base';
 import { connect } from 'react-redux';
 import firestore from '@react-native-firebase/firestore';
+import {
+    Dimensions,
+    StyleSheet,
+    View,
+    FlatList,
+    Text,
+    Image
+} from 'react-native';
 import ColaeAPI from '../api';
 
-const { height, width } = Dimensions.get('window');
+const { height } = Dimensions.get('window');
 
 const { ColUI } = ColaeAPI;
 
-class Home extends React.Component {
+class Drafts extends React.Component {
 
     constructor(props){
         super(props);
 
         this._renderEvents = this._renderEvents.bind(this);
 
-        const unsubscribe = firestore().collection('events').where('published','==',true).onSnapshot({
+        const unsubscribe = firestore().collection('events').where('published', '==', false).onSnapshot({
             error: (e)=>console.log('Erro:', e),
             next: (QuerySnapshot)=>{
                 let data = [];
@@ -35,7 +31,7 @@ class Home extends React.Component {
                 })
                 props.refreshSnapshot(data);
             }
-        })
+        });
     }
 
     _renderEvents(event){
@@ -52,19 +48,13 @@ class Home extends React.Component {
 
     render(){
         return (
-            <View style={styles.container}>
-                <View style={styles.topButtonsContainer} >
-                    <ColUI.Button secondary label='criar evento' onPress={()=>this.props.navigation.navigate('CreateEventName')} />
-                    <TouchableOpacity onPress={()=>this.props.navigation.navigate('Filter')} >
-                        <Icon name='tune' type='MaterialIcons' style={[styles.iconButton, { color: this.props.ColUITheme.main }]} />
-                    </TouchableOpacity>
-                </View>
+            <View style={styles.container} >
                 <FlatList
                 contentContainerStyle={styles.eventCardsContainer}
                 data={this.props.events}
                 renderItem={({item})=>this._renderEvents(item)}
-                ListHeaderComponent={()=>(<Text style={[styles.headerComponentText, { color: this.props.ColUITheme.main }]}>Esses são os eventos que você gerencia:</Text>)}
-                ListEmptyComponent={()=>(<View style={styles.emptyListContainer}><Text>Você não gerencia nenhum evento por enquanto</Text></View>)}
+                ListHeaderComponent={()=>(<Text style={[styles.headerComponentText, { color: this.props.ColUITheme.main }]}>Esses são os seus rascunhos de evento:</Text>)}
+                ListEmptyComponent={()=>(<View style={styles.emptyListContainer}><Text>Você não tem nenhum rascunho por enquanto</Text></View>)}
                 />
             </View>
         );
@@ -72,20 +62,15 @@ class Home extends React.Component {
 }
 
 const styles = StyleSheet.create({
-    container:{
+    container: {
         flex: 1,
-        alignItems: 'center'
-    },
-    topButtonsContainer:{
-        height: '10%',
-        width,
-        flexDirection: 'row',
-        justifyContent: 'space-between',
         alignItems: 'center',
-        paddingHorizontal: 20
+        justifyContent: 'center'
     },
-    iconButton:{
-        fontSize:30
+    eventCardsContainer:{
+        flex: 1,
+        alignItems: 'center',
+        paddingTop: 10
     },
     headerComponentText:{
         fontSize: 18,
@@ -127,19 +112,19 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center'
     }
-});
+})
 
 const mapStateToProps = (state)=>{
     return {
         ColUITheme: state.themesReducer.ColUITheme,
-        events: state.publishedEventsReducer
+        events: state.draftsReducer
     };
 }
 
 const mapDispatchToProps = (dispatch)=>{
     return {
-        refreshSnapshot: (snapshot)=>{dispatch({ type: 'UPDATE_PUBLISHED_SNAPSHOT', payload:snapshot })}
+        refreshSnapshot: (snapshot)=>{dispatch({ type: 'UPDATE_DRAFTS_SNAPSHOT', payload:snapshot })}
     };
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(Home);
+export default connect(mapStateToProps,mapDispatchToProps)(Drafts);

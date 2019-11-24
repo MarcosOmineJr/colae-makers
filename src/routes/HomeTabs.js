@@ -1,10 +1,10 @@
 import React from 'react';
-import { createMaterialTopTabNavigator, MaterialTopTabBar } from 'react-navigation-tabs';
+import { createMaterialTopTabNavigator } from 'react-navigation-tabs';
 import { createStackNavigator } from 'react-navigation-stack';
 import { connect } from 'react-redux';
 import CreateEventStack from './CreateEventStack';
 import FilterStack from './FilterStack';
-import { InConstructionScreen, ActiveScreen } from '../screens';
+import { InConstructionScreen, ActiveScreen, DraftsScreen } from '../screens';
 import ColaeAPI from '../api';
 
 const { ColUI } = ColaeAPI;
@@ -17,7 +17,7 @@ const HomeTabs = createMaterialTopTabNavigator({
         }
     },
     Drafts:{
-        screen:InConstructionScreen,
+        screen:DraftsScreen,
         navigationOptions:{
             tabBarLabel: 'Rascunhos'
         }

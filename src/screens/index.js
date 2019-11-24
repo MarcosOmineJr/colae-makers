@@ -11,6 +11,7 @@ import SignUpScreens from './SignUp';
 
 //Authenticated:
 import ActiveScreen from './Active';
+import DraftsScreen from './Drafts';
 import MyProfileScreen from './MyProfileScreen';
 
 export {
@@ -22,5 +23,6 @@ export {
     LoginScreen,
     SignUpScreens,
     MyProfileScreen,
-    CreateEventScreens
+    CreateEventScreens,
+    DraftsScreen
 };
