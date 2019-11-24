@@ -22,7 +22,7 @@ const Unauthenticated = createStackNavigator({
         navigationOptions: {
             title: 'login',
             header: ({navigation})=>{
-                return <ColUI.Header noAuth navigation={navigation} title='login' />;
+                return <ColUI.Header noAuth navigation={navigation} title='Login' />;
             }
         }
     },

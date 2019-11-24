@@ -14,7 +14,7 @@ const ChatsStack = createStackNavigator({
         navigationOptions:{
             title: 'Conversas',
             header: ({navigation})=>{
-                return <ColUI.Header navigation={navigation} title='conversas' />;
+                return <ColUI.Header navigation={navigation} title='Conversas' />;
             }
         }
     }

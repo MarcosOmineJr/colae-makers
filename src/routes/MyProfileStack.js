@@ -14,7 +14,7 @@ const MyProfileStack = createStackNavigator({
         navigationOptions:{
             title: 'Meu Perfil',
             header: ({navigation})=>{
-                return <ColUI.Header navigation={navigation} title='meu perfil' />;
+                return <ColUI.Header navigation={navigation} title='Meu Perfil' />;
             }
         }
     }

@@ -27,17 +27,17 @@ class Button extends React.Component {
             if(!this.props.secondary){
                 return (
                     <TouchableOpacity
-                    style={[styles.container, { height: this._componentHeight, width: this._componentWidth },this.props.blue?{ backgroundColor: this.props.ColUITheme.accent}:{ backgroundColor: this.props.ColUITheme.main}, shadow, this.props.contentContainerStyle]}
-                    onPress={this.props.onPress}>
+                    style={[styles.container, { height: this._componentHeight, width: this._componentWidth },this.props.disabled?{backgroundColor: '#ccc'}:this.props.blue?{ backgroundColor: this.props.ColUITheme.accent}:{ backgroundColor: this.props.ColUITheme.main}, shadow, this.props.contentContainerStyle]}
+                    onPress={this.props.disabled?()=>{}:this.props.onPress}>
                         <Text style={styles.label}>{this.props.label.toUpperCase()}</Text>
                     </TouchableOpacity>
                 );
             } else {
                 return (
                     <TouchableOpacity
-                    style={[styles.container, { height: this._componentHeight, width: this._componentWidth },this.props.blue?{ borderWidth:1, borderColor: this.props.ColUITheme.accent}:{ borderWidth:1, borderColor: this.props.ColUITheme.main}, this.props.contentContainerStyle]}
-                    onPress={this.props.onPress}>
-                        <Text style={[styles.label, this.props.blue?{ color: this.props.ColUITheme.accent }:{ color: this.props.ColUITheme.main }]}>{this.props.label.toUpperCase()}</Text>
+                    style={[styles.container, { height: this._componentHeight, width: this._componentWidth },this.props.disabled?{borderWidth:1, borderColor: '#ccc'}:this.props.blue?{ borderWidth:1, borderColor: this.props.ColUITheme.accent}:{ borderWidth:1, borderColor: this.props.ColUITheme.main}, this.props.contentContainerStyle]}
+                    onPress={this.props.disabled?()=>{}:this.props.onPress}>
+                        <Text style={[styles.label, this.props.disabled?{color: '#ccc'}:this.props.blue?{ color: this.props.ColUITheme.accent }:{ color: this.props.ColUITheme.main }]}>{this.props.label.toUpperCase()}</Text>
                     </TouchableOpacity>
                 );
             }

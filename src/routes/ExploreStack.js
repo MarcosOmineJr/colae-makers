@@ -14,7 +14,7 @@ const ExploreStack = createStackNavigator({
         navigationOptions:{
             title: 'Meus Eventos',
             header: ({navigation})=>{
-                return <ColUI.Header navigation={navigation} title='explorar' />;
+                return <ColUI.Header navigation={navigation} title='Explorar' />;
             }
         }
     }

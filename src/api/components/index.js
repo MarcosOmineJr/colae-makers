@@ -7,6 +7,7 @@ import Button from './Button';
 import Card from './Card';
 import TextInput from './TextInput';
 import Steps from './Steps';
+import TopTabNavigator from './TopTabNavigator';
 
 export default {
     styles,
@@ -16,5 +17,6 @@ export default {
     Button,
     Card,
     TextInput,
-    Steps
+    Steps,
+    TopTabNavigator
 };

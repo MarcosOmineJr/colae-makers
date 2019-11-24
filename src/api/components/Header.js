@@ -33,7 +33,7 @@ class CustomHeader extends React.Component {
                             <Icon type='MaterialIcons' name='chevron-left' style={{color: this.props.ColUITheme.background}} />
                         </Button>
                     </Left>
-                    <Body style={[styles.flex, styles.body]}>
+                    <Body style={[{ flex: 2 }, styles.body]}>
                         <Text style={[styles.title, { color: this.props.ColUITheme.background }]}>{this.props.title}</Text>
                     </Body>
                     <Right style={styles.flex}>
@@ -51,7 +51,7 @@ class CustomHeader extends React.Component {
                     <Left style={styles.flex}>
                         {this.props.renderLeft}
                     </Left>
-                    <Body style={[styles.flex, styles.body]}>
+                    <Body style={[{ flex: 2 }, styles.body]}>
                         <Text style={[styles.title, { color: this.props.ColUITheme.background }]}>{this.props.title}</Text>
                     </Body>
                     <Right style={styles.flex}>
@@ -77,7 +77,6 @@ const styles = StyleSheet.create({
     },
     title:{
         fontSize: 16,
-        textTransform: 'capitalize',
         letterSpacing: 1
     }
 });
@@ -88,8 +87,4 @@ const mapStateToProps = (state)=>{
     };
 }
 
-const mapDispatchToProps = (dispatch)=>{
-    return {};
-}
-
-export default connect(mapStateToProps, mapDispatchToProps)(CustomHeader);
+export default connect(mapStateToProps)(CustomHeader);

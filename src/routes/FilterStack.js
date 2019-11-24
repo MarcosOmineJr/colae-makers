@@ -11,7 +11,7 @@ const FilterStack = createStackNavigator({
         navigationOptions:{
             title: 'Filtrar',
             header: ({navigation})=>{
-                return <ColUI.Header noAuth navigation={navigation} title='filtrar' />;
+                return <ColUI.Header noAuth navigation={navigation} title='Filtrar' />;
             }
         }
     }

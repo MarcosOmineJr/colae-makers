@@ -4,7 +4,7 @@ import { Icon } from 'native-base';
 
 import { createBottomTabNavigator } from 'react-navigation-tabs';
 
-import HomeStack from './HomeStack';
+import HomeTabs from './HomeTabs';
 import ExploreStack from './ExploreStack';
 import ChatsStack from './ChatsStack';
 import MyProfileStack from './MyProfileStack';
@@ -15,7 +15,7 @@ const { ColUI } = ColaeAPI;
 
 const Authenticated = createBottomTabNavigator({
     Home:{
-        screen: HomeStack,
+        screen: HomeTabs,
         navigationOptions:{
             tabBarLabel: 'Meus Eventos',
             tabBarIcon: ({focused})=>{return <Icon type="MaterialIcons" name="assignment" style={focused?{color: '#ffffff'}:{color:'rgba(255,255,255,0.7)'}} />}

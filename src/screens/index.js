@@ -10,7 +10,7 @@ import CreateEventScreens from './CreateEvent';
 import SignUpScreens from './SignUp';
 
 //Authenticated:
-import HomeScreen from './Home';
+import ActiveScreen from './Active';
 import MyProfileScreen from './MyProfileScreen';
 
 export {
@@ -18,7 +18,7 @@ export {
     HeadphonesScreen,
     AuthCheckScreen,
     OnboardingScreen,
-    HomeScreen,
+    ActiveScreen,
     LoginScreen,
     SignUpScreens,
     MyProfileScreen,

@@ -76,7 +76,7 @@ class Home extends React.Component {
             return (
                 <View style={styles.container}>
                     <View style={styles.topButtonsContainer} >
-                        <ColUI.Button label='criar evento' onPress={()=>this.props.navigation.navigate('CreateEvent')} />
+                        <ColUI.Button secondary label='criar evento' onPress={()=>this.props.navigation.navigate('CreateEventName')} />
                         <TouchableOpacity onPress={()=>this.props.navigation.navigate('Filter')} >
                             <Icon name='tune' type='MaterialIcons' style={[styles.iconButton, { color: this.props.ColUITheme.main }]} />
                         </TouchableOpacity>
@@ -109,13 +109,12 @@ const styles = StyleSheet.create({
     },
     headerComponentText:{
         fontSize: 18,
-        marginBottom: 20,
-        fontWeight: 'bold'
+        marginBottom: 20
     },
     eventCardsContainer:{
         flex: 1,
         alignItems: 'center',
-        paddingTop: 20
+        paddingTop: 10
     },
     eventCard:{
         padding: 0,
