@@ -84,7 +84,9 @@ class Home extends React.Component {
                     <FlatList contentContainerStyle={styles.eventCardsContainer}
                     data={this.props.events}
                     renderItem={({item})=>this._renderEvents(item)}
-                    ListHeaderComponent={()=>(<Text style={[styles.headerComponentText, { color: this.props.ColUITheme.main }]}>Esses são os eventos que você gerencia:</Text>)} />
+                    ListHeaderComponent={()=>(<Text style={[styles.headerComponentText, { color: this.props.ColUITheme.main }]}>Esses são os eventos que você gerencia:</Text>)}
+                    ListEmptyComponent={()=>(<Text>Você não gerencia nenhum evento por enquanto</Text>)}
+                    />
                 </View>
             );
         }

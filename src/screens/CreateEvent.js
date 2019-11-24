@@ -5,6 +5,9 @@ import {
     Text,
     Dimensions
 } from 'react-native';
+import {
+    Textarea
+} from 'native-base';
 import { connect } from 'react-redux';
 import ColaeAPI from '../api';
 
@@ -12,7 +15,7 @@ const { ColUI } = ColaeAPI;
 
 const { width, height } = Dimensions.get('screen');
 
-let stepData = [
+const stepData = [
     {routename: 'EventType', description: 'Tipo de Evento'},
     {routename: 'EventDescription', description: 'Descrição do Evento'},
     {routename: 'EventDate', description: 'Data, local e horário'},
@@ -21,6 +24,7 @@ let stepData = [
     {routename: 'EventProducts', description: 'Produtos'},
     {routename: 'EventServices', description: 'Serviços'}
 ];
+const GridWidth = (colSpan)=>((width*0.1027)*colSpan)+((width*0.055)*(colSpan-1));
 
 class Progress extends React.Component {
     render(){
@@ -156,10 +160,44 @@ const EventTypeStyles = StyleSheet.create({
 //==========================================================================================
 
 class EventDescription extends React.Component {
+    
+    constructor(props){
+        super(props);
+        this.state = {
+            disabled: true
+        }
+        this._handleInput = this._handleInput.bind(this);
+    }
+
+    _handleInput(d){
+        let s = this.state;
+        if(d != ''){
+            s.disabled = false;
+        } else {
+            s.disabled = true;
+        }
+        this.setState(s);
+    }
+
     render(){
         return (
             <View style={EventDescriptionStyles.container}>
-                <Text style={EventDescriptionStyles.test}>Descrição do Evento</Text>
+                <View style={EventDescriptionStyles.textContainer}>
+                    <Text style={[EventDescriptionStyles.text, { color: this.props.ColUITheme.main }]}>Adicione uma descrição para o seu evento</Text>
+                </View>
+                <View style={EventDescriptionStyles.textAreaContainer}>
+                    <Textarea
+                    rowSpan={10}
+                    bordered 
+                    placeholder='Descrição'
+                    style={[EventDescriptionStyles.textArea, { borderColor: this.props.ColUITheme.main }]}
+                    onChangeText={(d)=>this._handleInput(d)}
+                    />
+                </View>
+                <View style={EventDescriptionStyles.buttonsContainer}>
+                    <ColUI.Button secondary label='cancelar' onPress={()=>this.props.navigation.goBack(null)} />
+                    <ColUI.Button disabled={this.state.disabled} label='confirmar' onPress={()=>alert('confirmado!')} />
+                </View>
             </View>
         );
     }
@@ -171,8 +209,30 @@ const EventDescriptionStyles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center'
     },
-    test:{
-        fontSize: 20
+    textContainer:{
+        height: 50,
+        width,
+        alignItems: 'center',
+        justifyContent: 'flex-end'
+    },
+    text:{
+        fontSize: 18
+    },
+    textAreaContainer:{
+        flex: 4,
+        alignItems: 'center',
+        paddingTop: 30
+    },
+    textArea:{
+        width: GridWidth(6),
+        borderRadius: 5
+    },
+    buttonsContainer:{
+        flex: 1,
+        width,
+        flexDirection: 'row',
+        justifyContent: 'space-evenly',
+        alignItems: 'center'
     }
 });
 
