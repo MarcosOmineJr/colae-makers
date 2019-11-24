@@ -26,6 +26,9 @@ class Progress extends React.Component {
     render(){
         return (
             <View style={progressStyles.container}>
+                <View style={progressStyles.textContainer}>
+                    <Text style={[progressStyles.text, { color: this.props.ColUITheme.main }]}>Preencha os dados para criar o evento</Text>
+                </View>
                 <ColUI.Steps navigation={this.props.navigation} stepsData={stepData} />
                 <View style={progressStyles.buttonsContainer}>
                     <ColUI.Button secondary label='rascunho' />
@@ -40,6 +43,15 @@ const progressStyles = StyleSheet.create({
     container:{
         flex: 1,
         alignItems: 'center'
+    },
+    textContainer:{
+        height: 50,
+        width,
+        alignItems: 'center',
+        justifyContent: 'flex-end'
+    },
+    text:{
+        fontSize: 18
     },
     buttonsContainer:{
         height: height*0.1,
