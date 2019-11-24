@@ -4,12 +4,10 @@ import HeadphonesScreen from './Headphones';
 import AuthCheckScreen from './AuthCheck';
 import OnboardingScreen from './Onboarding';
 import LoginScreen from './Login';
+import CreateEventScreens from './CreateEvent';
 
 //SignUp:
-import SignUp1Screen from './SignUp1';
-import SignUp2Screen from './SignUp2';
-import SignUp3Screen from './SignUp3';
-import SignUp4Screen from './SignUp4';
+import SignUpScreens from './SignUp';
 
 //Authenticated:
 import HomeScreen from './Home';
@@ -22,9 +20,7 @@ export {
     OnboardingScreen,
     HomeScreen,
     LoginScreen,
-    SignUp1Screen,
-    SignUp2Screen,
-    SignUp3Screen,
-    SignUp4Screen,
-    MyProfileScreen
+    SignUpScreens,
+    MyProfileScreen,
+    CreateEventScreens
 };

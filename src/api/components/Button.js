@@ -74,14 +74,8 @@ const styles = StyleSheet.create({
     }
 });
 
-const mapStateToProps = (state)=>{
-    return {
-        ColUITheme: state.themesReducer.ColUITheme
-    };
-}
+const mapStateToProps = (state)=>({
+    ColUITheme: state.themesReducer.ColUITheme
+});
 
-const mapDispatchToProps = (dispatch)=>{
-    return {};
-}
-
-export default connect(mapStateToProps, mapDispatchToProps)(Button);
+export default connect(mapStateToProps)(Button);

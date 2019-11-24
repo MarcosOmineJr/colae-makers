@@ -1,25 +1,83 @@
 import React from 'react';
-
 import { connect } from 'react-redux';
-
 import {
     StyleSheet,
     View,
     Text,
     Dimensions
 } from 'react-native';
-
 import {
     Button
 } from 'native-base';
-
 import AsyncStorage from '@react-native-community/async-storage';
-
 import ColaeAPI from '../api';
 
 const { ColUI } = ColaeAPI;
 
 const { height, width } = Dimensions.get('window');
+
+class SignUp1 extends React.Component {
+    render(){
+        return (
+            <View style={styles.container}>
+                <ColaeAPI.ColUI.Background />
+                <View style={styles.cardContainer}>
+                    <ColUI.Card contentContainerStyle={styles.card}>
+                        <Text style={{color: this.props.ColUITheme.accent, fontSize: 30}}>Cadastro 1</Text>
+                    </ColUI.Card>
+                </View>
+                <View style={styles.btnContainer}>
+                    <ColUI.Button blue colSpan={4} label='Próximo' onPress={()=>this.props.navigation.navigate('SU_Interests')} />
+                    <Button transparent onPress={()=>this.props.navigation.navigate('Login')}>
+                        <Text style={styles.btnLabel}>Já tenho uma conta!</Text>
+                    </Button>
+                </View>
+            </View>
+        );
+    }
+}
+
+class SignUp2 extends React.Component {
+    render(){
+        return (
+            <View style={styles.container}>
+                <ColaeAPI.ColUI.Background />
+                <View style={styles.cardContainer}>
+                    <ColUI.Card contentContainerStyle={styles.card}>
+                        <Text style={{color: this.props.ColUITheme.accent, fontSize: 30}}>Cadastro 2</Text>
+                    </ColUI.Card>
+                </View>
+                <View style={styles.btnContainer}>
+                    <ColUI.Button blue colSpan={4} label='Próximo' onPress={()=>this.props.navigation.navigate('SU_Location')} />
+                    <Button transparent onPress={()=>this.props.navigation.navigate('Login')}>
+                        <Text style={styles.btnLabel}>Já tenho uma conta!</Text>
+                    </Button>
+                </View>
+            </View>
+        );
+    }
+}
+
+class SignUp3 extends React.Component {
+    render(){
+        return (
+            <View style={styles.container}>
+                <ColaeAPI.ColUI.Background />
+                <View style={styles.cardContainer}>
+                    <ColUI.Card contentContainerStyle={styles.card}>
+                        <Text style={{color: this.props.ColUITheme.accent, fontSize: 30}}>Cadastro 3</Text>
+                    </ColUI.Card>
+                </View>
+                <View style={styles.btnContainer}>
+                    <ColUI.Button blue colSpan={4} label='Próximo' onPress={()=>this.props.navigation.navigate('SU_LoginInfo')} />
+                    <Button transparent onPress={()=>this.props.navigation.navigate('Login')}>
+                        <Text style={styles.btnLabel}>Já tenho uma conta!</Text>
+                    </Button>
+                </View>
+            </View>
+        );
+    }
+}
 
 class SignUp4 extends React.Component {
 
@@ -57,6 +115,7 @@ class SignUp4 extends React.Component {
         );
     }
 }
+
 const styles = StyleSheet.create({
     container:{
         flex: 1,
@@ -77,6 +136,9 @@ const styles = StyleSheet.create({
         width,
         alignItems: 'center',
         justifyContent: 'space-evenly'
+    },
+    btnLabel:{
+        color: '#ffffff'
     },
     finishContainer:{
         flex: 1,
@@ -110,8 +172,9 @@ const mapStateToProps = (state)=>{
     };
 }
 
-const mapDispatchToProps = (dispatch)=>{
-    return {};
-}
+const SU1 = connect(mapStateToProps)(SignUp1);
+const SU2 = connect(mapStateToProps)(SignUp2);
+const SU3 = connect(mapStateToProps)(SignUp3);
+const SU4 = connect(mapStateToProps)(SignUp4);
 
-export default connect(mapStateToProps, mapDispatchToProps)(SignUp4);
+export default [ SU1, SU2, SU3, SU4 ];

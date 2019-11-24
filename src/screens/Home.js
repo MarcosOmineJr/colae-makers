@@ -7,8 +7,11 @@ import {
     Image,
     StyleSheet,
     ActivityIndicator,
-    Dimensions
+    Dimensions,
+    TouchableOpacity
 } from 'react-native';
+
+import { Icon } from 'native-base';
 
 import { connect } from 'react-redux';
 
@@ -16,7 +19,7 @@ import firestore from '@react-native-firebase/firestore';
 
 import ColaeAPI from '../api';
 
-const { height } = Dimensions.get('window');
+const { height, width } = Dimensions.get('window');
 
 const { ColUI } = ColaeAPI;
 
@@ -56,7 +59,7 @@ class Home extends React.Component {
                 <Image source={{uri: event.photos[0]}} style={styles.eventCoverImage} resizeMode='cover' />
                 <View style={styles.eventInfoContainer}>
                     <Text style={styles.eventName} numberOfLines={1}>{event.name}</Text>
-                    <Text style={styles.eventDescription} numberOfLines={6}>{event.description}</Text>
+                    <Text style={styles.eventDescription} numberOfLines={4}>{event.description}</Text>
                 </View>
             </ColUI.Card>
         );
@@ -71,9 +74,18 @@ class Home extends React.Component {
             )
         } else{
             return (
-                <FlatList contentContainerStyle={styles.container}
-                data={this.props.events}
-                renderItem={({item})=>this._renderEvents(item)} />
+                <View style={styles.container}>
+                    <View style={styles.topButtonsContainer} >
+                        <ColUI.Button label='criar evento' onPress={()=>this.props.navigation.navigate('CreateEvent')} />
+                        <TouchableOpacity onPress={()=>this.props.navigation.navigate('Filter')} >
+                            <Icon name='tune' type='MaterialIcons' style={[styles.iconButton, { color: this.props.ColUITheme.main }]} />
+                        </TouchableOpacity>
+                    </View>
+                    <FlatList contentContainerStyle={styles.eventCardsContainer}
+                    data={this.props.events}
+                    renderItem={({item})=>this._renderEvents(item)}
+                    ListHeaderComponent={()=>(<Text style={[styles.headerComponentText, { color: this.props.ColUITheme.main }]}>Esses são os eventos que você gerencia:</Text>)} />
+                </View>
             );
         }
     }
@@ -82,23 +94,40 @@ class Home extends React.Component {
 const styles = StyleSheet.create({
     container:{
         flex: 1,
+        alignItems: 'center'
+    },
+    topButtonsContainer:{
+        height: '10%',
+        width,
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        paddingHorizontal: 20
+    },
+    iconButton:{
+        fontSize:30
+    },
+    headerComponentText:{
+        fontSize: 18,
+        marginBottom: 20,
+        fontWeight: 'bold'
+    },
+    eventCardsContainer:{
+        flex: 1,
         alignItems: 'center',
         paddingTop: 20
-    },
-    text:{
-        fontSize: 30,
-        marginBottom: 20
-    },
-    eventCoverImage:{
-        height: height*0.2683,
-        width: '50%',
-        borderTopLeftRadius: 5,
-        borderBottomLeftRadius: 5
     },
     eventCard:{
         padding: 0,
         alignItems: 'flex-start',
-        flexDirection: 'row'
+        flexDirection: 'row',
+        height: height*0.24
+    },
+    eventCoverImage:{
+        height: '100%',
+        width: '50%',
+        borderTopLeftRadius: 5,
+        borderBottomLeftRadius: 5
     },
     eventInfoContainer:{
         height: '100%',

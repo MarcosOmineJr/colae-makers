@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { SignUp1Screen, SignUp2Screen, SignUp3Screen, SignUp4Screen, InConstructionScreen } from '../screens';
+import { InConstructionScreen, SignUpScreens } from '../screens';
 
 import { createStackNavigator } from 'react-navigation-stack';
 
@@ -10,7 +10,7 @@ const { ColUI } = ColaeAPI;
 
 const SignUp = createStackNavigator({
     SU_BasicInfo:{
-        screen:SignUp1Screen,
+        screen:SignUpScreens[0],
         navigationOptions:{
             header: ({navigation})=>{
                 return <ColUI.Header noAuth navigation={navigation} title='Cadastro' />;
@@ -18,7 +18,7 @@ const SignUp = createStackNavigator({
         }
     },
     SU_Interests:{
-        screen:SignUp2Screen,
+        screen:SignUpScreens[1],
         navigationOptions:{
             header: ({navigation})=>{
                 return <ColUI.Header noAuth navigation={navigation} title='Cadastro' />;
@@ -26,7 +26,7 @@ const SignUp = createStackNavigator({
         }
     },
     SU_Location:{
-        screen:SignUp3Screen,
+        screen:SignUpScreens[2],
         navigationOptions:{
             header: ({navigation})=>{
                 return <ColUI.Header noAuth navigation={navigation} title='Cadastro' />;
@@ -34,7 +34,7 @@ const SignUp = createStackNavigator({
         }
     },
     SU_LoginInfo:{
-        screen:SignUp4Screen,
+        screen:SignUpScreens[3],
         navigationOptions:{
             header: ({navigation})=>{
                 return <ColUI.Header noAuth navigation={navigation} title='Cadastro' />;
