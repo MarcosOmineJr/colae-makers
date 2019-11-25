@@ -83,7 +83,7 @@ const DraftStack = createStackNavigator({
     initialRouteName:'DraftProgress'
 });
 
-const CreateTempDraft = createStackNavigator({
+const DraftName = createStackNavigator({
     EventNameInputScreen:{
         screen: DraftManager.EventNameInputScreen,
         navigationOptions:{
@@ -98,21 +98,14 @@ const CreateTempDraft = createStackNavigator({
 });
 
 const DraftSwitch = createSwitchNavigator({
-    ProcessDraft:{
-        screen:DraftManager.ProcessDraftScreen,
-        navigationOptions:{
-            title: 'Definir Nome',
-            header: null
-        }
-    },
-    CreateTempDraft:{
-        screen: CreateTempDraft
+    DraftName:{
+        screen: DraftName //Fluxo para caso seja um rascunho novo
     },
     OpenDraft:{
-        screen: DraftStack
+        screen: DraftStack //Fluxo de todo rascunho no Firebase
     }
 },{
-    initialRouteName: 'ProcessDraft'
+    initialRouteName: 'DraftName'
 });
 
 export default DraftSwitch;

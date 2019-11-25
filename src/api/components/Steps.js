@@ -18,7 +18,6 @@ class Steps extends React.Component {
     }
 
     _renderSteps(step, index, length){
-        console.log('_renderSteps de Steps foi chamado', step);
         if(index == 0){
             return (
                 <TouchableOpacity key={index} style={styles.stepContainer} onPress={()=>this.props.navigation.navigate(step.routename)}>
@@ -79,17 +78,12 @@ class Steps extends React.Component {
     }
 
     render(){
-        console.log('render de steps foi chamado');
         return (
             <View style={styles.container}>
                 {this.props.stepsData.map((step, index)=>this._renderSteps(step, index,this.props.stepsData.length))}
             </View>
         );
     }
-}
-
-Steps.defaultProps = {
-    stepsData: null
 }
 
 const styles = StyleSheet.create({

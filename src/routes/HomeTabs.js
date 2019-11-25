@@ -46,7 +46,7 @@ const ForHeader = createStackNavigator({
         }
     },
     CreateDraft:{
-        screen:DraftSwitch,
+        screen:DraftSwitch, //Leva para o Switch de DraftStack.js, que vai levar para o input do nome do evento
         navigationOptions:{
             header: null
         }

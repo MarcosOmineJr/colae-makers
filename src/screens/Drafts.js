@@ -22,7 +22,7 @@ class Drafts extends React.Component {
 
         this._renderEvents = this._renderEvents.bind(this);
 
-        const unsubscribe = firestore().collection('events').where('published', '==', false).onSnapshot({
+        const unsubscribe = firestore().collection('events').where('published', '==', false).orderBy('createdAt', 'desc').onSnapshot({
             error: (e)=>console.log('Erro:', e),
             next: (QuerySnapshot)=>{
                 let data = [];
@@ -34,13 +34,39 @@ class Drafts extends React.Component {
         });
     }
 
+    _imageRenderIf(event, condition){
+        if(condition){
+            return (
+                <Image source={{uri: event.photos[0]}} style={styles.eventCoverImage} resizeMode='cover' />
+            );
+        } else {
+            return (
+                <View style={[styles.eventCoverImage, { justifyContent: 'center', alignItems: 'center' }]}>
+                    <Text style={styles.noInfo}>Sem Imagem</Text>
+                </View>
+            );
+        }
+    }
+
+    _descriptionRenderIf(event, condition){
+        if(condition){
+            return (
+                <Text style={styles.eventDescription} numberOfLines={4}>{event.description}</Text>
+            );
+        } else {
+            return (
+                <Text style={styles.noInfo}>Sem Descrição</Text>
+            );
+        }
+    }
+
     _renderEvents(event){
         return (
             <ColUI.Card colSpan={6} contentContainerStyle={[styles.eventCard, { backgroundColor: this.props.ColUITheme.main }]} >
-                <Image source={{uri: event.photos[0]}} style={styles.eventCoverImage} resizeMode='cover' />
+                {this._imageRenderIf(event, event.photos != undefined)}
                 <View style={styles.eventInfoContainer}>
                     <Text style={styles.eventName} numberOfLines={1}>{event.name}</Text>
-                    <Text style={styles.eventDescription} numberOfLines={4}>{event.description}</Text>
+                    {this._descriptionRenderIf(event, event.description != undefined)}
                 </View>
             </ColUI.Card>
         );
@@ -85,7 +111,8 @@ const styles = StyleSheet.create({
         padding: 0,
         alignItems: 'flex-start',
         flexDirection: 'row',
-        height: height*0.24
+        height: height*0.24,
+        marginBottom: 20
     },
     eventCoverImage:{
         height: '100%',
@@ -111,6 +138,11 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center'
+    },
+    noInfo:{
+        color: '#fff',
+        fontSize: 16,
+        fontStyle: 'italic'
     }
 })
 

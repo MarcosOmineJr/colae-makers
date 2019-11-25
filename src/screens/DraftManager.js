@@ -11,20 +11,13 @@ import {
 } from 'native-base';
 import { connect } from 'react-redux';
 import ColaeAPI from '../api';
+import firebase from '@react-native-firebase/app';
+import '@react-native-firebase/firestore';
 
 const { ColUI } = ColaeAPI;
 
 const { width, height } = Dimensions.get('screen');
 
-const stepData = [
-    {routename: 'EventType', fields: ['template'], description: 'Tipo de Evento', done: false},
-    {routename: 'EventDescription', fields: ['description'], description: 'Descrição do Evento', done: false},
-    {routename: 'EventDate', fields: ['dates', 'locale', 'duration'], description: 'Data, local e horário', done: false},
-    {routename: 'EventSchedule', fields:['schedule'], description: 'Programação (opcional)', done: false},
-    {routename: 'EventTickets', fields:['tickets'], description: 'Ingressos', done: false},
-    {routename: 'EventProducts', fields: ['products'], description: 'Produtos', done: false},
-    {routename: 'EventServices', fields:['services'], description: 'Serviços', done: false}
-];
 const GridWidth = (colSpan)=>((width*0.1027)*colSpan)+((width*0.055)*(colSpan-1));
 
 //================================================================================================
@@ -71,65 +64,87 @@ class DraftProgress extends React.Component {
     constructor(props){
         super(props);
         this.state = {
-            stepData,
-            test: 'la'
-        }
-        this._checkProgress = this._checkProgress.bind(this);
-        this._saveAsDraft = this._saveAsDraft.bind(this);
 
-        const subscribeToDidFocus = this.props.navigation.addListener('didFocus', ()=>{console.log('Rodou didFocus'); this._checkProgress();});
+            //Estado dos dados que serão carregados no step:
+            stepData: [
+                {routename: 'EventType', fields: ['template'], description: 'Tipo de Evento', done: false},
+                {routename: 'EventDescription', fields: ['description'], description: 'Descrição do Evento', done: false},
+                {routename: 'EventDate', fields: ['dates', 'locale', 'duration'], description: 'Data, local e horário', done: false},
+                {routename: 'EventSchedule', fields:['schedule'], description: 'Programação (opcional)', done: false},
+                {routename: 'EventTickets', fields:['tickets'], description: 'Ingressos', done: false},
+                {routename: 'EventProducts', fields: ['products'], description: 'Produtos', done: false},
+                {routename: 'EventServices', fields:['services'], description: 'Serviços', done: false}
+            ],
+            draft: {}
+        }
+        this._saveAsDraft = this._saveAsDraft.bind(this);
+        this._isMounted = false;
+        this._cleanTempDraft = this._cleanTempDraft.bind(this);
     }
+
+    //Propriedade inicialmente vazia:
+    _docRef = '';
+
     componentDidMount(){
-        console.log('rodou ComponentDidMount');
+        this._isMounted = true;
+        //Setando o this._draft usando o id do evento para pegar as informações do firestore:
+        if(this.props.tempDraft == null){
+            //Se tempDraft for null, ele pega o id do navigation.state.params e seta um tempDraft para unificar as informações do rascunho:
+
+            let unsubscribe = firebase.firestore().doc('events/'+this.props.navigation.getParams('draftId', 'NO-ID')).onSnapshot({
+                error: e=>console.error('erro ao pegar rascunho do firestore:', e),
+                next: QuerySnapshot=>{
+                    // Salva o rascunho no state e ref do documento em this.docRef e dá setState():
+
+                    let s = this.state;
+                    s.draft = QuerySnapshot.data();
+                    this._docRef = QuerySnapshot.ref.id;
+
+                    //Seta o tempDraft com seja lá o que tiver recebido do Firestore + um 'firestoreReferenceId' que é o id do evento:
+                    this.props.setTempDraft(QuerySnapshot.data());
+
+                    this.setState(s);
+                }
+            });
+        } else {
+            //Se já existir tempDraft (o que significa que o usuário está vindo do botão de 'Criar Evento', através do DraftSwitch) ele só conecta com o firestore
+            //e define this.draft já que não precisa setar o tempDraft:
+
+            let unsubscribe = firebase.firestore().doc('events/'+this.props.tempDraft.firestoreReferenceId).onSnapshot({
+                error: e=>console.error('erro ao pegar rascunho do firestore:', e),
+                next: QuerySnapshot=>{
+                    // Salva o rascunho no state e ref do documento em this.docRef e dá setState():
+
+                    let s = this.state;
+                    s.draft = QuerySnapshot.data();
+                    this._docRef = QuerySnapshot.ref.id;
+                    this.setState(s);
+                }
+            });
+        }
+    }
+    
+    componentWillUnmount(){
+        //Toda vez que a tela for desmontada, ele limpa o tempDraft:
+
+        !this._isMounted && this.props.setTempDraft(null);
+    }
+
+    async _cleanTempDraft(){
+        !this._isMounted && this.props.setTempDraft(null);
     }
 
     _saveAsDraft(){
-        this.props.setTempAsDraft(null);
-        this.props.navigation.goBack(null);
-    }
+        //Verifica se firestorereferenceId está definido e se estiver tira ele, depois, invariavelmente do if guarda tempDraft no banco;
 
-    _checkProgress(){
-        let s = this.state;
-        console.log('checkProgress foi chamado');
-        switch(this.props.navigation.getParam('mode', 'remote')){
-            case 'temp':
-                s.stepData.forEach((step)=>{
-                    let allFieldsAreCompleted = true;
-                    let i = 0;
-                    while(allFieldsAreCompleted && i < step.fields.length){
-                        if(this.props.tempDraft[step.fields[i]] == undefined){
-                            allFieldsAreCompleted = false;
-                        }
-                        i++;
-                    }
-                    if(allFieldsAreCompleted){
-                        step.done = true;
-                    }
-                });
-                break;
-            default:
-                s.stepData.forEach((step)=>{
-                    let allFieldsAreCompleted = true;
-                    let i = 0;
-                    while(allFieldsAreCompleted){
-                        if(this.props.event[step.fields[i]] == undefined && i < step.fields.length){
-                            allFieldsAreCompleted = false;
-                        }
-                        i++;
-                    }
-                    if(allFieldsAreCompleted){
-                        step.done = true;
-                    }
-                });
+        if(this.props.tempDraft != undefined){
+            delete this.props.tempDraft.firestoreReferenceId;
         }
-        console.log('chamando setState em checkProgress');
-        this.setState(s);
+        firebase.firestore().doc('events/'+this._docRef).set({...this.props.tempDraft, published: false}, { merge: true });
+        this.props.navigation.navigate('Drafts');
     }
 
     render(){
-        console.log('render de DraftProgress foi chamado');
-        console.log('com o state:', this.state);
-        
         return (
             <View style={draftProgressStyles.container}>
                 <View style={draftProgressStyles.textContainer}>
@@ -137,7 +152,7 @@ class DraftProgress extends React.Component {
                 </View>
                 <ColUI.Steps navigation={this.props.navigation} stepsData={this.state.stepData} />
                 <View style={draftProgressStyles.buttonsContainer}>
-                    <ColUI.Button secondary label='rascunho' onPres={()=>this._saveAsDraft()} />
+                    <ColUI.Button secondary label='rascunho' onPress={()=>this._saveAsDraft()} />
                     <ColUI.Button label='publicar' />
                 </View>
             </View>
@@ -194,9 +209,14 @@ class EventNameInput extends React.Component {
         this.setState(s);
     }
 
-    _confirm(){
-        this.props.setTempDraft({name: this.state.name});
-        this.props.navigation.navigate('DraftProgress', { mode: 'temp' });
+    async _confirm(){
+        //Cria um draft no Firestore, pega o id gerado dele e o nome e coloca em tempDraft, depois redireciona para 'OpenDraft', que é o fluxo normal de rascunhos:
+        let eventRef = firebase.firestore().collection('events').doc(); //Cria novo documento no firestore
+        eventRef.set({name: this.state.name, published: false}); //seta o nome dentro do documento
+
+        //Seta o tempDraft == AVISO == setTempDraft() aparentemente é assíncrono
+        await this.props.setTempDraft({name: this.state.name, firestoreReferenceId: eventRef.id, createdAt: firebase.firestore.FieldValue.serverTimestamp()});
+        this.props.navigation.navigate('OpenDraft'); // == AVISO == retirar toda a lógica de {mode}
     }
 
     render(){
