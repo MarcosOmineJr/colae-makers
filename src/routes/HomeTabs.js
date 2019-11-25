@@ -2,7 +2,7 @@ import React from 'react';
 import { createMaterialTopTabNavigator } from 'react-navigation-tabs';
 import { createStackNavigator } from 'react-navigation-stack';
 import { connect } from 'react-redux';
-import CreateEventStack from './CreateEventStack';
+import DraftSwitch from './DraftStack';
 import FilterStack from './FilterStack';
 import { InConstructionScreen, ActiveScreen, DraftsScreen } from '../screens';
 import ColaeAPI from '../api';
@@ -45,8 +45,8 @@ const ForHeader = createStackNavigator({
             }
         }
     },
-    CreateEvent:{
-        screen:CreateEventStack,
+    CreateDraft:{
+        screen:DraftSwitch,
         navigationOptions:{
             header: null
         }

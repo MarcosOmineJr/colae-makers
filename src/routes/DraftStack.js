@@ -1,22 +1,14 @@
 import React from 'react';
+import { createSwitchNavigator } from 'react-navigation';
 import { createStackNavigator } from 'react-navigation-stack';
-import { CreateEventScreens, InConstructionScreen } from '../screens';
+import { DraftManager } from '../screens';
 import ColaeAPI from "../api";
 
 const { ColUI } = ColaeAPI;
 
-const CreateEventStack = createStackNavigator({
-    CreateEventName: {
-        screen: CreateEventScreens.EventNameInputScreen,
-        navigationOptions:{
-            title: 'Definir Nome',
-            header: ({navigation})=>{
-                return <ColUI.Header noAuth navigation={navigation} title='Definir Nome' />;
-            }
-        }
-    },
-    Progress:{
-        screen: CreateEventScreens.ProgressScreen,
+const DraftStack = createStackNavigator({
+    DraftProgress:{
+        screen: DraftManager.DraftProgressScreen,
         navigationOptions:{
             title: 'Criar Evento',
             header: ({navigation})=>{
@@ -25,7 +17,7 @@ const CreateEventStack = createStackNavigator({
         }
     },
     EventType:{
-        screen: CreateEventScreens.EventTypeScreen,
+        screen: DraftManager.EventTypeScreen,
         navigationOptions:{
             title: 'Tipo de Evento',
             header: ({navigation})=>{
@@ -34,7 +26,7 @@ const CreateEventStack = createStackNavigator({
         }
     },
     EventDescription:{
-        screen: CreateEventScreens.EventDescriptionScreen,
+        screen: DraftManager.EventDescriptionScreen,
         navigationOptions:{
             title: 'Descrição',
             header: ({navigation})=>{
@@ -43,7 +35,7 @@ const CreateEventStack = createStackNavigator({
         }
     },
     EventDate:{
-        screen: CreateEventScreens.EventDateScreen,
+        screen: DraftManager.EventDateScreen,
         navigationOptions:{
             title: 'Data, local e horário',
             header: ({navigation})=>{
@@ -52,7 +44,7 @@ const CreateEventStack = createStackNavigator({
         }
     },
     EventSchedule:{
-        screen: CreateEventScreens.EventScheduleScreen,
+        screen: DraftManager.EventScheduleScreen,
         navigationOptions:{
             title: 'Programação',
             header: ({navigation})=>{
@@ -61,7 +53,7 @@ const CreateEventStack = createStackNavigator({
         }
     },
     EventTickets:{
-        screen: CreateEventScreens.EventTicketsScreen,
+        screen: DraftManager.EventTicketsScreen,
         navigationOptions:{
             title: 'Ingressos',
             header: ({navigation})=>{
@@ -70,7 +62,7 @@ const CreateEventStack = createStackNavigator({
         }
     },
     EventProducts:{
-        screen: CreateEventScreens.EventProductsScreen,
+        screen: DraftManager.EventProductsScreen,
         navigationOptions:{
             title: 'Produtos',
             header: ({navigation})=>{
@@ -79,7 +71,7 @@ const CreateEventStack = createStackNavigator({
         }
     },
     EventServices:{
-        screen: CreateEventScreens.EventTypeScreen,
+        screen: DraftManager.EventServicesScreen,
         navigationOptions:{
             title: 'Serviços',
             header: ({navigation})=>{
@@ -88,7 +80,39 @@ const CreateEventStack = createStackNavigator({
         }
     }
 },{
-    initialRouteName:'CreateEventName'
+    initialRouteName:'DraftProgress'
 });
 
-export default CreateEventStack;
+const CreateTempDraft = createStackNavigator({
+    EventNameInputScreen:{
+        screen: DraftManager.EventNameInputScreen,
+        navigationOptions:{
+            title: 'Definir Nome',
+            header: ({navigation})=>{
+                return <ColUI.Header noAuth navigation={navigation} title='Definir Nome' />;
+            }
+        }
+    }
+},{
+    initialRouteName: 'EventNameInputScreen'
+});
+
+const DraftSwitch = createSwitchNavigator({
+    ProcessDraft:{
+        screen:DraftManager.ProcessDraftScreen,
+        navigationOptions:{
+            title: 'Definir Nome',
+            header: null
+        }
+    },
+    CreateTempDraft:{
+        screen: CreateTempDraft
+    },
+    OpenDraft:{
+        screen: DraftStack
+    }
+},{
+    initialRouteName: 'ProcessDraft'
+});
+
+export default DraftSwitch;

@@ -18,17 +18,18 @@ class Steps extends React.Component {
     }
 
     _renderSteps(step, index, length){
+        console.log('_renderSteps de Steps foi chamado', step);
         if(index == 0){
             return (
                 <TouchableOpacity key={index} style={styles.stepContainer} onPress={()=>this.props.navigation.navigate(step.routename)}>
                     <View style={styles.stepIndicatorContainer}>
                         <View style={styles.topConnectorContainer} />
                         <View style={[styles.circleContainer, {justifyContent: 'flex-end'}]}>
-                            <View style={[styles.bar, {height: '50%'}]} />
-                            <View style={styles.circle} />
+                            <View style={[styles.bar, {height: '50%'}, step.done?{ backgroundColor: this.props.ColUITheme.main } : { backgroundColor: '#ccc' }]} />
+                            <View style={[styles.circle, step.done?{ backgroundColor: this.props.ColUITheme.main } : { backgroundColor: '#ccc' }]} />
                         </View>
                         <View style={styles.bottomConnectorContainer}>
-                            <View style={styles.connector} />
+                            <View style={[styles.connector, step.done?{ backgroundColor: this.props.ColUITheme.main } : { backgroundColor: '#ccc' }]} />
                         </View>
                     </View>
                     <View style={styles.stepNameContainer}>
@@ -41,11 +42,11 @@ class Steps extends React.Component {
                 <TouchableOpacity key={index} style={styles.stepContainer} onPress={()=>this.props.navigation.navigate(step.routename)}>
                     <View style={styles.stepIndicatorContainer}>
                         <View style={styles.topConnectorContainer} >
-                            <View style={styles.connector} />
+                            <View style={[styles.connector, step.done?{ backgroundColor: this.props.ColUITheme.main } : { backgroundColor: '#ccc' }]} />
                         </View>
                         <View style={[styles.circleContainer, {justifyContent: 'flex-start'}]}>
-                            <View style={[styles.bar, {height: '50%'}]} />
-                            <View style={styles.circle} />
+                            <View style={[styles.bar, {height: '50%'}, step.done?{ backgroundColor: this.props.ColUITheme.main } : { backgroundColor: '#ccc' }]} />
+                            <View style={[styles.circle, step.done?{ backgroundColor: this.props.ColUITheme.main } : { backgroundColor: '#ccc' }]} />
                         </View>
                         <View style={styles.bottomConnectorContainer} />
                     </View>
@@ -59,14 +60,14 @@ class Steps extends React.Component {
                 <TouchableOpacity key={index} style={styles.stepContainer} onPress={()=>this.props.navigation.navigate(step.routename)}>
                     <View style={styles.stepIndicatorContainer}>
                         <View style={styles.topConnectorContainer} >
-                            <View style={styles.connector} />
+                            <View style={[styles.connector, step.done?{ backgroundColor: this.props.ColUITheme.main } : { backgroundColor: '#ccc' }]} />
                         </View>
                         <View style={styles.circleContainer}>
-                            <View style={styles.bar} />
-                            <View style={styles.circle} />
+                            <View style={[styles.bar, step.done?{ backgroundColor: this.props.ColUITheme.main } : { backgroundColor: '#ccc' }]} />
+                            <View style={[styles.circle, step.done?{ backgroundColor: this.props.ColUITheme.main } : { backgroundColor: '#ccc' }]} />
                         </View>
                         <View style={styles.bottomConnectorContainer} >
-                            <View style={styles.connector} />
+                            <View style={[styles.connector, step.done?{ backgroundColor: this.props.ColUITheme.main } : { backgroundColor: '#ccc' }]} />
                         </View>
                     </View>
                     <View style={styles.stepNameContainer}>
@@ -78,6 +79,7 @@ class Steps extends React.Component {
     }
 
     render(){
+        console.log('render de steps foi chamado');
         return (
             <View style={styles.container}>
                 {this.props.stepsData.map((step, index)=>this._renderSteps(step, index,this.props.stepsData.length))}

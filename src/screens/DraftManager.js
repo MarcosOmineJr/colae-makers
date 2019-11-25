@@ -3,7 +3,8 @@ import {
     StyleSheet,
     View,
     Text,
-    Dimensions
+    Dimensions,
+    ActivityIndicator
 } from 'react-native';
 import {
     Textarea
@@ -16,26 +17,127 @@ const { ColUI } = ColaeAPI;
 const { width, height } = Dimensions.get('screen');
 
 const stepData = [
-    {routename: 'EventType', description: 'Tipo de Evento'},
-    {routename: 'EventDescription', description: 'Descrição do Evento'},
-    {routename: 'EventDate', description: 'Data, local e horário'},
-    {routename: 'EventSchedule', description: 'Programação (opcional)'},
-    {routename: 'EventTickets', description: 'Ingressos'},
-    {routename: 'EventProducts', description: 'Produtos'},
-    {routename: 'EventServices', description: 'Serviços'}
+    {routename: 'EventType', fields: ['template'], description: 'Tipo de Evento', done: false},
+    {routename: 'EventDescription', fields: ['description'], description: 'Descrição do Evento', done: false},
+    {routename: 'EventDate', fields: ['dates', 'locale', 'duration'], description: 'Data, local e horário', done: false},
+    {routename: 'EventSchedule', fields:['schedule'], description: 'Programação (opcional)', done: false},
+    {routename: 'EventTickets', fields:['tickets'], description: 'Ingressos', done: false},
+    {routename: 'EventProducts', fields: ['products'], description: 'Produtos', done: false},
+    {routename: 'EventServices', fields:['services'], description: 'Serviços', done: false}
 ];
 const GridWidth = (colSpan)=>((width*0.1027)*colSpan)+((width*0.055)*(colSpan-1));
 
-class Progress extends React.Component {
+//================================================================================================
+
+class ProcessDraft extends React.Component {
+
+    constructor(props){
+        super(props);
+        this._isDraftCreated = this._isDraftCreated.bind(this);
+    }
+
+    componentDidMount(){
+        this._isDraftCreated();
+    }
+
+    _isDraftCreated(){
+        if(this.props.tempDraft == null){
+            this.props.navigation.navigate('CreateTempDraft');
+        } else {
+            this.props.navigation.navigate('DraftProgress', { mode: 'temp' });
+        }
+    }
+
     render(){
         return (
-            <View style={progressStyles.container}>
-                <View style={progressStyles.textContainer}>
-                    <Text style={[progressStyles.text, { color: this.props.ColUITheme.main }]}>Preencha os dados para criar o evento</Text>
+            <View style={ProcessDraftStyles.container}>
+                <ActivityIndicator size='large' color={this.props.ColUITheme.main} />
+            </View>
+        );
+    }
+}
+
+const ProcessDraftStyles = StyleSheet.create({
+    container: {
+        flex: 1,
+        alignItems: 'center',
+        justifyContent: 'center'
+    }
+});
+
+//================================================================================================
+
+class DraftProgress extends React.Component {
+    constructor(props){
+        super(props);
+        this.state = {
+            stepData,
+            test: 'la'
+        }
+        this._checkProgress = this._checkProgress.bind(this);
+        this._saveAsDraft = this._saveAsDraft.bind(this);
+
+        const subscribeToDidFocus = this.props.navigation.addListener('didFocus', ()=>{console.log('Rodou didFocus'); this._checkProgress();});
+    }
+    componentDidMount(){
+        console.log('rodou ComponentDidMount');
+    }
+
+    _saveAsDraft(){
+        this.props.setTempAsDraft(null);
+        this.props.navigation.goBack(null);
+    }
+
+    _checkProgress(){
+        let s = this.state;
+        console.log('checkProgress foi chamado');
+        switch(this.props.navigation.getParam('mode', 'remote')){
+            case 'temp':
+                s.stepData.forEach((step)=>{
+                    let allFieldsAreCompleted = true;
+                    let i = 0;
+                    while(allFieldsAreCompleted && i < step.fields.length){
+                        if(this.props.tempDraft[step.fields[i]] == undefined){
+                            allFieldsAreCompleted = false;
+                        }
+                        i++;
+                    }
+                    if(allFieldsAreCompleted){
+                        step.done = true;
+                    }
+                });
+                break;
+            default:
+                s.stepData.forEach((step)=>{
+                    let allFieldsAreCompleted = true;
+                    let i = 0;
+                    while(allFieldsAreCompleted){
+                        if(this.props.event[step.fields[i]] == undefined && i < step.fields.length){
+                            allFieldsAreCompleted = false;
+                        }
+                        i++;
+                    }
+                    if(allFieldsAreCompleted){
+                        step.done = true;
+                    }
+                });
+        }
+        console.log('chamando setState em checkProgress');
+        this.setState(s);
+    }
+
+    render(){
+        console.log('render de DraftProgress foi chamado');
+        console.log('com o state:', this.state);
+        
+        return (
+            <View style={draftProgressStyles.container}>
+                <View style={draftProgressStyles.textContainer}>
+                    <Text style={[draftProgressStyles.text, { color: this.props.ColUITheme.main }]}>Preencha os dados para criar o evento</Text>
                 </View>
-                <ColUI.Steps navigation={this.props.navigation} stepsData={stepData} />
-                <View style={progressStyles.buttonsContainer}>
-                    <ColUI.Button secondary label='rascunho' />
+                <ColUI.Steps navigation={this.props.navigation} stepsData={this.state.stepData} />
+                <View style={draftProgressStyles.buttonsContainer}>
+                    <ColUI.Button secondary label='rascunho' onPres={()=>this._saveAsDraft()} />
                     <ColUI.Button label='publicar' />
                 </View>
             </View>
@@ -43,7 +145,7 @@ class Progress extends React.Component {
     }
 }
 
-const progressStyles = StyleSheet.create({
+const draftProgressStyles = StyleSheet.create({
     container:{
         flex: 1,
         alignItems: 'center'
@@ -74,7 +176,8 @@ class EventNameInput extends React.Component {
     constructor(props){
         super(props);
         this.state = {
-            disabled: true
+            disabled: true,
+            name: ''
         }
         this._handleNameInput = this._handleNameInput.bind(this);
         this._confirm = this._confirm.bind(this);
@@ -87,11 +190,13 @@ class EventNameInput extends React.Component {
         } else {
             s.disabled = true;
         }
+        s.name = name;
         this.setState(s);
     }
 
     _confirm(){
-        this.props.navigation.navigate('Progress');
+        this.props.setTempDraft({name: this.state.name});
+        this.props.navigation.navigate('DraftProgress', { mode: 'temp' });
     }
 
     render(){
@@ -164,9 +269,11 @@ class EventDescription extends React.Component {
     constructor(props){
         super(props);
         this.state = {
-            disabled: true
+            disabled: true,
+            description: ''
         }
         this._handleInput = this._handleInput.bind(this);
+        this._confirm = this._confirm.bind(this);
     }
 
     _handleInput(d){
@@ -176,7 +283,13 @@ class EventDescription extends React.Component {
         } else {
             s.disabled = true;
         }
+        s.description = d;
         this.setState(s);
+    }
+
+    _confirm(){
+        this.props.setTempDraft({ ...this.props.tempDraft, description: this.state.description });
+        this.props.navigation.goBack(null);
     }
 
     render(){
@@ -196,7 +309,7 @@ class EventDescription extends React.Component {
                 </View>
                 <View style={EventDescriptionStyles.buttonsContainer}>
                     <ColUI.Button secondary label='cancelar' onPress={()=>this.props.navigation.goBack(null)} />
-                    <ColUI.Button disabled={this.state.disabled} label='confirmar' onPress={()=>alert('confirmado!')} />
+                    <ColUI.Button disabled={this.state.disabled} label='confirmar' onPress={()=>this._confirm()} />
                 </View>
             </View>
         );
@@ -354,14 +467,19 @@ const EventServicesStyles = StyleSheet.create({
 //==========================================================================================
 
 const mapStateToProps = (state)=>({
-    ColUITheme: state.themesReducer.ColUITheme
+    ColUITheme: state.themesReducer.ColUITheme,
+    tempDraft: state.draftsReducer.temp
 });
 
+const mapDispatchToProps = (dispatch)=>({
+    setTempDraft: (temp)=> dispatch({ type: 'UPDATE_TEMP_DRAFT', payload: temp })
+});
 
-const EventNameInputScreen = connect(mapStateToProps)(EventNameInput);
-const ProgressScreen = connect(mapStateToProps)(Progress);
+const ProcessDraftScreen = connect(mapStateToProps)(ProcessDraft);
+const EventNameInputScreen = connect(mapStateToProps, mapDispatchToProps)(EventNameInput);
+const DraftProgressScreen = connect(mapStateToProps, mapDispatchToProps)(DraftProgress);
 const EventTypeScreen = connect(mapStateToProps)(EventType);
-const EventDescriptionScreen = connect(mapStateToProps)(EventDescription);
+const EventDescriptionScreen = connect(mapStateToProps, mapDispatchToProps)(EventDescription);
 const EventDateScreen = connect(mapStateToProps)(EventDate);
 const EventScheduleScreen = connect(mapStateToProps)(EventSchedule);
 const EventTicketsScreen = connect(mapStateToProps)(EventTickets);
@@ -369,8 +487,9 @@ const EventProductsScreen = connect(mapStateToProps)(EventProducts);
 const EventServicesScreen = connect(mapStateToProps)(EventServices);
 
 export default {
+    ProcessDraftScreen,
     EventNameInputScreen,
-    ProgressScreen,
+    DraftProgressScreen,
     EventTypeScreen,
     EventDescriptionScreen,
     EventDateScreen,

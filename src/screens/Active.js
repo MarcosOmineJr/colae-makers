@@ -6,7 +6,6 @@ import {
     FlatList,
     Image,
     StyleSheet,
-    ActivityIndicator,
     Dimensions,
     TouchableOpacity
 } from 'react-native';
@@ -54,7 +53,7 @@ class Home extends React.Component {
         return (
             <View style={styles.container}>
                 <View style={styles.topButtonsContainer} >
-                    <ColUI.Button secondary label='criar evento' onPress={()=>this.props.navigation.navigate('CreateEventName')} />
+                    <ColUI.Button secondary label='criar evento' onPress={()=>this.props.navigation.navigate('CreateDraft')} />
                     <TouchableOpacity onPress={()=>this.props.navigation.navigate('Filter')} >
                         <Icon name='tune' type='MaterialIcons' style={[styles.iconButton, { color: this.props.ColUITheme.main }]} />
                     </TouchableOpacity>

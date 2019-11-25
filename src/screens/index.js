@@ -4,14 +4,14 @@ import HeadphonesScreen from './Headphones';
 import AuthCheckScreen from './AuthCheck';
 import OnboardingScreen from './Onboarding';
 import LoginScreen from './Login';
-import CreateEventScreens from './CreateEvent';
+import DraftManager from './DraftManager';
+import DraftsScreen from './Drafts';
 
 //SignUp:
 import SignUpScreens from './SignUp';
 
 //Authenticated:
 import ActiveScreen from './Active';
-import DraftsScreen from './Drafts';
 import MyProfileScreen from './MyProfileScreen';
 
 export {
@@ -23,6 +23,6 @@ export {
     LoginScreen,
     SignUpScreens,
     MyProfileScreen,
-    CreateEventScreens,
+    DraftManager,
     DraftsScreen
 };

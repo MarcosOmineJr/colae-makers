@@ -117,7 +117,7 @@ const styles = StyleSheet.create({
 const mapStateToProps = (state)=>{
     return {
         ColUITheme: state.themesReducer.ColUITheme,
-        events: state.draftsReducer
+        events: state.draftsReducer.remote
     };
 }
 
