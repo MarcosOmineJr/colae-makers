@@ -78,20 +78,34 @@ class DraftProgress extends React.Component {
             draft: {}
         }
         this._saveAsDraft = this._saveAsDraft.bind(this);
-        this._isMounted = false;
-        this._cleanTempDraft = this._cleanTempDraft.bind(this);
+        this._checkSteps = this._checkSteps.bind(this);
     }
 
     //Propriedade inicialmente vazia:
     _docRef = '';
 
     componentDidMount(){
-        this._isMounted = true;
-        //Setando o this._draft usando o id do evento para pegar as informações do firestore:
-        if(this.props.tempDraft == null){
-            //Se tempDraft for null, ele pega o id do navigation.state.params e seta um tempDraft para unificar as informações do rascunho:
+        if(this.props.navigation.getParam('draftId', 'NO-ID') == 'NO-ID'){
 
-            let unsubscribe = firebase.firestore().doc('events/'+this.props.navigation.getParams('draftId', 'NO-ID')).onSnapshot({
+            //Se ele vier para essa tela sem um param draftID, ele conecta com o firestore pelo tempDraft;
+
+            this.unsubscribe = firebase.firestore().doc('events/'+this.props.tempDraft.firestoreReferenceId).onSnapshot({
+                error: e=>console.error('erro ao pegar rascunho do firestore:', e),
+                next: QuerySnapshot=>{
+                    // Salva o rascunho no state e ref do documento em this.docRef e dá setState():
+
+                    let s = this.state;
+                    s.draft = QuerySnapshot.data();
+                    this._docRef = QuerySnapshot.ref.id;
+                    this.setState(s);
+                }
+            });
+
+        } else {
+            
+            //Se vier para a tela com param draftId, ele usa essa informação para pegar os dados do firestore;
+
+            this.unsubscribe = firebase.firestore().doc('events/'+this.props.navigation.getParam('draftId', 'NO-ID')).onSnapshot({
                 error: e=>console.error('erro ao pegar rascunho do firestore:', e),
                 next: QuerySnapshot=>{
                     // Salva o rascunho no state e ref do documento em this.docRef e dá setState():
@@ -106,32 +120,19 @@ class DraftProgress extends React.Component {
                     this.setState(s);
                 }
             });
-        } else {
-            //Se já existir tempDraft (o que significa que o usuário está vindo do botão de 'Criar Evento', através do DraftSwitch) ele só conecta com o firestore
-            //e define this.draft já que não precisa setar o tempDraft:
 
-            let unsubscribe = firebase.firestore().doc('events/'+this.props.tempDraft.firestoreReferenceId).onSnapshot({
-                error: e=>console.error('erro ao pegar rascunho do firestore:', e),
-                next: QuerySnapshot=>{
-                    // Salva o rascunho no state e ref do documento em this.docRef e dá setState():
-
-                    let s = this.state;
-                    s.draft = QuerySnapshot.data();
-                    this._docRef = QuerySnapshot.ref.id;
-                    this.setState(s);
-                }
-            });
         }
     }
-    
-    componentWillUnmount(){
-        //Toda vez que a tela for desmontada, ele limpa o tempDraft:
 
-        !this._isMounted && this.props.setTempDraft(null);
+    componentWillUnmount(){
+        //Limpa o listener quando o componente fica vazio:
+
+        this.unsubscribe();
     }
 
-    async _cleanTempDraft(){
-        !this._isMounted && this.props.setTempDraft(null);
+    _checkSteps(){
+        //Deve checar a completude dos passos e atualizar o state
+        console.log('rodou _checkSteps');
     }
 
     _saveAsDraft(){

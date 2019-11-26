@@ -7,8 +7,10 @@ import {
     View,
     FlatList,
     Text,
-    Image
+    Image,
+    TouchableHighlight
 } from 'react-native';
+import { NavigationEvents } from 'react-navigation';
 import ColaeAPI from '../api';
 
 const { height } = Dimensions.get('window');
@@ -62,19 +64,22 @@ class Drafts extends React.Component {
 
     _renderEvents(event){
         return (
-            <ColUI.Card colSpan={6} contentContainerStyle={[styles.eventCard, { backgroundColor: this.props.ColUITheme.main }]} >
-                {this._imageRenderIf(event, event.photos != undefined)}
-                <View style={styles.eventInfoContainer}>
-                    <Text style={styles.eventName} numberOfLines={1}>{event.name}</Text>
-                    {this._descriptionRenderIf(event, event.description != undefined)}
-                </View>
-            </ColUI.Card>
+            <TouchableHighlight style={{ marginBottom: 20 }} onPress={()=>{this.props.navigation.navigate('DraftProgress', { draftId: event.ref })}}>
+                <ColUI.Card colSpan={6} contentContainerStyle={[styles.eventCard, { backgroundColor: this.props.ColUITheme.main }]} >
+                    {this._imageRenderIf(event, event.photos != undefined)}
+                    <View style={styles.eventInfoContainer}>
+                        <Text style={styles.eventName} numberOfLines={1}>{event.name}</Text>
+                        {this._descriptionRenderIf(event, event.description != undefined)}
+                    </View>
+                </ColUI.Card>
+            </TouchableHighlight>
         );
     }
 
     render(){
         return (
-            <View style={styles.container} >
+            <View style={styles.container}>
+                <NavigationEvents onDidFocus={()=>this.props.setTempDraft(null)} />
                 <FlatList
                 contentContainerStyle={styles.eventCardsContainer}
                 data={this.props.events}
@@ -93,17 +98,11 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center'
     },
-    eventCardsContainer:{
-        flex: 1,
-        alignItems: 'center',
-        paddingTop: 10
-    },
     headerComponentText:{
         fontSize: 18,
         marginBottom: 20
     },
     eventCardsContainer:{
-        flex: 1,
         alignItems: 'center',
         paddingTop: 10
     },
@@ -111,8 +110,7 @@ const styles = StyleSheet.create({
         padding: 0,
         alignItems: 'flex-start',
         flexDirection: 'row',
-        height: height*0.24,
-        marginBottom: 20
+        height: height*0.24
     },
     eventCoverImage:{
         height: '100%',
@@ -155,7 +153,8 @@ const mapStateToProps = (state)=>{
 
 const mapDispatchToProps = (dispatch)=>{
     return {
-        refreshSnapshot: (snapshot)=>{dispatch({ type: 'UPDATE_DRAFTS_SNAPSHOT', payload:snapshot })}
+        refreshSnapshot: (snapshot)=>{dispatch({ type: 'UPDATE_DRAFTS_SNAPSHOT', payload:snapshot })},
+        setTempDraft: (temp)=> dispatch({ type: 'UPDATE_TEMP_DRAFT', payload: temp })
     };
 }
 

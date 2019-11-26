@@ -2,15 +2,16 @@ import React from 'react';
 import {
     View,
     Text,
-    ScrollView,
     FlatList,
     Image,
     StyleSheet,
     Dimensions,
-    TouchableOpacity
+    TouchableOpacity,
+    TouchableHighlight
 } from 'react-native';
 import { Icon } from 'native-base';
 import { connect } from 'react-redux';
+import { NavigationEvents } from 'react-navigation';
 import firestore from '@react-native-firebase/firestore';
 import ColaeAPI from '../api';
 
@@ -39,19 +40,22 @@ class Home extends React.Component {
 
     _renderEvents(event){
         return (
-            <ColUI.Card colSpan={6} contentContainerStyle={[styles.eventCard, { backgroundColor: this.props.ColUITheme.main }]} >
-                <Image source={{uri: event.photos[0]}} style={styles.eventCoverImage} resizeMode='cover' />
-                <View style={styles.eventInfoContainer}>
-                    <Text style={styles.eventName} numberOfLines={1}>{event.name}</Text>
-                    <Text style={styles.eventDescription} numberOfLines={4}>{event.description}</Text>
-                </View>
-            </ColUI.Card>
+            <TouchableHighlight style={{ marginBottom: 20 }} onPress={()=>{}}>
+                <ColUI.Card colSpan={6} contentContainerStyle={[styles.eventCard, { backgroundColor: this.props.ColUITheme.main }]} >
+                    <Image source={{uri: event.photos[0]}} style={styles.eventCoverImage} resizeMode='cover' />
+                    <View style={styles.eventInfoContainer}>
+                        <Text style={styles.eventName} numberOfLines={1}>{event.name}</Text>
+                        <Text style={styles.eventDescription} numberOfLines={4}>{event.description}</Text>
+                    </View>
+                </ColUI.Card>
+            </TouchableHighlight>
         );
     }
 
     render(){
         return (
             <View style={styles.container}>
+                <NavigationEvents onDidFocus={()=>this.props.setTempDraft(null)} />
                 <View style={styles.topButtonsContainer} >
                     <ColUI.Button secondary label='criar evento' onPress={()=>this.props.navigation.navigate('CreateDraft')} />
                     <TouchableOpacity onPress={()=>this.props.navigation.navigate('Filter')} >
@@ -91,7 +95,6 @@ const styles = StyleSheet.create({
         marginBottom: 20
     },
     eventCardsContainer:{
-        flex: 1,
         alignItems: 'center',
         paddingTop: 10
     },
@@ -137,7 +140,8 @@ const mapStateToProps = (state)=>{
 
 const mapDispatchToProps = (dispatch)=>{
     return {
-        refreshSnapshot: (snapshot)=>{dispatch({ type: 'UPDATE_PUBLISHED_SNAPSHOT', payload:snapshot })}
+        refreshSnapshot: (snapshot)=>{dispatch({ type: 'UPDATE_PUBLISHED_SNAPSHOT', payload:snapshot })},
+        setTempDraft: (temp)=> dispatch({ type: 'UPDATE_TEMP_DRAFT', payload: temp })
     };
 }
 
