@@ -9,6 +9,7 @@ import {
 import {
     Textarea
 } from 'native-base';
+import { NavigationEvents } from 'react-navigation';
 import { connect } from 'react-redux';
 import ColaeAPI from '../api';
 import firebase from '@react-native-firebase/app';
@@ -148,6 +149,7 @@ class DraftProgress extends React.Component {
     render(){
         return (
             <View style={draftProgressStyles.container}>
+                <NavigationEvents onDidFocus={this._checkSteps} />
                 <View style={draftProgressStyles.textContainer}>
                     <Text style={[draftProgressStyles.text, { color: this.props.ColUITheme.main }]}>Preencha os dados para criar o evento</Text>
                 </View>
