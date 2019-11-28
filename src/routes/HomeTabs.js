@@ -3,8 +3,7 @@ import { createMaterialTopTabNavigator } from 'react-navigation-tabs';
 import { createStackNavigator } from 'react-navigation-stack';
 import { connect } from 'react-redux';
 import DraftSwitch from './DraftStack';
-import FilterStack from './FilterStack';
-import { InConstructionScreen, ActiveScreen, DraftsScreen } from '../screens';
+import { InactivesScreen, ActiveScreen, DraftsScreen } from '../screens';
 import ColaeAPI from '../api';
 
 const { ColUI } = ColaeAPI;
@@ -23,7 +22,7 @@ const HomeTabs = createMaterialTopTabNavigator({
         }
     },
     Inactive:{
-        screen:InConstructionScreen,
+        screen:InactivesScreen,
         navigationOptions:{
             tabBarLabel: 'Inativos'
         }
@@ -32,7 +31,15 @@ const HomeTabs = createMaterialTopTabNavigator({
     initialRouteName: 'Active',
     tabBarComponent: (props)=>(
         <ColUI.TopTabNavigator {...props} />
-    )
+    ),
+    defaultNavigationOptions:{
+        tabBarOptions:{
+            upperCaseLabel: false,
+            labelStyle:{
+                fontSize: 16
+            }
+        }
+    }
 });
 
 const ForHeader = createStackNavigator({
@@ -47,12 +54,6 @@ const ForHeader = createStackNavigator({
     },
     CreateDraft:{
         screen:DraftSwitch, //Leva para o Switch de DraftStack.js, que vai levar para o input do nome do evento
-        navigationOptions:{
-            header: null
-        }
-    },
-    Filter:{
-        screen:FilterStack,
         navigationOptions:{
             header: null
         }

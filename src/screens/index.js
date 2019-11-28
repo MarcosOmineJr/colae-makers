@@ -6,6 +6,7 @@ import OnboardingScreen from './Onboarding';
 import LoginScreen from './Login';
 import DraftManager from './DraftManager';
 import DraftsScreen from './Drafts';
+import InactivesScreen from './Inactives';
 
 //SignUp:
 import SignUpScreens from './SignUp';
@@ -24,5 +25,6 @@ export {
     SignUpScreens,
     MyProfileScreen,
     DraftManager,
-    DraftsScreen
+    DraftsScreen,
+    InactivesScreen
 };

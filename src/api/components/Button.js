@@ -6,7 +6,8 @@ import {
     TouchableOpacity,
     Text,
     Dimensions,
-    StyleSheet
+    StyleSheet,
+    View
 } from 'react-native';
 
 import { shadow } from './styles';
@@ -71,6 +72,12 @@ const styles = StyleSheet.create({
         fontFamily: 'roboto',
         color: '#FFFFFF',
         letterSpacing: 2
+    },
+    iconContainer:{
+        flex: 1
+    },
+    textContainer:{
+        flex: 3
     }
 });
 

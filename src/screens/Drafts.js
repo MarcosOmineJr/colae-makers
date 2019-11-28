@@ -13,7 +13,7 @@ import {
 import { NavigationEvents } from 'react-navigation';
 import ColaeAPI from '../api';
 
-const { height } = Dimensions.get('window');
+const { height, width } = Dimensions.get('window');
 
 const { ColUI } = ColaeAPI;
 
@@ -80,11 +80,13 @@ class Drafts extends React.Component {
         return (
             <View style={styles.container}>
                 <NavigationEvents onDidFocus={()=>this.props.setTempDraft(null)} />
+                <View style={styles.topButtonsContainer} >
+                    <ColUI.IconButton label='CRIAR EVENTO' iconName='add' onPress={()=>this.props.navigation.navigate('CreateDraft')} />
+                </View>
                 <FlatList
                 contentContainerStyle={styles.eventCardsContainer}
                 data={this.props.events}
                 renderItem={({item})=>this._renderEvents(item)}
-                ListHeaderComponent={()=>(<Text style={[styles.headerComponentText, { color: this.props.ColUITheme.main }]}>Esses são os seus rascunhos de evento:</Text>)}
                 ListEmptyComponent={()=>(<View style={styles.emptyListContainer}><Text>Você não tem nenhum rascunho por enquanto</Text></View>)}
                 />
             </View>
@@ -97,6 +99,14 @@ const styles = StyleSheet.create({
         flex: 1,
         alignItems: 'center',
         justifyContent: 'center'
+    },
+    topButtonsContainer:{
+        height: '10%',
+        width,
+        flexDirection: 'row',
+        justifyContent: 'flex-start',
+        alignItems: 'center',
+        paddingHorizontal: 20
     },
     headerComponentText:{
         fontSize: 18,
@@ -115,8 +125,7 @@ const styles = StyleSheet.create({
     eventCoverImage:{
         height: '100%',
         width: '50%',
-        borderTopLeftRadius: 5,
-        borderBottomLeftRadius: 5
+        borderRadius: 5
     },
     eventInfoContainer:{
         height: '100%',

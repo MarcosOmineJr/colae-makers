@@ -4,10 +4,12 @@ import Header from './Header';
 import BottomTabNavigator from './BottomTabNavigator';
 import Background from './Background';
 import Button from './Button';
+import IconButton from './IconButton';
 import Card from './Card';
 import TextInput from './TextInput';
 import Steps from './Steps';
 import TopTabNavigator from './TopTabNavigator';
+import EventGlobalRating from './EventGlobalRating';
 
 export default {
     styles,
@@ -18,5 +20,7 @@ export default {
     Card,
     TextInput,
     Steps,
-    TopTabNavigator
+    TopTabNavigator,
+    IconButton,
+    EventGlobalRating
 };

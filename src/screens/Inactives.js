@@ -17,14 +17,14 @@ const { height, width } = Dimensions.get('window');
 
 const { ColUI } = ColaeAPI;
 
-class Home extends React.Component {
+class Inactives extends React.Component {
 
     constructor(props){
         super(props);
 
         this._renderEvents = this._renderEvents.bind(this);
 
-        const unsubscribe = firestore().collection('events').where('published','==',true).onSnapshot({
+        /*const unsubscribe = firestore().collection('events').where('published','==',true).onSnapshot({
             error: (e)=>console.log('Erro:', e),
             next: (QuerySnapshot)=>{
                 let data = [];
@@ -33,17 +33,16 @@ class Home extends React.Component {
                 })
                 props.refreshSnapshot(data);
             }
-        })
+        })*/
     }
 
     _renderEvents(event){
         return (
             <TouchableHighlight style={{ marginBottom: 20 }} onPress={()=>{}}>
-                <ColUI.Card colSpan={6} contentContainerStyle={[styles.eventCard, { backgroundColor: this.props.ColUITheme.main }]} >
+                <ColUI.Card colSpan={6} contentContainerStyle={[styles.eventCard, { backgroundColor: '#ccc' }]} >
                     <Image source={{uri: event.photos[0]}} style={styles.eventCoverImage} resizeMode='cover' />
                     <View style={styles.eventInfoContainer}>
                         <Text style={styles.eventName} numberOfLines={1}>{event.name}</Text>
-                        <ColUI.EventGlobalRating />
                         <Text style={styles.eventDescription} numberOfLines={4}>{event.description}</Text>
                     </View>
                 </ColUI.Card>
@@ -128,7 +127,7 @@ const styles = StyleSheet.create({
 const mapStateToProps = (state)=>{
     return {
         ColUITheme: state.themesReducer.ColUITheme,
-        events: state.publishedEventsReducer
+        events: state.inactiveEventsReducer
     };
 }
 
@@ -139,4 +138,4 @@ const mapDispatchToProps = (dispatch)=>{
     };
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(Home);
+export default connect(mapStateToProps, mapDispatchToProps)(Inactives);
