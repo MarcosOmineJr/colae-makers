@@ -10,6 +10,7 @@ import TextInput from './TextInput';
 import Steps from './Steps';
 import TopTabNavigator from './TopTabNavigator';
 import EventGlobalRating from './EventGlobalRating';
+import OnboardingSlider from './OnboardingSlider';
 
 export default {
     styles,
@@ -22,5 +23,6 @@ export default {
     Steps,
     TopTabNavigator,
     IconButton,
-    EventGlobalRating
+    EventGlobalRating,
+    OnboardingSlider
 };

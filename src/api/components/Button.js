@@ -70,8 +70,7 @@ const styles = StyleSheet.create({
     },
     label:{
         fontFamily: 'roboto',
-        color: '#FFFFFF',
-        letterSpacing: 2
+        color: '#FFFFFF'
     },
     iconContainer:{
         flex: 1
