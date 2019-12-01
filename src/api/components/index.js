@@ -11,7 +11,7 @@ import Steps from './Steps';
 import TopTabNavigator from './TopTabNavigator';
 import EventGlobalRating from './EventGlobalRating';
 import OnboardingSlider from './OnboardingSlider';
-import ImageInput from './ImageInput';
+import ProfileImageInput from './ProfileImageInput';
 
 export default {
     styles,
@@ -26,5 +26,5 @@ export default {
     IconButton,
     EventGlobalRating,
     OnboardingSlider,
-    ImageInput
+    ProfileImageInput
 };
