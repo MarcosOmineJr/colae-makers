@@ -24,6 +24,7 @@ class SignUp1 extends React.Component {
                 <View style={styles.cardContainer}>
                     <ColUI.Card contentContainerStyle={styles.card}>
                         <Text style={{color: this.props.ColUITheme.accent, fontSize: 30}}>Cadastro 1</Text>
+                        <ColUI.ImageInput />
                     </ColUI.Card>
                 </View>
                 <View style={styles.btnContainer}>
@@ -130,6 +131,7 @@ const styles = StyleSheet.create({
     },
     card:{
         height: height*0.504,
+        justifyContent: 'flex-start'
     },
     btnContainer:{
         flex: 1,

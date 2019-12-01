@@ -45,8 +45,8 @@ class Onboarding extends React.Component {
                 </SafeAreaView>
                 <View style={styles.buttonsContainer}>
                     <View style={styles.buttons}>
-                        <ColUI.Button colSpan={4} label='CADASTRE-SE' onPress={()=>navigation.navigate('Login')} />
-                        <ColUI.Button contentContainerStyle={{ backgroundColor: ColUITheme.purple.light }} colSpan={4} label='JÁ TENHO UMA CONTA' onPress={()=>navigation.navigate('SignUp')} />
+                        <ColUI.Button colSpan={4} label='CADASTRE-SE' onPress={()=>navigation.navigate('SignUp')} />
+                        <ColUI.Button contentContainerStyle={{ backgroundColor: ColUITheme.purple.light }} colSpan={4} label='JÁ TENHO UMA CONTA' onPress={()=>navigation.navigate('Login')} />
                     </View>
                     <View style={styles.support}>
                         <Text style={styles.calling}>Precisa de ajuda?</Text>

@@ -17,10 +17,13 @@ class TextInput extends React.Component {
     _componentWidth = ((width*0.1027)*this.props.colSpan)+((width*0.055)*(this.props.colSpan-1));
 
     render(){
+
+        const { ColUITheme, style, label, labelStyle, onChangeText, keyboardType, secureTextEntry, textStyle } = this.props;
+
         return (
-            <Item floatingLabel style={[{ borderColor: this.props.ColUITheme.main, marginBottom: 20, width: this._componentWidth }, this.props.style]}>
-                <Label style={[{ color: this.props.ColUITheme.main }, this.props.labelStyle]}>{ this.props.label }</Label>
-                <Input onChangeText={(t)=>{this.props.onChangeText(t)}} />
+            <Item floatingLabel style={[{ borderColor: ColUITheme.main, marginBottom: 20, width: this._componentWidth }, style]}>
+                <Label style={[{ color: ColUITheme.main }, labelStyle]}>{ label }</Label>
+                <Input style={[{ color: ColUITheme.purple.light }, textStyle]} onChangeText={(t)=>{onChangeText(t)}} keyboardType={keyboardType} secureTextEntry={secureTextEntry} selectionColor={ ColUITheme.main } />
             </Item>
         );
     }
@@ -29,7 +32,9 @@ class TextInput extends React.Component {
 TextInput.defaultProps = {
     colSpan: 5.2,
     label: 'label',
-    onChangeText: ()=>{}
+    onChangeText: ()=>{},
+    keyboardType: 'default',
+    secureTextEntry: false
 }
 
 const mapStateToProps = (state)=>{
