@@ -1,5 +1,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
+import { firebase } from '@react-native-firebase/auth';
+import '@react-native-firebase/firestore';
 import ImagePicker from 'react-native-image-crop-picker';
 import {
     StyleSheet,
@@ -136,8 +138,10 @@ class SignUp3 extends React.Component {
             disabled: true,
             data:{
                 ...props.navigation.state.params.data,
-                state: '',
-                city: ''
+                from:{
+                    state: '',
+                    city: ''
+                }
             }
         }
 
@@ -147,8 +151,8 @@ class SignUp3 extends React.Component {
 
     _handleInput(input, mode){
         let s = this.state;
-        s.data[mode] = input;
-        if(s.data.state != '' && s.data.city != ''){
+        s.data.from[mode] = input;
+        if(s.data.from.state != '' && s.data.from.city != ''){
             s.disabled = false;
         } else {
             s.disabled = true;
@@ -158,7 +162,7 @@ class SignUp3 extends React.Component {
 
     _nextPage(){
         let s = this.state;
-        if(s.data.city != '' && s.data.state != ''){
+        if(s.data.from.city != '' && s.data.from.state != ''){
             this.props.navigation.navigate('SU_LoginInfo', { data: s.data });
         } else {
             alert('Preencha todos os campos!');
@@ -197,21 +201,64 @@ class SignUp4 extends React.Component {
             disabled: true,
             data: {
                 ...props.navigation.state.params.data,
-                username: '',
+                username: ''
+            },
+            loginInfo:{
+                email: '',
                 password: ''
             },
             confirmPassword:''
         }
-        this._signUp= this._signUp.bind(this);
+        this._signOut = this._signOut.bind(this);
+        this._signUp = this._signUp.bind(this);
         this._handleInput = this._handleInput.bind(this);
+
+        this.authentication = firebase.auth();
+        this.firestore = firebase.firestore();
+
+        this.authentication.onAuthStateChanged(user=>{
+            if(user){
+                //recebendo o UID do usuário e criando o documento:
+                this.firestore.collection('users').doc(user.uid).set({ ...this.state.data, email: this.state.loginInfo.email});
+            }
+        });
+    }
+    
+    async _signOut(){
+        try{
+            await this.authentication.signOut();
+        }catch(error){
+            console.log('Erro:', error.message);
+        }
+    }
+
+    componentDidMount(){
+        //deslogando qualquer usuário que por ventura esteja logado ainda:
+        this._signOut();
     }
 
     async _signUp(){
         let s = this.state;
-        if(s.data.password == s.confirmPassword){
-            console.log(this.state.data);
-            await AsyncStorage.setItem('@token', 'eae man');
-            this.props.navigation.navigate('Authenticated');
+        console.log(s.data);
+        if(s.loginInfo.password == s.confirmPassword){
+            try{
+                await this.authentication.createUserWithEmailAndPassword(s.loginInfo.email, s.loginInfo.password);
+
+            } catch(error){
+                switch(error.code){
+                    case 'auth/invalid-email':
+                        alert('Insira um endereço de e-mail válido');
+                        break;
+                    case 'auth/weak-password':
+                        alert('A senha precisa ter no mínimo 6 caracteres');
+                        break;
+                    case 'auth/email-already-in-use':
+                        alert('Esse endereço de e-mail já está cadastrado!');
+                        break;
+                    default:
+                        alert(error.message);
+                }
+            }
         } else {
             alert('A sua senha não coincide com a confirmação!');
         }
@@ -226,10 +273,10 @@ class SignUp4 extends React.Component {
                 s[mode] = input;
                 break;
             default:
-                s.data[mode] = input;
+                s.loginInfo[mode] = input;
                 break;
         }
-        if(s.data.username != '' && s.data.password != '' && s.confirmPassword != ''){
+        if(s.data.username != '' && s.loginInfo.email != '' && s.loginInfo.password != '' && s.confirmPassword != ''){
             s.disabled = false;
         } else {
             s.disabled = true;
@@ -248,6 +295,7 @@ class SignUp4 extends React.Component {
                 <View style={styles.cardContainer}>
                     <ColUI.Card contentContainerStyle={styles.card}>
                         <ColUI.TextInput label='Nome de usuário (deve ser único)' style={{marginBottom: '10%'}} onChangeText={(t)=>{this._handleInput(t, 'username')}} />
+                        <ColUI.TextInput keyboardType='email-address' label='E-mail' style={{marginBottom: '10%'}} onChangeText={(t)=>{this._handleInput(t, 'email')}} />
                         <ColUI.TextInput secureTextEntry={true} label='Senha' style={{marginBottom: '10%'}} onChangeText={(t)=>{this._handleInput(t, 'password')}} />
                         <ColUI.TextInput secureTextEntry={true} label='Confirmar senha' style={{marginBottom: '10%'}} onChangeText={(t)=>{this._handleInput(t, 'confirmPassword')}} />
                     </ColUI.Card>

@@ -1,5 +1,5 @@
 import React from 'react';
-
+import { firebase } from '@react-native-firebase/auth';
 import { connect } from 'react-redux';
 
 import {
@@ -7,26 +7,21 @@ import {
     ActivityIndicator,
     StyleSheet
 } from 'react-native';
-import AsyncStorage from '@react-native-community/async-storage';
 
 class AuthCheck extends React.Component {
     
     constructor(props){
         super(props);
-        this._checkAuthentication = this._checkAuthentication.bind(this);
-    }
 
-    componentDidMount(){
-        this._checkAuthentication();
-    }
+        this.authentication = firebase.auth();
 
-    async _checkAuthentication(){
-        let token = await AsyncStorage.getItem('@token');
-        if(token != null){
-            this.props.navigation.navigate('Authenticated');
-        } else {
-            this.props.navigation.navigate('Unauthenticated');
-        }
+        this.authentication.onAuthStateChanged(user=>{
+            if(user){
+                this.props.navigation.navigate('Authenticated');
+            } else {
+                this.props.navigation.navigate('Unauthenticated');
+            }
+        });
     }
 
     render(){

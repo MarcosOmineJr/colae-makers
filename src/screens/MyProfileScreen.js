@@ -1,5 +1,5 @@
 import React from 'react';
-
+import { firebase } from '@react-native-firebase/auth';
 import {
     Dimensions,
     StyleSheet,
@@ -25,11 +25,18 @@ class MyProfileScreen extends React.Component {
         super(props);
 
         this._logOut = this._logOut.bind(this);
+
+        this.authentication = firebase.auth();
+        
+        this.authentication.onAuthStateChanged(user=>{
+            if(!user){
+                props.navigation.navigate('Login');
+            }
+        });
     }
 
     async _logOut(){
-        await AsyncStorage.removeItem('@token');
-        this.props.navigation.navigate('Login');
+        this.authentication.signOut();
     }
 
     render(){
