@@ -19,9 +19,9 @@ const DraftStack = createStackNavigator({
     EventType:{
         screen: DraftManager.EventTypeScreen,
         navigationOptions:{
-            title: 'Tipo de Evento',
+            title: 'Informações Básicas',
             header: ({navigation})=>{
-                return <ColUI.Header noAuth navigation={navigation} title='Tipo de Evento' />;
+                return <ColUI.Header noAuth navigation={navigation} title='Informações Básicas' />;
             }
         }
     },

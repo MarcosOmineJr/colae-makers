@@ -18,6 +18,9 @@ class Steps extends React.Component {
     }
 
     _renderSteps(step, index, length){
+
+        const { ColUITheme } = this.props;
+
         if(index == 0){
             return (
                 <TouchableOpacity key={index} style={styles.stepContainer} onPress={()=>this.props.navigation.navigate(step.routename)}>
@@ -32,7 +35,7 @@ class Steps extends React.Component {
                         </View>
                     </View>
                     <View style={styles.stepNameContainer}>
-                        <Text style={styles.stepName}>{step.description}</Text>
+                        <Text style={[styles.stepName, step.done ? { fontWeight: 'bold', color: ColUITheme.main } : { fontWeight: 'normal', color: ColUITheme.gray.light } ]}>{step.description}</Text>
                     </View>
                 </TouchableOpacity>
             );
@@ -50,7 +53,7 @@ class Steps extends React.Component {
                         <View style={styles.bottomConnectorContainer} />
                     </View>
                     <View style={styles.stepNameContainer}>
-                        <Text style={styles.stepName}>{step.description}</Text>
+                    <Text style={[styles.stepName, step.done ? { fontWeight: 'bold', color: ColUITheme.main } : { fontWeight: 'normal', color: ColUITheme.gray.light } ]}>{step.description}</Text>
                     </View>
                 </TouchableOpacity>
             );
@@ -70,7 +73,7 @@ class Steps extends React.Component {
                         </View>
                     </View>
                     <View style={styles.stepNameContainer}>
-                        <Text style={styles.stepName}>{step.description}</Text>
+                    <Text style={[styles.stepName, step.done ? { fontWeight: 'bold', color: ColUITheme.main } : { fontWeight: 'normal', color: ColUITheme.gray.light } ]}>{step.description}</Text>
                     </View>
                 </TouchableOpacity>
             );
@@ -107,12 +110,12 @@ const styles = StyleSheet.create({
     connector:{
         backgroundColor: '#ccc',
         height: '100%',
-        width: 5
+        width: 3
     },
     bar:{
         backgroundColor: '#ccc',
         height: '100%',
-        width: 5
+        width: 3
     },
     circleContainer:{
         width: '100%',
@@ -136,7 +139,7 @@ const styles = StyleSheet.create({
         paddingRight: 20
     },
     stepName:{
-        fontSize: 16
+        fontSize: 18
     }
 });
 

@@ -7,7 +7,8 @@ import {
     ActivityIndicator
 } from 'react-native';
 import {
-    Textarea
+    Textarea,
+    Badge
 } from 'native-base';
 import { NavigationEvents } from 'react-navigation';
 import { connect } from 'react-redux';
@@ -68,13 +69,11 @@ class DraftProgress extends React.Component {
 
             //Estado dos dados que serão carregados no step:
             stepData: [
-                {routename: 'EventType', fields: ['template'], description: 'Tipo de Evento', done: false},
-                {routename: 'EventDescription', fields: ['description'], description: 'Descrição do Evento', done: false},
-                {routename: 'EventDate', fields: ['dates', 'locale', 'duration'], description: 'Data, local e horário', done: false},
-                {routename: 'EventSchedule', fields:['schedule'], description: 'Programação (opcional)', done: false},
-                {routename: 'EventTickets', fields:['tickets'], description: 'Ingressos', done: false},
-                {routename: 'EventProducts', fields: ['products'], description: 'Produtos', done: false},
-                {routename: 'EventServices', fields:['services'], description: 'Serviços', done: false}
+                {routename: 'EventType', fields: ['template'], description: 'Informações Básicas', done: true},
+                {routename: 'EventDescription', fields: ['description'], description: 'Descrição do Evento', done: true},
+                {routename: 'EventDate', fields: ['dates', 'locale', 'duration'], description: 'Local, data e horário', done: false},
+                {routename: 'EventSchedule', fields:['schedule'], description: 'Organizadores e Serviços', done: false},
+                {routename: 'EventTickets', fields:['tickets'], description: 'Ingressos', done: false}
             ],
             draft: {}
         }
@@ -155,7 +154,7 @@ class DraftProgress extends React.Component {
                 </View>
                 <ColUI.Steps navigation={this.props.navigation} stepsData={this.state.stepData} />
                 <View style={draftProgressStyles.buttonsContainer}>
-                    <ColUI.Button secondary label='rascunho' onPress={()=>this._saveAsDraft()} />
+                    <ColUI.Button blue label='salvar rascunho' onPress={()=>this._saveAsDraft()} />
                     <ColUI.Button label='publicar' />
                 </View>
             </View>
@@ -266,9 +265,53 @@ const EventNameInputStyles = StyleSheet.create({
 
 class EventType extends React.Component {
     render(){
+
+        const { ColUITheme } = this.props;
+
         return (
             <View style={EventTypeStyles.container}>
-                <Text style={EventTypeStyles.test}>Tipo de Evento</Text>
+                <View style={EventTypeStyles.contentContainer}>
+                    <Text style={[EventTypeStyles.sectionTitle, { color: ColUITheme.gray.light }, { marginTop:0 }]}>Adicionar Fotos</Text>
+                    <ColUI.PhotoInput />
+
+                    <Text style={[EventTypeStyles.sectionTitle, { color: ColUITheme.gray.light }]}>Categoria de Evento</Text>
+
+                    <View style={EventTypeStyles.categoryContainer}>
+                        <View style={EventTypeStyles.tagRow}>
+                            <ColUI.Tag contentContainerStyle={EventTypeStyles.tag} label='Show' onPress={()=>{}} />
+                            <ColUI.Tag contentContainerStyle={EventTypeStyles.tag} label='Palestra' onPress={()=>{}} />
+                            <ColUI.Tag contentContainerStyle={EventTypeStyles.tag} label='Balada' onPress={()=>{}} />
+                            <ColUI.Tag contentContainerStyle={EventTypeStyles.tag} label='Negócios' onPress={()=>{}} />
+                        </View>
+                        <View style={EventTypeStyles.tagRow}>
+                            <ColUI.Tag contentContainerStyle={EventTypeStyles.tag} label='Gastronomia' onPress={()=>{}} />
+                            <ColUI.Tag contentContainerStyle={EventTypeStyles.tag} label='Espetáculo' onPress={()=>{}} />
+                            <ColUI.Tag contentContainerStyle={EventTypeStyles.tag} label='Esportivo' onPress={()=>{}} />
+                        </View>
+                        <View style={EventTypeStyles.tagRow}>
+                            <ColUI.Tag contentContainerStyle={EventTypeStyles.tag} label='Religioso' onPress={()=>{}} />
+                            <ColUI.Tag contentContainerStyle={EventTypeStyles.tag} label='Curso/Workshop' onPress={()=>{}} />
+                            <ColUI.Tag contentContainerStyle={EventTypeStyles.tag} label='Arte e Cultura' onPress={()=>{}} />
+                        </View>
+                        <View style={EventTypeStyles.tagRow}>
+                            <ColUI.Tag contentContainerStyle={EventTypeStyles.tag} label='Tecnologia' onPress={()=>{}} />
+                            <ColUI.Tag contentContainerStyle={EventTypeStyles.tag} label='Outros' onPress={()=>{}} />
+                        </View>
+                    </View>
+
+                    <Text style={[EventTypeStyles.sectionTitle, { color: ColUITheme.gray.light }]}>Palavras - chave</Text>
+                    <Textarea
+                    rowSpan={5}
+                    bordered
+                    style={EventTypeStyles.textArea}
+                    onChangeText={()=>{}}
+                    />
+                </View>
+                
+                <View style={EventTypeStyles.buttonsContainer}>
+                    <ColUI.Button blue label='salvar rascunho' onPress={()=>{}} />
+                    <ColUI.Button label='próximo' />
+                </View>
             </View>
         );
     }
@@ -277,11 +320,43 @@ class EventType extends React.Component {
 const EventTypeStyles = StyleSheet.create({
     container:{
         flex: 1,
-        alignItems: 'center',
-        justifyContent: 'center'
+        height,
+        padding: 20,
+        alignItems: 'center'
     },
-    test:{
-        fontSize: 20
+    contentContainer:{
+        width: '100%',
+        alignItems: 'flex-start'
+    },
+    sectionTitle:{
+        fontSize: 20,
+        fontWeight: 'bold',
+        marginVertical: 20
+    },
+    categoryContainer:{
+
+    },
+    buttonsContainer:{
+        position: 'absolute',
+        bottom: 0,
+        height: height*0.1,
+        width,
+        backgroundColor: 'transparent',
+        flexDirection: 'row',
+        justifyContent: 'space-evenly',
+        alignItems: 'center'
+    },
+    tag:{
+        marginRight: 10
+    },
+    tagRow: {
+        flexDirection: 'row',
+        marginTop: 10
+    },
+    textArea:{
+        width: GridWidth(6),
+        borderRadius: 10,
+        borderColor: '#999999'
     }
 });
 
@@ -319,20 +394,20 @@ class EventDescription extends React.Component {
         return (
             <View style={EventDescriptionStyles.container}>
                 <View style={EventDescriptionStyles.textContainer}>
-                    <Text style={[EventDescriptionStyles.text, { color: this.props.ColUITheme.main }]}>Adicione uma descrição para o seu evento</Text>
+                    <Text style={[EventDescriptionStyles.text, { color: this.props.ColUITheme.gray.light }]}>Adicione uma descrição para o seu evento</Text>
                 </View>
                 <View style={EventDescriptionStyles.textAreaContainer}>
                     <Textarea
                     rowSpan={10}
                     bordered 
                     placeholder='Descrição'
-                    style={[EventDescriptionStyles.textArea, { borderColor: this.props.ColUITheme.main }]}
+                    style={[EventDescriptionStyles.textArea, { borderColor: this.props.ColUITheme.gray.light }]}
                     onChangeText={(d)=>this._handleInput(d)}
                     />
                 </View>
                 <View style={EventDescriptionStyles.buttonsContainer}>
-                    <ColUI.Button secondary label='cancelar' onPress={()=>this.props.navigation.goBack(null)} />
-                    <ColUI.Button disabled={this.state.disabled} label='confirmar' onPress={()=>this._confirm()} />
+                    <ColUI.Button blue label='salvar rascunho' onPress={()=>{}} />
+                    <ColUI.Button label='próximo' />
                 </View>
             </View>
         );
@@ -352,7 +427,8 @@ const EventDescriptionStyles = StyleSheet.create({
         justifyContent: 'flex-end'
     },
     text:{
-        fontSize: 18
+        fontSize: 18,
+        fontWeight: 'bold'
     },
     textAreaContainer:{
         flex: 4,
@@ -376,9 +452,21 @@ const EventDescriptionStyles = StyleSheet.create({
 
 class EventDate extends React.Component {
     render(){
+
+        const { ColUITheme } = this.props;
+
         return (
             <View style={EventDateStyles.container}>
-                <Text style={EventDateStyles.test}>Data, local e horário do Evento</Text>
+                <Text style={[EventDateStyles.text, { color: ColUITheme.gray.light }]}>Adicione o Local, a data e horário</Text>
+                <ColUI.TextInput style={EventDateStyles.localInput} label='Local do Evento' />
+                <View style={EventDateStyles.dateAndHourContainer}>
+                    <View style={EventDateStyles.dateContainer}>
+                        <Text style={[EventDateStyles.text, { color: ColUITheme.gray.light }]}>Data</Text>
+                    </View>
+                    <View style={EventDateStyles.hourContainer}>
+                        <Text style={[EventDateStyles.text, { color: ColUITheme.gray.light }]}>Horário</Text>
+                    </View>
+                </View>
             </View>
         );
     }
@@ -388,10 +476,30 @@ const EventDateStyles = StyleSheet.create({
     container:{
         flex: 1,
         alignItems: 'center',
-        justifyContent: 'center'
+        padding: 20
     },
-    test:{
-        fontSize: 20
+    text:{
+        fontSize: 18,
+        fontWeight: 'bold'
+    },
+    localInput:{
+        marginTop: 20
+    },
+    dateAndHourContainer:{
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        width,
+        paddingHorizontal: 20,
+        marginTop: 40
+    },
+    dateContainer:{
+        flex: 1,
+        alignItems: 'center'
+    },
+    hourContainer:{
+        flex: 1,
+        alignItems: 'center'
     }
 });
 

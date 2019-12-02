@@ -12,6 +12,8 @@ import TopTabNavigator from './TopTabNavigator';
 import EventGlobalRating from './EventGlobalRating';
 import OnboardingSlider from './OnboardingSlider';
 import ProfileImageInput from './ProfileImageInput';
+import Tag from './Tag';
+import PhotoInput from './PhotoInput';
 
 export default {
     styles,
@@ -26,5 +28,7 @@ export default {
     IconButton,
     EventGlobalRating,
     OnboardingSlider,
-    ProfileImageInput
+    ProfileImageInput,
+    Tag,
+    PhotoInput
 };
