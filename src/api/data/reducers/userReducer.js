@@ -1,8 +1,14 @@
 const initialState = {
-    name: 'Marcos Yoshinori Omine Junior',
+    name: 'Marcos',
+    lastname: 'Omine Jr',
     username: '@marcosominejr',
-    profile_image_url: 'https://icon-library.net/images/default-user-icon/default-user-icon-4.jpg',
-    location: 'São Paulo - SP'
+    profileimage: 'https://icon-library.net/images/default-user-icon/default-user-icon-4.jpg',
+    from:{
+        city: 'São Paulo',
+        state: 'SP'
+    },
+    email: 'marcosomine@gmail.com',
+    firebaseRef: ''
 };
 
 export default (state = initialState, action) => {
@@ -13,6 +19,9 @@ export default (state = initialState, action) => {
             break;
         case 'SET_EMAIL':
             return {...state, name: action.payload.email};
+            break;
+        case 'SET_USER_INFO':
+            return action.payload;
             break;
     }
 

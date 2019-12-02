@@ -2,6 +2,8 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { firebase } from '@react-native-firebase/auth';
 import '@react-native-firebase/firestore';
+import '@react-native-firebase/storage';
+import RNFetchBlob from 'rn-fetch-blob';
 import ImagePicker from 'react-native-image-crop-picker';
 import {
     StyleSheet,
@@ -12,7 +14,6 @@ import {
 import {
     Button
 } from 'native-base';
-import AsyncStorage from '@react-native-community/async-storage';
 import ColaeAPI from '../api';
 
 const { ColUI } = ColaeAPI;
@@ -43,7 +44,7 @@ class SignUp1 extends React.Component {
 
         try {
             let image = await ImagePicker.openPicker({
-                width: 300,
+                width: 400,
                 height: 400,
                 cropping: true
             });
@@ -215,11 +216,20 @@ class SignUp4 extends React.Component {
 
         this.authentication = firebase.auth();
         this.firestore = firebase.firestore();
+        this.storage = firebase.storage();
+        console.log('userData recebido', props.navigation.state.params.data);
 
         this.authentication.onAuthStateChanged(user=>{
             if(user){
-                //recebendo o UID do usuário e criando o documento:
+                //recebendo o UID do usuário e criando o documento no Firestore:
                 this.firestore.collection('users').doc(user.uid).set({ ...this.state.data, email: this.state.loginInfo.email});
+
+                //Fazendo o upload da imagem de perfil no Storage:
+                //Não deu certo, desisto:
+                this.state.data.profileimage = this.state.data.profileimage.path;
+
+                //Guardando no Redux:
+                props.setUserInfo({ ...this.state.data, email: this.state.loginInfo.email, firebaseRef: user.uid });
             }
         });
     }
@@ -367,15 +377,16 @@ const styles = StyleSheet.create({
     }
 });
 
-const mapStateToProps = (state)=>{
-    return {
-        ColUITheme: state.themesReducer.ColUITheme
-    };
-}
+const mapStateToProps = (state)=>({
+    ColUITheme: state.themesReducer.ColUITheme
+})
+const mapDispatchToProps = (dispatch)=>({
+    setUserInfo: (userInfo) => dispatch({type: 'SET_USER_INFO', payload: userInfo})
+});
 
 const SU1 = connect(mapStateToProps)(SignUp1);
 const SU2 = connect(mapStateToProps)(SignUp2);
 const SU3 = connect(mapStateToProps)(SignUp3);
-const SU4 = connect(mapStateToProps)(SignUp4);
+const SU4 = connect(mapStateToProps, mapDispatchToProps)(SignUp4);
 
 export default [ SU1, SU2, SU3, SU4 ];
