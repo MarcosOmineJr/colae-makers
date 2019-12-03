@@ -4,7 +4,9 @@ import {
     View,
     Text,
     Dimensions,
-    ActivityIndicator
+    ActivityIndicator,
+    TouchableOpacity,
+    Alert
 } from 'react-native';
 import {
     Textarea,
@@ -642,10 +644,48 @@ const EventScheduleStyles = StyleSheet.create({
 //==========================================================================================
 
 class EventTickets extends React.Component {
+
+    _TEMP_mockData = {
+        day: new Date()
+    }
+
     render(){
+
+        const { ColUITheme } = this.props;
+
         return (
             <View style={EventTicketsStyles.container}>
-                <Text style={EventTicketsStyles.test}>Ingressos do Evento</Text>
+                <Text style={[EventTicketsStyles.title, { color: ColUITheme.gray.light }]}>Ingressos</Text>
+                <View style={[EventTicketsStyles.dayContainer, { backgroundColor: ColUITheme.main }]}>
+                    <Text style={EventTicketsStyles.dayText}>{
+                    (this._TEMP_mockData.day.getDate().toString().length > 1 ? this._TEMP_mockData.day.getDate() :  '0'+this._TEMP_mockData.day.getDate().toString())
+                    +'/'+
+                    ((this._TEMP_mockData.day.getMonth()+1).toString().length > 1 ? (this._TEMP_mockData.day.getMonth()+1) : '0'+(this._TEMP_mockData.day.getMonth+1).toString())
+                    +'/'+
+                    this._TEMP_mockData.day.getFullYear()
+                    }</Text>
+                </View>
+                <View style={EventTicketsStyles.ticketsContainer}>
+                    <TouchableOpacity onPress={()=>Alert.alert('Esperaê!','Na versão Closed Alpha ainda só é possível fazer eventos gratuitos')}>
+                        <ColUI.SecondaryCard addButton={false} contentContainerStyle={EventTicketsStyles.ticketCard} >
+                        <View style={EventTicketsStyles.ticketType}>
+                            <View style={EventTicketsStyles.fullValue}>
+                                <Text style={EventTicketsStyles.ticketTypeLabel} >Inteira</Text>
+                                <Text style={EventTicketsStyles.ticketTypeValue} >Valor: R$ 00,00</Text>
+                            </View>
+                            <View style={EventTicketsStyles.halfValue}>
+                                <Text style={EventTicketsStyles.ticketTypeLabel} >Meia</Text>
+                                <Text style={EventTicketsStyles.ticketTypeValue} >Valor: R$ 00,00</Text>
+                            </View>
+                        </View>
+                        </ColUI.SecondaryCard>
+                    </TouchableOpacity>
+                    <ColUI.SecondaryCard onPress={()=>Alert.alert('Esperaê!','Na versão Closed Alpha ainda só é possível fazer eventos gratuitos')} />
+                </View>
+                <View style={EventDateStyles.buttonsContainer}>
+                    <ColUI.Button blue label='salvar rascunho' onPress={()=>{}} />
+                    <ColUI.Button label='próximo' />
+                </View>
             </View>
         );
     }
@@ -654,11 +694,54 @@ class EventTickets extends React.Component {
 const EventTicketsStyles = StyleSheet.create({
     container:{
         flex: 1,
-        alignItems: 'center',
-        justifyContent: 'center'
+        padding: 20,
+        alignItems: 'flex-start'
     },
-    test:{
-        fontSize: 20
+    title:{
+        fontSize: 18,
+        fontWeight: 'bold'
+    },
+    dayContainer:{
+        marginVertical: 20,
+        padding: 5,
+        paddingHorizontal: 10
+    },
+    dayText:{
+        color: 'white',
+        fontSize: 16,
+        fontWeight: 'bold'
+    },
+    ticketsContainer:{
+        flexDirection: 'row'
+    },
+    ticketCard:{
+        marginRight: 20
+    },
+    ticketType:{
+        marginRight: 30
+    },
+    ticketTypeLabel:{
+        fontSize: 16,
+        color: 'white',
+        fontWeight: 'bold',
+        marginBottom: 5
+    },
+    ticketTypeValue:{
+        fontSize: 14,
+        color: 'white'
+    },
+    fullValue:{
+        marginBottom: 10
+    },
+    buttonsContainer:{
+        position: 'absolute',
+        bottom: 0,
+        height: height*0.1,
+        width,
+        backgroundColor: 'transparent',
+        flexDirection: 'row',
+        justifyContent: 'space-evenly',
+        alignItems: 'center'
     }
 });
 

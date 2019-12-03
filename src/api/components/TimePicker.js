@@ -10,7 +10,6 @@ class TimePicker extends React.Component {
     render(){
 
         const { onPress, ColUITheme, time } = this.props;
-        console.log(time);
 
         return (
             <TouchableOpacity style={[styles.container, { borderBottomColor: ColUITheme.main }]} onPress={onPress}>

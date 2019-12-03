@@ -16,6 +16,7 @@ import Tag from './Tag';
 import PhotoInput from './PhotoInput';
 import DatePicker from './DatePicker';
 import TimePicker from './TimePicker';
+import SecondaryCard from './SecondaryCard';
 
 export default {
     styles,
@@ -34,5 +35,6 @@ export default {
     Tag,
     PhotoInput,
     DatePicker,
-    TimePicker
+    TimePicker,
+    SecondaryCard
 };
