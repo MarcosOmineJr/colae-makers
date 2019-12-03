@@ -14,6 +14,8 @@ import OnboardingSlider from './OnboardingSlider';
 import ProfileImageInput from './ProfileImageInput';
 import Tag from './Tag';
 import PhotoInput from './PhotoInput';
+import DatePicker from './DatePicker';
+import TimePicker from './TimePicker';
 
 export default {
     styles,
@@ -30,5 +32,7 @@ export default {
     OnboardingSlider,
     ProfileImageInput,
     Tag,
-    PhotoInput
+    PhotoInput,
+    DatePicker,
+    TimePicker
 };

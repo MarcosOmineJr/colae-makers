@@ -11,6 +11,7 @@ import {
     Badge
 } from 'native-base';
 import { NavigationEvents } from 'react-navigation';
+import DateTimePicker from '@react-native-community/datetimepicker';
 import { connect } from 'react-redux';
 import ColaeAPI from '../api';
 import firebase from '@react-native-firebase/app';
@@ -451,9 +452,87 @@ const EventDescriptionStyles = StyleSheet.create({
 //==========================================================================================
 
 class EventDate extends React.Component {
+
+    constructor(props){
+        super(props);
+
+        let tomorrow = new Date();
+        tomorrow.setDate(tomorrow.getDate() + 1);
+
+        this.state = {
+            dates: {
+                from: new Date(),
+                to: tomorrow
+            },
+            time:{
+                from: new Date(2000, 1, 2, 0, 0),
+                to: new Date(2000, 1, 2, 0, 0),
+            },
+            show: {
+                dates: {
+                    from: false,
+                    to: false
+                },
+                time: {
+                    from: false,
+                    to: false
+                }
+            },
+            mode: 'datetime'
+        }
+
+        this._openPicker = this._openPicker.bind(this);
+        this._setDate = this._setDate.bind(this);
+    }
+
+    _openPicker(mode, field){
+        let s = this.state;
+        s.show[mode][field] = true;
+        if(mode == 'dates'){
+            s.mode = 'date';
+        } else {
+            s.mode = 'time';
+        }
+        this.setState(s);
+    }
+
+    _setDate(event, input, mode, field){
+        console.log(input);
+        let s = this.state;
+        if(input){
+            switch(mode){
+                case 'dates':
+                    if(field == 'to'){
+                        if(input.getTime() < s.dates.from.getTime()){
+                            alert('Você não pode colocar uma data de final de evento anterior à data de início');
+                        } else {
+                            s[mode][field] = input;
+                        }
+                    } else {
+                        s[mode][field] = input;
+                    }
+                    break;
+                case 'time':
+                    if(field == 'to'){
+                        if(input.getTime() < s.time.from.getTime()){
+                            alert('Você não pode colocar um horário de encerramento anterior ao horário de início');
+                        } else {
+                            s[mode][field] = input;
+                        }
+                    } else {
+                        s[mode][field] = input;
+                    }
+                    break;
+            }
+        }
+        s.show[mode][field] = false;
+        this.setState(s);
+    }
+
     render(){
 
         const { ColUITheme } = this.props;
+        const { dates, time, show, mode } = this.state;
 
         return (
             <View style={EventDateStyles.container}>
@@ -462,10 +541,28 @@ class EventDate extends React.Component {
                 <View style={EventDateStyles.dateAndHourContainer}>
                     <View style={EventDateStyles.dateContainer}>
                         <Text style={[EventDateStyles.text, { color: ColUITheme.gray.light }]}>Data</Text>
+                        <View style={EventDateStyles.inputsContainer}>
+                            <ColUI.DatePicker date={dates.from} onPress={()=>this._openPicker('dates','from')} />
+                            {show.dates.from && <DateTimePicker mode={mode} value={dates.from} onChange={(event, date)=>this._setDate(event, date,'dates','from')} />}
+                            <Text style={EventDateStyles.text}>à</Text>
+                            <ColUI.DatePicker date={dates.to} onPress={()=>this._openPicker('dates','to')} />
+                            {show.dates.to && <DateTimePicker mode={mode} value={dates.from} onChange={(event, date)=>this._setDate(event, date,'dates','to')} />}
+                        </View>
                     </View>
                     <View style={EventDateStyles.hourContainer}>
                         <Text style={[EventDateStyles.text, { color: ColUITheme.gray.light }]}>Horário</Text>
+                        <View style={EventDateStyles.inputsContainer}>
+                            <ColUI.TimePicker time={time.from} onPress={()=>this._openPicker('time','from')} />
+                            {show.time.from && <DateTimePicker mode={mode} value={time.from} onChange={(event, date)=>this._setDate(event, date,'time','from')} />}
+                            <Text style={EventDateStyles.text}>às</Text>
+                            <ColUI.TimePicker time={time.to} onPress={()=>this._openPicker('time','to')} />
+                            {show.time.to && <DateTimePicker mode={mode} value={time.to} onChange={(event, date)=>this._setDate(event, date,'time','to')} />}
+                        </View>
                     </View>
+                </View>
+                <View style={EventDateStyles.buttonsContainer}>
+                    <ColUI.Button blue label='salvar rascunho' onPress={()=>{}} />
+                    <ColUI.Button label='próximo' />
                 </View>
             </View>
         );
@@ -494,11 +591,28 @@ const EventDateStyles = StyleSheet.create({
         marginTop: 40
     },
     dateContainer:{
-        flex: 1,
+        flex: 1.35,
         alignItems: 'center'
     },
     hourContainer:{
         flex: 1,
+        alignItems: 'center'
+    },
+    inputsContainer:{
+        flexDirection: 'row',
+        paddingHorizontal: 20,
+        width: '100%',
+        justifyContent: 'space-between',
+        marginTop: 20
+    },
+    buttonsContainer:{
+        position: 'absolute',
+        bottom: 0,
+        height: height*0.1,
+        width,
+        backgroundColor: 'transparent',
+        flexDirection: 'row',
+        justifyContent: 'space-evenly',
         alignItems: 'center'
     }
 });
