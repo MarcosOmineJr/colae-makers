@@ -6,11 +6,12 @@ import {
     Image,
     StyleSheet,
     Dimensions,
-    TouchableHighlight
+    TouchableHighlight,
+    RefreshControl
 } from 'react-native';
 import { connect } from 'react-redux';
 import { NavigationEvents } from 'react-navigation';
-import firestore from '@react-native-firebase/firestore';
+import { firebase } from '@react-native-firebase/firestore';
 import ColaeAPI from '../api';
 
 const { height, width } = Dimensions.get('window');
@@ -22,29 +23,81 @@ class Home extends React.Component {
     constructor(props){
         super(props);
 
-        this._renderEvents = this._renderEvents.bind(this);
+        this.state={
+            events: [],
+            refreshing: false
+        }
+        
+        this.refreshColors = [
+            props.ColUITheme.main,
+            props.ColUITheme.accent,
+            props.ColUITheme.gray.light,
+            props.ColUITheme.purple.light
+        ]
 
-        const unsubscribe = firestore().collection('events').where('published','==',true).onSnapshot({
+        this._renderEvents = this._renderEvents.bind(this);
+        this._fetchFirebase = this._fetchFirebase.bind(this);
+        this._refreshSnapshot = this._refreshSnapshot.bind(this);
+    }
+
+    componentDidMount(){
+
+        this._fetchFirebase();
+
+        //Pegando em Realtime, causa muitos problemas em React...
+        /*firebase.firestore().collection('events').where('published','==',true).onSnapshot({
             error: (e)=>console.log('Erro:', e),
             next: (QuerySnapshot)=>{
                 let data = [];
                 QuerySnapshot.docs.map((e, key)=>{
                     data.push({ ...e.data(), key: key.toString(), ref: e.id });
                 })
-                props.refreshSnapshot(data);
+                refreshSnapshot(data);
+                console.log(data);
+                this.setState({events: data});
             }
-        })
+        })*/
+    }
+
+    async _fetchFirebase(){
+        const { refreshSnapshot } = this.props;
+        let s = this.state;
+
+        let querySnapshot = await firebase.firestore().collection('events').where('published', '==', true).get();
+        let data = [];
+        querySnapshot.docs.map((doc, key)=>{
+            data.push({ ...doc.data(), key: key.toString(), ref: doc.id });
+        });
+        refreshSnapshot(data);
+
+        s.events = data;
+
+        this.setState(s);
+    }
+
+    async _refreshSnapshot(){
+        let s = this.state;
+        s.refreshing = true;
+        this.setState(s);
+
+        await this._fetchFirebase();
+        s.refreshing = false;
+        console.log(s);
+        this.setState(s);
     }
 
     _renderEvents(event){
+
+        const { navigate } = this.props.navigation;
+
         return (
-            <TouchableHighlight style={{ marginBottom: 20 }} onPress={()=>{}}>
+            <TouchableHighlight style={{ marginBottom: 20 }} onPress={()=>navigate('EventInfo', { firebaseRef: event.ref })}>
                 <ColUI.Card colSpan={6} contentContainerStyle={[styles.eventCard, { backgroundColor: this.props.ColUITheme.main }]} >
                     <Image source={{uri: event.photos[0]}} style={styles.eventCoverImage} resizeMode='cover' />
                     <View style={styles.eventInfoContainer}>
                         <Text style={styles.eventName} numberOfLines={1}>{event.name}</Text>
-                        <ColUI.EventGlobalRating />
-                        <Text style={styles.eventDescription} numberOfLines={4}>{event.description}</Text>
+                        <ColUI.EventGlobalRating style={styles.rating} rating={event.rating} avaliationCount={event.avaliation_count} />
+                        <Text style={styles.eventDescription} numberOfLines={5}>{event.description}</Text>
                     </View>
                 </ColUI.Card>
             </TouchableHighlight>
@@ -52,6 +105,9 @@ class Home extends React.Component {
     }
 
     render(){
+
+        const { refreshing, events } = this.state;
+
         return (
             <View style={styles.container}>
                 <NavigationEvents onDidFocus={()=>this.props.setTempDraft(null)} />
@@ -60,9 +116,10 @@ class Home extends React.Component {
                 </View>
                 <FlatList
                 contentContainerStyle={styles.eventCardsContainer}
-                data={this.props.events}
+                data={events}
                 renderItem={({item})=>this._renderEvents(item)}
                 ListEmptyComponent={()=>(<View style={styles.emptyListContainer}><Text>Você não gerencia nenhum evento por enquanto</Text></View>)}
+                refreshControl={ <RefreshControl refreshing={refreshing} onRefresh={this._refreshSnapshot} colors={this.refreshColors} /> }
                 />
             </View>
         );
@@ -97,7 +154,7 @@ const styles = StyleSheet.create({
         padding: 0,
         alignItems: 'flex-start',
         flexDirection: 'row',
-        height: height*0.24
+        height: height*0.22
     },
     eventCoverImage:{
         height: '100%',
@@ -114,6 +171,9 @@ const styles = StyleSheet.create({
         color: '#FFFFFF',
         fontSize: 18,
         marginBottom: 10
+    },
+    rating:{
+        marginBottom: 5
     },
     eventDescription:{
         color: '#ffffff',

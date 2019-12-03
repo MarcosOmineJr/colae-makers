@@ -17,6 +17,7 @@ import PhotoInput from './PhotoInput';
 import DatePicker from './DatePicker';
 import TimePicker from './TimePicker';
 import SecondaryCard from './SecondaryCard';
+import EventImageSlider from './EventImageSlider';
 
 export default {
     styles,
@@ -36,5 +37,6 @@ export default {
     PhotoInput,
     DatePicker,
     TimePicker,
-    SecondaryCard
+    SecondaryCard,
+    EventImageSlider
 };

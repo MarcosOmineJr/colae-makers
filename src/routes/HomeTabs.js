@@ -3,7 +3,7 @@ import { createMaterialTopTabNavigator } from 'react-navigation-tabs';
 import { createStackNavigator } from 'react-navigation-stack';
 import { connect } from 'react-redux';
 import DraftSwitch from './DraftStack';
-import { InactivesScreen, ActiveScreen, DraftsScreen } from '../screens';
+import { InactivesScreen, ActiveScreen, DraftsScreen, EventScreen } from '../screens';
 import ColaeAPI from '../api';
 
 const { ColUI } = ColaeAPI;
@@ -56,6 +56,15 @@ const ForHeader = createStackNavigator({
         screen:DraftSwitch, //Leva para o Switch de DraftStack.js, que vai levar para o input do nome do evento
         navigationOptions:{
             header: null
+        }
+    },
+    EventInfo:{
+        screen: EventScreen,
+        navigationOptions:{
+            title: 'Evento',
+            header: ({navigation})=>{
+                return <ColUI.Header noAuth navigation={navigation} title='Evento' />;
+            }
         }
     }
 },{

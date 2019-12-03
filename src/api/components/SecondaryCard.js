@@ -8,8 +8,6 @@ import {
 } from 'react-native';
 import { Icon } from 'native-base';
 
-const { width } = Dimensions.get('window');
-
 class SecondaryCard extends React.Component {
 
     constructor(props){

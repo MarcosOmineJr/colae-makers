@@ -39,12 +39,12 @@ class Tag extends React.Component {
     render(){
 
         const { active } = this.state;
-        const { label, /*active,*/ onPress, contentContainerStyle } = this.props;
+        const { label, /*active,*/ onPress, contentContainerStyle, user } = this.props;
 
         return (
             <TouchableOpacity style={contentContainerStyle} onPress={()=>{this._toggleColor(); onPress()}}>
-                <Badge style={[styles.container, { borderColor: active ? this._bordercolors.active : this._bordercolors.inactive, backgroundColor: active ? this._backgroundColors.active : this._backgroundColors.inactive }]}>
-                    <Text style={[styles.label, { color: active ? this._labelcolors.active : this._labelcolors.inactive }]}>{ label }</Text>
+                <Badge style={[styles.container, { borderColor: active || user ? this._bordercolors.active : this._bordercolors.inactive, backgroundColor: active || user ? this._backgroundColors.active : this._backgroundColors.inactive }]}>
+                    <Text style={[styles.label, { color: active || user ? this._labelcolors.active : this._labelcolors.inactive }]}>{ label }</Text>
                 </Badge>
             </TouchableOpacity>
         );
@@ -54,7 +54,8 @@ class Tag extends React.Component {
 Tag.defaultProps = {
     label: 'label',
     active: false,
-    onPress: ()=>{}
+    onPress: ()=>{},
+    user: false
 }
 
 const styles = StyleSheet.create({

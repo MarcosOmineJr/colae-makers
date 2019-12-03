@@ -3,16 +3,15 @@ import { connect } from 'react-redux';
 import {
     StyleSheet,
     Dimensions,
-    SafeAreaView,
+    View,
     ScrollView,
     Image,
-    View,
     Text
 } from 'react-native';
 
-const { height, width } = Dimensions.get('window');
+const { width, height } = Dimensions.get('screen');
 
-class OnboardingSlider extends React.Component {
+class EventImageSlider extends React.Component {
 
     constructor(props){
         super(props);
@@ -39,41 +38,39 @@ class OnboardingSlider extends React.Component {
 
     render(){
 
-        //Desestruturando props e state pra ficar mais fácil e limpo de usar depois...muito experto!
-        const { images, ColUITheme } = this.props;
+        const { photos, ColUITheme } = this.props;
         const { selectedIndex } = this.state;
+        console.log('chamou render');
+        console.log('com as fotos: ', photos);
 
         return (
-            <SafeAreaView>
+            <View style={styles.container}>
                 <ScrollView horizontal pagingEnabled showsHorizontalScrollIndicator={false} onMomentumScrollEnd={this._setSelectedIndex}>
-                    {images.map(data=>(
-                        <View key={data.image} style={styles.onboardingImageContainer}>
-                            <Image source={{uri:data.image}} style={styles.image} resizeMode='contain' />
-                            <Text style={[styles.title, { color: ColUITheme.accent }]}>{data.title}</Text>
-                            <Text style={styles.description}>{data.description}</Text>
-                        </View>
-                    ))}
+                    {
+                        photos.map((uri, key)=>(
+                            <Image key={key.toString()} source={{uri: uri}} style={styles.image} />
+                        ))
+                    }
                 </ScrollView>
                 <View style={styles.pageIndicator}>
-                    {images.map((data, i)=>(
-                        <View key={data.image} style={[styles.whiteCircle, { backgroundColor: i === selectedIndex ? ColUITheme.accent : '#ccc' }]} />
+                    {photos.map((data, key)=>(
+                        <View key={key.toString()} style={[styles.whiteCircle, { backgroundColor: key === selectedIndex ? ColUITheme.accent : '#ccc' }]} />
                     ))}
                 </View>
-            </SafeAreaView>
+            </View>
         );
     }
 }
 
 const styles = StyleSheet.create({
-    onboardingImageContainer:{
-        flex: 1,
+    container:{
+        backgroundColor: 'rgba(0,0,0,0.5)',
         width,
-        alignItems: 'center',
-        justifyContent: 'center'
+        height: height*0.275
     },
     image:{
-        height: '50%',
-        width: '80%'
+        width,
+        height: height*0.275
     },   
     pageIndicator:{
         position: 'absolute',
@@ -85,21 +82,11 @@ const styles = StyleSheet.create({
         alignItems: 'center'
     },
     whiteCircle:{
-        width: 7,
-        height: 7,
-        borderRadius: 3.5,
+        width: 8,
+        height: 8,
+        borderRadius: 4,
         margin: 5,
         backgroundColor: '#fff'
-    },
-    title:{
-        marginVertical:'5%',
-        fontSize: 18
-    },
-    description:{
-        textAlign: 'center',
-        color: '#999',
-        width: '70%',
-        fontSize: 16
     }
 });
 
@@ -107,4 +94,4 @@ const mapStateToProps = (state)=>({
     ColUITheme: state.themesReducer.ColUITheme
 })
 
-export default connect(mapStateToProps)(OnboardingSlider);
+export default connect(mapStateToProps)(EventImageSlider);

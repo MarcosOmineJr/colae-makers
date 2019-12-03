@@ -7,6 +7,7 @@ import LoginScreen from './Login';
 import DraftManager from './DraftManager';
 import DraftsScreen from './Drafts';
 import InactivesScreen from './Inactives';
+import EventScreen from './EventScreen';
 
 //SignUp:
 import SignUpScreens from './SignUp';
@@ -26,5 +27,6 @@ export {
     MyProfileScreen,
     DraftManager,
     DraftsScreen,
-    InactivesScreen
+    InactivesScreen,
+    EventScreen
 };
