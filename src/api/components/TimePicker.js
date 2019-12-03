@@ -10,10 +10,11 @@ class TimePicker extends React.Component {
     render(){
 
         const { onPress, ColUITheme, time } = this.props;
+        console.log(time);
 
         return (
             <TouchableOpacity style={[styles.container, { borderBottomColor: ColUITheme.main }]} onPress={onPress}>
-                <Text style={[styles.time, { color: ColUITheme.main }]}>{ time.toLocaleTimeString('pt-BR', {hour: 'numeric', minute: 'numeric'}) }</Text>
+                <Text style={[styles.time, { color: ColUITheme.main }]}>{ time.toLocaleTimeString('pt-BR').slice(0, -3) }</Text>
             </TouchableOpacity>
         );
     }

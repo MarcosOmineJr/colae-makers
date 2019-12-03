@@ -497,7 +497,6 @@ class EventDate extends React.Component {
     }
 
     _setDate(event, input, mode, field){
-        console.log(input);
         let s = this.state;
         if(input){
             switch(mode){
