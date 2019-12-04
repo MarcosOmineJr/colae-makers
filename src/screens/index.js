@@ -12,6 +12,7 @@ import MetricsScreen from './MetricsScreen';
 import AvaliationsScreen from './AvaliationsScreen';
 import ExploreScreen from './ExploreScreen';
 import ContactsForAdding from './ContactsForAdding';
+import ProfileScreen from './ProfleScreen';
 
 //SignUp:
 import SignUpScreens from './SignUp';
@@ -36,5 +37,6 @@ export {
     MetricsScreen,
     AvaliationsScreen,
     ExploreScreen,
-    ContactsForAdding
+    ContactsForAdding,
+    ProfileScreen
 };

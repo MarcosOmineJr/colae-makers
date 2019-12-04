@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { connect } from 'react-redux';
+import firestore from '@react-native-firebase/firestore';
 import {
     StyleSheet,
     Dimensions,
@@ -69,7 +70,21 @@ const _TEMP_mockData = [{
 
 const ContactsForAdding = (props)=>{
 
-    const { ColUITheme } = props;
+    const { ColUITheme, navigation } = props;
+    const [snapshot, setSnapshot] = useState([]);
+
+    useEffect(()=>{
+        async function fetchFirestore(){
+            let response = await firestore().collection('services').get();
+            response.forEach((r)=>{
+                let responseAdd = {...r.data(), ref: r.id}
+                setSnapshot([...snapshot, responseAdd]);
+            })
+        }
+
+        fetchFirestore();
+        
+    },[]);
 
     return (
         <View style={{ flex: 1 }}>
@@ -91,8 +106,11 @@ const ContactsForAdding = (props)=>{
                 <Text style={[styles.instructions, { color: ColUITheme.gray.light }]}>Selecione da sua lista de contatos as pessoas para adicionar aos eventos</Text>
 
                 {
-                    _TEMP_mockData.map((user, key)=>(
-                        <ColUI.UserCardInContacts key={key.toString()} data={user} contentContainerStyle={styles.contactCard} />
+                    snapshot.map((user, key)=>(
+                        <TouchableOpacity key={key.toString()} style={styles.contactCard} onPress={()=>navigation.navigate('Profile', { firebaseRef: user.ref, collection: 'services' })}>
+                            <ColUI.UserCardInContacts data={user} />
+                        </TouchableOpacity>
+                        
                     ))
                 }
 

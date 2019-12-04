@@ -15,30 +15,28 @@ const { width, height } = Dimensions.get('screen');
 
 const UserCardInContacts = (props)=>{
 
-    const { contentContainerStyle, ColUITheme, data, onPress } = props;
+    const { ColUITheme, data } = props;
 
     return (
-        <TouchableOpacity style={contentContainerStyle} onPress={onPress}>
-            <Card contentContainerStyle={styles.card}>
-                <View style={styles.photoContainer}>
-                    <Image source={{uri: data.profilephoto}} style={[styles.profilephoto, { borderColor: ColUITheme.main }]} />
+        <Card contentContainerStyle={styles.card}>
+            <View style={styles.photoContainer}>
+                <Image source={{uri: data.profileimage}} style={[styles.profilephoto, { borderColor: ColUITheme.main }]} />
+            </View>
+            <View style={styles.contentContainer}>
+                <View style={[styles.nameContainer, { backgroundColor: ColUITheme.main }]}>
+                    <Text style={styles.name} numberOfLines={1}>{`${data.name} ${data.lastname}`}</Text>
                 </View>
-                <View style={styles.contentContainer}>
-                    <View style={[styles.nameContainer, { backgroundColor: ColUITheme.main }]}>
-                        <Text style={styles.name} numberOfLines={1}>{`${data.name} ${data.lastname}`}</Text>
-                    </View>
-                    <View style={styles.profileType}>
-                        { data.usertype == 'palestrante' && <Icon type='MaterialIcons' name='add' style={[styles.icon, { color: ColUITheme.main }]} /> }
-                        { data.usertype == 'ator' && <Icon type='MaterialIcons' name='add' style={[styles.icon, { color: ColUITheme.main }]} /> }
-                        <Text numberOfLines={1} style={[styles.userType, { color: ColUITheme.gray.light }]}>{data.usertype}</Text>
-                    </View>
+                <View style={styles.profileType}>
+                    { data.usertype == 'palestrante' && <Icon type='MaterialIcons' name='add' style={[styles.icon, { color: ColUITheme.main }]} /> }
+                    { data.usertype == 'ator' && <Icon type='MaterialIcons' name='add' style={[styles.icon, { color: ColUITheme.main }]} /> }
+                    <Text numberOfLines={1} style={[styles.userType, { color: ColUITheme.gray.light }]}>{data.usertype}</Text>
                 </View>
-                <TouchableOpacity style={styles.buttonContainer}>
-                    <Icon type='MaterialIcons' name='add' style={[styles.icon, { color: ColUITheme.main }]} />
-                    <Text style={[styles.followButtonText, { color: ColUITheme.main }]}>ADICIONAR</Text>
-                </TouchableOpacity>
-            </Card>
-        </TouchableOpacity>
+            </View>
+            <TouchableOpacity style={styles.buttonContainer}>
+                <Icon type='MaterialIcons' name='add' style={[styles.icon, { color: ColUITheme.main }]} />
+                <Text style={[styles.followButtonText, { color: ColUITheme.main }]}>ADICIONAR</Text>
+            </TouchableOpacity>
+        </Card>
     );
 }
 
