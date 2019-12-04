@@ -10,8 +10,7 @@ import {
     ScrollView
 } from 'react-native';
 import {
-    Icon,
-    Input
+    Icon
 } from 'native-base';
 import ColaeAPI from '../api';
 import { shadow } from '../api/components/styles';
@@ -67,7 +66,7 @@ const ExploreScreen = (props)=>{
             <View style={styles.searchBarContainer}>
                 <View style={styles.searchBarContentsContainer}>
                     <Icon type='MaterialIcons' name='search' style={{color: ColUITheme.main}} />
-                    <TextInput style={[styles.textInput, { color: ColUITheme.purple.light }]} />
+                    <TextInput placeholder='Pesquise por pessoas e eventos' style={[styles.textInput, { color: ColUITheme.purple.light }]} />
                 </View>
                 <TouchableOpacity style={styles.searchButton} onPress={()=>{setResults(_TEMP_mockData); setShowResult(true)}}>
                     <Text style={{ color: ColUITheme.main }}>Pesquisar</Text>
@@ -77,6 +76,10 @@ const ExploreScreen = (props)=>{
             {/* Resultados de Pesquisa */}
             { showResults &&
                 <ScrollView contentContainerStyle={styles.resultsContainer}>
+                    <TouchableOpacity style={styles.filterButton}>
+                        <Text style={styles.filterText}>Filtrar</Text>
+                        <Icon type='MaterialIcons' name='tune' style={[styles.icon, { color: ColUITheme.main }]} />
+                    </TouchableOpacity>
                     <Text style={styles.title}>Encontre pessoas, eventos, locais e serviços</Text>
                     {results.map((res, key)=>(
                         <ColUI.UserCard key={key.toString()} navigation={navigation} data={res} style={styles.resultCard} />
@@ -133,6 +136,17 @@ const styles = StyleSheet.create({
     },
     resultCard:{
         marginBottom: 20
+    },
+    filterButton:{
+        flexDirection: 'row',
+        alignItems: 'center',
+        alignSelf: 'flex-end',
+        marginBottom: 10
+    },
+    filterText:{
+        fontSize: 16,
+        fontWeight: 'bold',
+        marginRight: 5
     }
 });
 
