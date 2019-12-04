@@ -10,6 +10,7 @@ import InactivesScreen from './Inactives';
 import EventScreen from './EventScreen';
 import MetricsScreen from './MetricsScreen';
 import AvaliationsScreen from './AvaliationsScreen';
+import ExploreScreen from './ExploreScreen';
 
 //SignUp:
 import SignUpScreens from './SignUp';
@@ -32,5 +33,6 @@ export {
     InactivesScreen,
     EventScreen,
     MetricsScreen,
-    AvaliationsScreen
+    AvaliationsScreen,
+    ExploreScreen
 };

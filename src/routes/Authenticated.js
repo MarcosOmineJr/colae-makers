@@ -6,7 +6,6 @@ import { createBottomTabNavigator } from 'react-navigation-tabs';
 
 import HomeTabs from './HomeTabs';
 import ExploreStack from './ExploreStack';
-import ChatsStack from './ChatsStack';
 import MyProfileStack from './MyProfileStack';
 
 import ColaeAPI from '../api';
@@ -26,13 +25,6 @@ const Authenticated = createBottomTabNavigator({
         navigationOptions:{
             tabBarLabel: 'Explorar',
             tabBarIcon: ({focused})=>{return <Icon type="MaterialIcons" name="search" style={focused?{color: '#ffffff'}:{color:'rgba(255,255,255,0.7)'}} />}
-        }
-    },
-    Chat:{
-        screen: ChatsStack,
-        navigationOptions:{
-            tabBarLabel: 'Conversas',
-            tabBarIcon: ({focused})=>{return <Icon type="MaterialIcons" name="message" style={focused?{color: '#ffffff'}:{color:'rgba(255,255,255,0.7)'}} />}
         }
     },
     Profile:{
