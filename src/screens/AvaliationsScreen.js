@@ -2,12 +2,13 @@ import React from 'react';
 import {
     StyleSheet,
     Dimensions,
+    View,
     ScrollView,
-    Text
 } from 'react-native';
 import ColaeAPI from '../api';
 
 const { ColUI } = ColaeAPI;
+const { width, height } = Dimensions.get('screen');
 
 const _TEMP_mockData = [{
     user:{
@@ -31,13 +32,19 @@ const _TEMP_mockData = [{
 
 const AvaliationsScreen = (props)=>{
     return (
-        <ScrollView contentContainerStyle={styles.container}>
+        <View>
+            <ScrollView contentContainerStyle={styles.container}>
             {
                 _TEMP_mockData.map((aval, key)=>(
                     <ColUI.AvaliationCard key={key.toString()} avaliation={aval} style={styles.avaliation} />
                 ))
             }
-        </ScrollView>
+            <View style={styles.spacer} />
+            </ScrollView>
+            <View style={styles.buttonsContainer}>
+                <ColUI.Button colSpan={4} label='exportar dados' />
+            </View>
+        </View>
     );
 }
 
@@ -48,6 +55,19 @@ const styles = StyleSheet.create({
     },
     avaliation:{
         marginBottom: 20
+    },
+    spacer:{
+        height: height*0.05
+    },
+    buttonsContainer:{
+        position: 'absolute',
+        bottom: 0,
+        height: height*0.1,
+        width,
+        backgroundColor: 'transparent',
+        flexDirection: 'row',
+        justifyContent: 'space-evenly',
+        alignItems: 'center'
     }
 });
 
