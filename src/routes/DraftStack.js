@@ -1,7 +1,7 @@
 import React from 'react';
 import { createSwitchNavigator } from 'react-navigation';
 import { createStackNavigator } from 'react-navigation-stack';
-import { DraftManager } from '../screens';
+import { DraftManager, InConstructionScreen, ContactsForAdding } from '../screens';
 import ColaeAPI from "../api";
 
 const { ColUI } = ColaeAPI;
@@ -76,6 +76,15 @@ const DraftStack = createStackNavigator({
             title: 'Serviços',
             header: ({navigation})=>{
                 return <ColUI.Header noAuth navigation={navigation} title='Serviços' />;
+            }
+        }
+    },
+    AddContacts:{
+        screen: ContactsForAdding,
+        navigationOptions:{
+            title: 'Serviços',
+            header: ({navigation})=>{
+                return <ColUI.Header noAuth navigation={navigation} title='Meus Contatos' />;
             }
         }
     }

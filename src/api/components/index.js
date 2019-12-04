@@ -20,6 +20,7 @@ import SecondaryCard from './SecondaryCard';
 import EventImageSlider from './EventImageSlider';
 import AvaliationCard from './AvaliationCard';
 import UserCard from './UserCard';
+import UserCardInContacts from './UserCardInContacts';
 
 export default {
     styles,
@@ -42,5 +43,6 @@ export default {
     SecondaryCard,
     EventImageSlider,
     AvaliationCard,
-    UserCard
+    UserCard,
+    UserCardInContacts
 };

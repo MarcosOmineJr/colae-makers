@@ -11,7 +11,8 @@ import {
 } from 'react-native';
 import {
     Textarea,
-    Button
+    Button,
+    Icon
 } from 'native-base';
 import { NavigationEvents } from 'react-navigation';
 import DateTimePicker from '@react-native-community/datetimepicker';
@@ -777,25 +778,31 @@ class EventServices extends React.Component {
 
     render(){
 
-        const { ColUITheme } = this.props;
+        const { ColUITheme, navigation } = this.props;
 
         return (
             <View style={EventServicesStyles.container}>
                 <View style={EventServicesStyles.organizadoresWrapper}>
-                    <ScrollView style={EventServicesStyles.organzizadoresScrollView}>
-                        <Button transparent>
+                    <ScrollView contentContainerStyle={EventServicesStyles.organzizadoresScrollView}>
+                        <Text style={[EventServicesStyles.title, { color: ColUITheme.gray.light }]}>Organizadores</Text>
+                        <Button iconLeft transparent onPress={()=>navigation.navigate('AddContacts')}>
                             <Icon type='MaterialIcons' name='add' style={[EventServicesStyles.icon, { color: ColUITheme.main }]} />
-                            <Text style={[EventServicesStyles.addBtn, { color: ColUITheme.main }]}>ADICIONAR ORGANIZADOR</Text>
+                            <Text style={{ color: ColUITheme.main }}>ADICIONAR ORGANIZADOR</Text>
                         </Button>
                     </ScrollView>
                 </View>
                 <View style={EventServicesStyles.prestadoresWrapper}>
-                    <ScrollView style={EventServicesStyles.prestadoresScrollView}>
-                        <Button transparent>
+                    <ScrollView contentContainerStyle={EventServicesStyles.prestadoresScrollView}>
+                        <Text style={[EventServicesStyles.title, { color: ColUITheme.gray.light }]}>Prestadores de Serviços</Text>
+                        <Button iconLeft transparent onPress={()=>navigation.navigate('AddContacts')}>
                             <Icon type='MaterialIcons' name='add' style={[EventServicesStyles.icon, { color: ColUITheme.main }]} />
-                            <Text style={[EventServicesStyles.addBtn, { color: ColUITheme.main }]}>ADICIONAR PRESTADOR DE SERVIÇO</Text>
+                            <Text style={{ color: ColUITheme.main }}>ADICIONAR PRESTADOR DE SERVIÇO</Text>
                         </Button>
                     </ScrollView>
+                </View>
+                <View style={EventServicesStyles.buttonsContainer}>
+                    <ColUI.Button blue label='salvar rascunho' onPress={()=>{}} />
+                    <ColUI.Button label='próximo' />
                 </View>
             </View>
         );
@@ -813,16 +820,33 @@ const EventServicesStyles = StyleSheet.create({
         flex: 1
     },
     organzizadoresScrollView:{
-        padding: 20
+        padding: 20,
+        alignItems: 'flex-start'
     },
     prestadoresScrollView:{
-        padding: 20
+        padding: 20,
+        alignItems: 'flex-start'
     },
     icon:{
-        fontSize: 18
+        fontSize: 18,
+        marginRight: 5
     },
     addBtn:{
         fontSize: 16
+    },
+    title:{
+        fontSize: 18,
+        fontWeight: 'bold'
+    },
+    buttonsContainer:{
+        position: 'absolute',
+        bottom: 0,
+        height: height*0.1,
+        width,
+        backgroundColor: 'transparent',
+        flexDirection: 'row',
+        justifyContent: 'space-evenly',
+        alignItems: 'center'
     }
 });
 
