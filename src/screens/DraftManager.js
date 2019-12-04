@@ -6,11 +6,12 @@ import {
     Dimensions,
     ActivityIndicator,
     TouchableOpacity,
-    Alert
+    Alert,
+    ScrollView
 } from 'react-native';
 import {
     Textarea,
-    Badge
+    Button
 } from 'native-base';
 import { NavigationEvents } from 'react-navigation';
 import DateTimePicker from '@react-native-community/datetimepicker';
@@ -75,7 +76,7 @@ class DraftProgress extends React.Component {
                 {routename: 'EventType', fields: ['template'], description: 'Informações Básicas', done: true},
                 {routename: 'EventDescription', fields: ['description'], description: 'Descrição do Evento', done: true},
                 {routename: 'EventDate', fields: ['dates', 'locale', 'duration'], description: 'Local, data e horário', done: false},
-                {routename: 'EventSchedule', fields:['schedule'], description: 'Organizadores e Serviços', done: false},
+                {routename: 'EventServices', fields:['schedule'], description: 'Organizadores e Serviços', done: false},
                 {routename: 'EventTickets', fields:['tickets'], description: 'Ingressos', done: false}
             ],
             draft: {}
@@ -771,10 +772,31 @@ const EventProductsStyles = StyleSheet.create({
 //==========================================================================================
 
 class EventServices extends React.Component {
+
+
+
     render(){
+
+        const { ColUITheme } = this.props;
+
         return (
             <View style={EventServicesStyles.container}>
-                <Text style={EventServicesStyles.test}>Serviços do Evento</Text>
+                <View style={EventServicesStyles.organizadoresWrapper}>
+                    <ScrollView style={EventServicesStyles.organzizadoresScrollView}>
+                        <Button transparent>
+                            <Icon type='MaterialIcons' name='add' style={[EventServicesStyles.icon, { color: ColUITheme.main }]} />
+                            <Text style={[EventServicesStyles.addBtn, { color: ColUITheme.main }]}>ADICIONAR ORGANIZADOR</Text>
+                        </Button>
+                    </ScrollView>
+                </View>
+                <View style={EventServicesStyles.prestadoresWrapper}>
+                    <ScrollView style={EventServicesStyles.prestadoresScrollView}>
+                        <Button transparent>
+                            <Icon type='MaterialIcons' name='add' style={[EventServicesStyles.icon, { color: ColUITheme.main }]} />
+                            <Text style={[EventServicesStyles.addBtn, { color: ColUITheme.main }]}>ADICIONAR PRESTADOR DE SERVIÇO</Text>
+                        </Button>
+                    </ScrollView>
+                </View>
             </View>
         );
     }
@@ -782,12 +804,25 @@ class EventServices extends React.Component {
 
 const EventServicesStyles = StyleSheet.create({
     container:{
-        flex: 1,
-        alignItems: 'center',
-        justifyContent: 'center'
+        flex: 1
     },
-    test:{
-        fontSize: 20
+    organizadoresWrapper: {
+        flex: 1
+    },
+    prestadoresWrapper: {
+        flex: 1
+    },
+    organzizadoresScrollView:{
+        padding: 20
+    },
+    prestadoresScrollView:{
+        padding: 20
+    },
+    icon:{
+        fontSize: 18
+    },
+    addBtn:{
+        fontSize: 16
     }
 });
 
