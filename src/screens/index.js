@@ -8,6 +8,8 @@ import DraftManager from './DraftManager';
 import DraftsScreen from './Drafts';
 import InactivesScreen from './Inactives';
 import EventScreen from './EventScreen';
+import MetricsScreen from './MetricsScreen';
+import AvaliationsScreen from './AvaliationsScreen';
 
 //SignUp:
 import SignUpScreens from './SignUp';
@@ -28,5 +30,7 @@ export {
     DraftManager,
     DraftsScreen,
     InactivesScreen,
-    EventScreen
+    EventScreen,
+    MetricsScreen,
+    AvaliationsScreen
 };

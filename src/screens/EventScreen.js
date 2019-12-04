@@ -92,7 +92,7 @@ class EventScreen extends React.Component {
     render(){
 
         const { event, loading } = this.state;
-        const { ColUITheme } = this.props;
+        const { ColUITheme, navigation } = this.props;
 
         if(loading){
             return (
@@ -111,12 +111,12 @@ class EventScreen extends React.Component {
                         <View style={[styles.metricsAndAvaliation, { borderBottomColor: ColUITheme.main }]}>
                             <View style={{flex: 1}} >
                                 <ColUI.EventGlobalRating lightContent={false} rating={event.rating} avaliationCount={event.avaliation_count} />
-                                <Button transparent onPress={()=>{alert('foi')}}>
+                                <Button transparent onPress={()=>navigation.navigate('Avaliations')}>
                                     <Text style={[styles.btnLabel, { color: ColUITheme.main }]}>Ver detalhes da avaliação ></Text>
                                 </Button>
                             </View>
                             <View style={{flex: 1, alignItems: 'flex-end'}} >
-                                <ColUI.Button label='ver métricas' onPress={()=>alert('foi também')} />
+                                <ColUI.Button label='ver métricas' onPress={()=>navigation.navigate('Metrics')} />
                             </View>
                         </View>
 

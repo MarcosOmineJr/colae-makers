@@ -3,8 +3,9 @@ import { createMaterialTopTabNavigator } from 'react-navigation-tabs';
 import { createStackNavigator } from 'react-navigation-stack';
 import { connect } from 'react-redux';
 import DraftSwitch from './DraftStack';
-import { InactivesScreen, ActiveScreen, DraftsScreen, EventScreen } from '../screens';
+import { InactivesScreen, ActiveScreen, DraftsScreen, EventScreen, MetricsScreen } from '../screens';
 import ColaeAPI from '../api';
+import MetricsTabs from './MetricsTabs';
 
 const { ColUI } = ColaeAPI;
 
@@ -62,6 +63,15 @@ const ForHeader = createStackNavigator({
         screen: EventScreen,
         navigationOptions:{
             title: 'Evento',
+            header: ({navigation})=>{
+                return <ColUI.Header noAuth navigation={navigation} title='Evento' />;
+            }
+        }
+    },
+    Metrics:{
+        screen: MetricsTabs,
+        navigationOptions:{
+            title: 'Métricas',
             header: ({navigation})=>{
                 return <ColUI.Header noAuth navigation={navigation} title='Evento' />;
             }

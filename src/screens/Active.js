@@ -82,7 +82,6 @@ class Home extends React.Component {
 
         await this._fetchFirebase();
         s.refreshing = false;
-        console.log(s);
         this.setState(s);
     }
 

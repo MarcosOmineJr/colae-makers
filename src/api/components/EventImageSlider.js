@@ -40,8 +40,6 @@ class EventImageSlider extends React.Component {
 
         const { photos, ColUITheme } = this.props;
         const { selectedIndex } = this.state;
-        console.log('chamou render');
-        console.log('com as fotos: ', photos);
 
         return (
             <View style={styles.container}>
