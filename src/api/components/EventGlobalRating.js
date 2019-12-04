@@ -55,7 +55,7 @@ class EventGlobalRating extends React.Component {
 
     render(){
 
-        const { avaliationCount, lightContent, ColUITheme, style } = this.props;
+        const { avaliationCount, lightContent, ColUITheme, style, showTotalCount } = this.props;
         const { startype } = this.state;
 
         return (
@@ -65,7 +65,7 @@ class EventGlobalRating extends React.Component {
                 {this._renderStar(startype[2])}
                 {this._renderStar(startype[3])}
                 {this._renderStar(startype[4])}
-                <Text style={[styles.avalCount, { color: lightContent ? '#fff' : ColUITheme.gray.light }]}>({avaliationCount})</Text>
+                { showTotalCount && <Text style={[styles.avalCount, { color: lightContent ? '#fff' : ColUITheme.gray.light }]}>({avaliationCount})</Text>}
             </View>
         );
     }
@@ -74,7 +74,8 @@ class EventGlobalRating extends React.Component {
 EventGlobalRating.defaultProps = {
     lightContent: true,
     rating: 0,
-    avaliationCount: 0
+    avaliationCount: 0,
+    showTotalCount: true
 }
 
 const styles = StyleSheet.create({

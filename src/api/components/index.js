@@ -18,6 +18,7 @@ import DatePicker from './DatePicker';
 import TimePicker from './TimePicker';
 import SecondaryCard from './SecondaryCard';
 import EventImageSlider from './EventImageSlider';
+import AvaliationCard from './AvaliationCard';
 
 export default {
     styles,
@@ -38,5 +39,6 @@ export default {
     DatePicker,
     TimePicker,
     SecondaryCard,
-    EventImageSlider
+    EventImageSlider,
+    AvaliationCard
 };

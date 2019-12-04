@@ -150,12 +150,14 @@ class EventScreen extends React.Component {
                         <Text style={[styles.name, { color: ColUITheme.gray.light, marginTop: 20 }]}>Descrição</Text>
                         <Text style={styles.description}> {event.description} </Text>
 
-                        <Text style={[styles.name, { color: ColUITheme.gray.light, marginTop: 20 }]}>Organizado por:</Text>
-                        {
-                        event.producers.map((producer, key)=>(
-                            <ColUI.Tag key={key.toString()} user contentContainerStyle={styles.tag} label={producer.name+' '+producer.lastname} onPress={()=>{}} />
-                        ))
-                        }
+                        <Text style={[styles.name, { color: ColUITheme.gray.light, marginTop: 20, marginBottom: 10 }]}>Organizado por:</Text>
+                        <View style={styles.tagRow}>
+                            {
+                            event.producers.map((producer, key)=>(
+                                <ColUI.Tag key={key.toString()} user contentContainerStyle={styles.tag} label={producer.name+' '+producer.lastname} onPress={()=>{}} />
+                            ))
+                            }
+                        </View>
                     </View>
                 </View>
             </ScrollView>
@@ -232,8 +234,13 @@ const styles = StyleSheet.create({
     description:{
         marginTop: 10
     },
+    tagRow:{
+        flexDirection: 'row',
+        flexWrap: 'wrap'
+    },
     tag:{
-        marginVertical: 10
+        marginBottom: 10,
+        marginRight: 10
     }
 });
 
