@@ -17,20 +17,20 @@ const { height, width } = Dimensions.get('screen');
 
 const UserCard = (props)=>{
 
-    const { ColUITheme, data, navigation, style } = props;
+    const { ColUITheme, data, navigation, style, onPress } = props;
     
     if(data.type == 'user'){
         return (
-            <TouchableOpacity onPress={()=>{}} style={style}>
+            <TouchableOpacity onPress={()=>navigation.navigate('ProfileStack', { firebaseRef: data.ref, collection: 'users' })} style={style}>
                 <Card contentContainerStyle={userCardStyles.card}>
                     <View style={userCardStyles.photoContainer}>
-                        <Image source={{uri: data.profilephoto}} style={[userCardStyles.profilephoto, { borderColor: ColUITheme.main }]} />
+                        <Image source={{uri: data.profileimage}} style={[userCardStyles.profilephoto, { borderColor: ColUITheme.main }]} />
                     </View>
                     <View style={userCardStyles.contentContainer}>
                         <View style={[userCardStyles.nameContainer, { backgroundColor: ColUITheme.main }]}>
                             <Text style={userCardStyles.name} numberOfLines={1}>{`${data.name} ${data.lastname}`}</Text>
                         </View>
-                        <Text style={[userCardStyles.location, { color: ColUITheme.gray.light }]}> {`${data.location.city}, ${data.location.state}`} </Text>
+                        <Text style={[userCardStyles.location, { color: ColUITheme.gray.light }]}> {`${data.from.city}, ${data.from.state}`} </Text>
                         <View style={userCardStyles.profileType}>
                             { data.usertype == 'palestrante' && <Icon type='MaterialIcons' name='add' style={[userCardStyles.icon, { color: ColUITheme.main }]} /> }
                             <Text numberOfLines={1} style={[userCardStyles.userType, { color: ColUITheme.gray.light }]}>{data.usertype}</Text>

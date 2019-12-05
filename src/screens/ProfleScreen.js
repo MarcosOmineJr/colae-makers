@@ -201,7 +201,7 @@ const styles = StyleSheet.create({
     },
     email:{
         textDecorationLine: 'underline',
-        marginTop: 10
+        marginTop: 3
     },
     followingAndFollowersWrapper:{
         flexDirection: 'row',

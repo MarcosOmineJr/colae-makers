@@ -154,7 +154,7 @@ class EventScreen extends React.Component {
                         <View style={styles.tagRow}>
                             {
                             event.producers.map((producer, key)=>(
-                                <ColUI.Tag key={key.toString()} user contentContainerStyle={styles.tag} label={producer.name+' '+producer.lastname} onPress={()=>{}} />
+                                <ColUI.Tag key={key.toString()} user contentContainerStyle={styles.tag} label={producer.name+' '+producer.lastname} onPress={()=>navigation.navigate('Profile', { firebaseRef: producer.uid, collection: 'users' })} />
                             ))
                             }
                         </View>

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { connect } from 'react-redux';
+import firestore from '@react-native-firebase/firestore';
 import {
     StyleSheet,
     Dimensions,
@@ -61,6 +62,21 @@ const ExploreScreen = (props)=>{
     const [results, setResults] = useState({});
     const { ColUITheme, navigation } = props;
 
+    const fetchFirestore = async()=>{
+        let searchResult = [];
+        let promoters = await firestore().collection('users').where('usertype','==','promoter').get();
+        promoters.docs.map((promoter,key)=>{
+            searchResult.push({...promoter.data(), key: key, type: 'user', ref: promoter.id });
+        });
+        let events = await firestore().collection('events').where('published', '==', true).get();
+        events.docs.map((event, key)=>{
+            searchResult.push({...event.data(), key: key, type: 'event', ref:event.id });
+        })
+        
+        setResults(searchResult);
+        setShowResult(true);
+    }
+
     return (
         <View style={styles.container} >
             <View style={styles.searchBarContainer}>
@@ -68,7 +84,7 @@ const ExploreScreen = (props)=>{
                     <Icon type='MaterialIcons' name='search' style={{color: ColUITheme.main}} />
                     <TextInput placeholder='Pesquise por pessoas e eventos' style={[styles.textInput, { color: ColUITheme.purple.light }]} />
                 </View>
-                <TouchableOpacity style={styles.searchButton} onPress={()=>{setResults(_TEMP_mockData); setShowResult(true)}}>
+                <TouchableOpacity style={styles.searchButton} onPress={()=>{fetchFirestore()}}>
                     <Text style={{ color: ColUITheme.main }}>Pesquisar</Text>
                 </TouchableOpacity>
             </View>

@@ -261,13 +261,13 @@ const SignUp4 = (props)=>{
                                     .then((url)=>{
 
                                         //colocando em data a info certinha:
-                                        setData({ ...data, email: loginInfo.email, firebaseRef: user.uid, profileimage: url, userType: 'promoter', participatedin:[], phone: data.whatsapp });
+                                        setData({ ...data, email: loginInfo.email, firebaseRef: user.uid, profileimage: url, usertype: 'promoter', participatedin:[], phone: data.whatsapp });
 
                                         //recebendo o UID do usuário e criando o documento no Firestore:
-                                        firestore.collection('users').doc(user.uid).set({ ...data, email: loginInfo.email, firebaseRef: user.uid, profileimage: url, userType: 'promoter', participatedin:[], phone: data.whatsapp });
+                                        firestore.collection('users').doc(user.uid).set({ ...data, email: loginInfo.email, firebaseRef: user.uid, profileimage: url, usertype: 'promoter', participatedin:[], phone: data.whatsapp });
 
                                         //Guardando no Redux:
-                                        props.setUserInfo({ ...data, email: loginInfo.email, firebaseRef: user.uid, profileimage: url, userType: 'promoter', participatedin:[], phone: data.whatsapp });
+                                        props.setUserInfo({ ...data, email: loginInfo.email, firebaseRef: user.uid, profileimage: url, usertype: 'promoter', participatedin:[], phone: data.whatsapp });
 
                                         //Redirecionando para as rotas autenticadas:
                                         navigation.navigate('Authenticated');
