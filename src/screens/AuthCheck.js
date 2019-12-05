@@ -15,13 +15,20 @@ class AuthCheck extends React.Component {
 
         this.authentication = firebase.auth();
 
-        this.authentication.onAuthStateChanged(user=>{
+        this.unsubscribe;
+    }
+    componentDidMount(){
+        this.unsubscribe = this.authentication.onAuthStateChanged(user=>{
             if(user){
                 this.props.navigation.navigate('Authenticated');
             } else {
                 this.props.navigation.navigate('Unauthenticated');
             }
         });
+    }
+
+    componentWillUnmount(){
+        this.unsubscribe();
     }
 
     render(){

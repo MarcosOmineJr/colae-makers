@@ -105,7 +105,8 @@ const ProfileScreen = (props)=>{
             <View style={styles.otherInfos}>
                 <Text style={[styles.title, { color: ColUITheme.gray.light }]}>Sobre</Text>
                 { snapshot.about == '' && <Text style={[styles.about, { color: ColUITheme.gray.light }]}>{`${snapshot.name} ainda não adicionou nenhuma descrição`}</Text>}
-                { snapshot.about != '' && <Text style={[styles.about, { color: ColUITheme.gray.light }]}>{`${snapshot.about}`}</Text>}
+                { snapshot.about == undefined && <Text style={[styles.about, { color: ColUITheme.gray.light }]}>{`${snapshot.name} ainda não adicionou nenhuma descrição`}</Text>}
+                { snapshot.about != '' && snapshot.about != undefined && <Text style={[styles.about, { color: ColUITheme.gray.light }]}>{`${snapshot.about}`}</Text>}
                 <Text style={[styles.title, { color: ColUITheme.gray.light }]}>Eventos em que já participou</Text>
                 {
                     snapshot.participatedin[0] != '' &&

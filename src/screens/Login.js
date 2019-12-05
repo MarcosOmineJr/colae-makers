@@ -38,6 +38,7 @@ const Login = (props)=>{
                         let userData = await firestore.doc('users/'+user.uid).get();
                         userData = userData.data();
                         setUserInfo({...userData, firebaseRef: user.uid });
+                        navigation.navigate('Authenticated');
                     } catch(e){
                         console.log('Erro:', e);
                     }
@@ -91,7 +92,7 @@ const Login = (props)=>{
             <View style={styles.cardContainer}>
                 <ColaeAPI.ColUI.Card contentContainerStyle={styles.card}>
                     <Text style={{ fontSize: 40, color: ColUITheme.accent, marginBottom: '15%' }}>Login</Text>
-                    <ColUI.TextInput keyboardType='email-address' label='E-mail' style={{marginBottom: '10%'}} onChangeText={(t)=>{_handleInput(t, 'email')}} />
+                    <ColUI.TextInput autoCapitalize='none' keyboardType='email-address' label='E-mail' style={{marginBottom: '10%'}} onChangeText={(t)=>{_handleInput(t, 'email')}} />
                     <ColUI.TextInput secureTextEntry={true} label='Senha' onChangeText={(t)=>{_handleInput(t, 'password')}} />
                 </ColaeAPI.ColUI.Card>
             </View>

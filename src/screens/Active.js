@@ -12,6 +12,7 @@ import {
 import { connect } from 'react-redux';
 import { NavigationEvents } from 'react-navigation';
 import { firebase } from '@react-native-firebase/firestore';
+import '@react-native-firebase/auth';
 import ColaeAPI from '../api';
 
 const { height, width } = Dimensions.get('window');
@@ -35,9 +36,13 @@ class Home extends React.Component {
             props.ColUITheme.purple.light
         ]
 
+        //firebase.auth().signOut();
+
         this._renderEvents = this._renderEvents.bind(this);
         this._fetchFirebase = this._fetchFirebase.bind(this);
         this._refreshSnapshot = this._refreshSnapshot.bind(this);
+
+        console.log(props.userData);
     }
 
     componentDidMount(){
@@ -188,7 +193,8 @@ const styles = StyleSheet.create({
 const mapStateToProps = (state)=>{
     return {
         ColUITheme: state.themesReducer.ColUITheme,
-        events: state.publishedEventsReducer
+        events: state.publishedEventsReducer,
+        userData: state.userReducer
     };
 }
 
