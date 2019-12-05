@@ -62,14 +62,14 @@ class MyProfileScreen extends React.Component {
                     </View>
                 </ColUI.Card>
                 <TouchableOpacity>
-                    <ColUI.Card contentContainerStyle={[styles.card, { padding: 20 }]}>
+                    { false && <ColUI.Card contentContainerStyle={[styles.card, { padding: 20 }]}>
                         <View style={styles.cardButton}>
                             <Text style={[styles.cardButtonText, { color: ColUITheme.main }]}>Configurações da Conta</Text>
                             <Icon type='MaterialIcons' name='chevron-right' style={[styles.icon, { color: ColUITheme.main }]} />
                         </View>
-                    </ColUI.Card>
+                    </ColUI.Card>}
                 </TouchableOpacity>
-                <TouchableOpacity>
+                <TouchableOpacity onPress={()=>navigation.navigate('Help')}>
                     <ColUI.Card contentContainerStyle={[styles.card, { padding: 20 }]}>
                         <View style={styles.cardButton}>
                             <Text style={[styles.cardButtonText, { color: ColUITheme.main }]}>Precisa de Ajuda?</Text>
