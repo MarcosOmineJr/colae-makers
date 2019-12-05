@@ -21,7 +21,7 @@ class BottomTabNavigator extends React.Component {
 
     render(){
         return (
-            <BottomTabBar inactiveTintColor='rgba(255,255,255,0.7)' activeTintColor='#FFFFFF' {...this.props} style={[styles.container, { backgroundColor: this.props.ColUITheme.main }, shadow]} />
+            <BottomTabBar inactiveTintColor='#aaa' activeTintColor={this.props.ColUITheme.main} {...this.props} style={[styles.container, { backgroundColor: this.props.ColUITheme.background }, shadow]} />
         );
     }
 }

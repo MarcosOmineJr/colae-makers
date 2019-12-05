@@ -119,6 +119,7 @@ class Home extends React.Component {
                 renderItem={({item})=>this._renderEvents(item)}
                 ListEmptyComponent={()=>(<View style={styles.emptyListContainer}><Text>Você não gerencia nenhum evento por enquanto</Text></View>)}
                 refreshControl={ <RefreshControl refreshing={refreshing} onRefresh={this._refreshSnapshot} colors={this.refreshColors} /> }
+                showsVerticalScrollIndicator={false}
                 />
             </View>
         );

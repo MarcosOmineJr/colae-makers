@@ -17,21 +17,21 @@ const Authenticated = createBottomTabNavigator({
         screen: HomeTabs,
         navigationOptions:{
             tabBarLabel: 'Meus Eventos',
-            tabBarIcon: ({focused})=>{return <Icon type="MaterialIcons" name="assignment" style={focused?{color: '#ffffff'}:{color:'rgba(255,255,255,0.7)'}} />}
+            tabBarIcon: ({focused})=>{return <Icon type="MaterialIcons" name="assignment" style={focused?{color: '#EA1F5A'}:{color:'#aaa'}} />}
         }
     },
     Search:{
         screen: ExploreStack,
         navigationOptions:{
             tabBarLabel: 'Explorar',
-            tabBarIcon: ({focused})=>{return <Icon type="MaterialIcons" name="search" style={focused?{color: '#ffffff'}:{color:'rgba(255,255,255,0.7)'}} />}
+            tabBarIcon: ({focused})=>{return <Icon type="MaterialIcons" name="search" style={focused?{color: '#EA1F5A'}:{color:'#aaa'}} />}
         }
     },
     Profile:{
         screen: MyProfileStack,
         navigationOptions:{
             tabBarLabel: 'Meu Perfil',
-            tabBarIcon: ({focused})=>{return <Icon type="MaterialIcons" name="account-circle" style={focused?{color: '#ffffff'}:{color:'rgba(255,255,255,0.7)'}} />}
+            tabBarIcon: ({focused})=>{return <Icon type="MaterialIcons" name="account-circle" style={focused?{color: '#EA1F5A'}:{color:'#aaa'}} />}
         }
     }
 },{

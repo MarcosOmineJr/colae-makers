@@ -88,6 +88,7 @@ class Drafts extends React.Component {
                 data={this.props.events}
                 renderItem={({item})=>this._renderEvents(item)}
                 ListEmptyComponent={()=>(<View style={styles.emptyListContainer}><Text>Você não tem nenhum rascunho por enquanto</Text></View>)}
+                showsVerticalScrollIndicator={false}
                 />
             </View>
         );

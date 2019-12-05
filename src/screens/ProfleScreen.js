@@ -73,12 +73,28 @@ const ProfileScreen = (props)=>{
                             { snapshot.lastname == '' && <Text style={styles.name}>{`${snapshot.name}`}</Text>}
                         </View>
                         { snapshot.username && <Text style={styles.username}>{`${snapshot.username}`}</Text> }
-                        <Text style={styles.location}> {`${snapshot.location.city}, ${snapshot.location.state}`} </Text>
-                        <View style={styles.contactsWrapper}>
-                            <Text style={styles.location}>Contato:</Text>
-                            <Text style={[styles.email, { color: ColUITheme.main }]} onPress={()=>{Linking.openURL(`tel:${snapshot.phone}`)}}> {formatPhone(`${snapshot.phone}`)} </Text>
-                            <Text style={[styles.email, { color: ColUITheme.main }]} onPress={()=>{Linking.openURL(`mailto:${snapshot.email}`)}}> {`${snapshot.email}`} </Text>
-                        </View>
+                        <Text style={styles.location}> {`${snapshot.from.city}, ${snapshot.from.state}`} </Text>
+                        {
+                            snapshot.usertype != 'público' &&
+                            <View style={styles.contactsWrapper}>
+                                <Text style={styles.location}>Contato:</Text>
+                                <Text style={[styles.email, { color: ColUITheme.main }]} onPress={()=>{Linking.openURL(`tel:${snapshot.phone}`)}}> {formatPhone(`${snapshot.phone}`)} </Text>
+                                <Text style={[styles.email, { color: ColUITheme.main }]} onPress={()=>{Linking.openURL(`mailto:${snapshot.email}`)}}> {`${snapshot.email}`} </Text>
+                            </View>
+                        }
+                        {
+                            snapshot.usertype == 'público' &&
+                            <View style={styles.followingAndFollowersWrapper}>
+                                <View style={[styles.followingWrapper, { borderRightColor: ColUITheme.main }]}>
+                                    <Text style={[styles.followSectionTitle, { color: ColUITheme.gray.light }]}>Seguindo</Text>
+                                    <Text style={[styles.followtitle, { color: ColUITheme.main }]}>43</Text>
+                                </View>
+                                <View style={{ flex: 1, alignItems: 'center' }}>
+                                    <Text style={[styles.followSectionTitle, { color: ColUITheme.gray.light }]}>Seguidores</Text>
+                                    <Text style={[styles.followtitle, { color: ColUITheme.main }]}>2</Text>
+                                </View>
+                            </View>
+                        }
                     </View>
                 </View>
                 <View style={styles.buttonsContainer}>
@@ -88,15 +104,20 @@ const ProfileScreen = (props)=>{
             </View>
             <View style={styles.otherInfos}>
                 <Text style={[styles.title, { color: ColUITheme.gray.light }]}>Sobre</Text>
-                <Text style={[styles.about, { color: ColUITheme.gray.light }]}> {`${snapshot.about}`} </Text>
+                { snapshot.about == '' && <Text style={[styles.about, { color: ColUITheme.gray.light }]}>{`${snapshot.name} ainda não adicionou nenhuma descrição`}</Text>}
+                { snapshot.about != '' && <Text style={[styles.about, { color: ColUITheme.gray.light }]}>{`${snapshot.about}`}</Text>}
                 <Text style={[styles.title, { color: ColUITheme.gray.light }]}>Eventos em que já participou</Text>
-                <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.eventImageCardsContainer}>
-                    {
-                        snapshot.participatedin.map((reference, key)=>(
-                            <ColUI.EventImageCardWhy key={key.toString()} style={styles.eventImageCard} firebaseRef={reference} onPress={()=>navigation.navigate('EventInfo', { firebaseRef:reference })} />
-                        ))
-                    }
-                </ScrollView>
+                {
+                    snapshot.participatedin[0] != '' &&
+                    <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.eventImageCardsContainer}>
+                        {
+                            snapshot.participatedin.map((reference, key)=>(
+                                <ColUI.EventImageCardWhy key={key.toString()} style={styles.eventImageCard} firebaseRef={reference} onPress={()=>navigation.navigate('EventInfo', { firebaseRef:reference })} />
+                            ))
+                        }
+                    </ScrollView>
+                }
+                { snapshot.participatedin[0] == '' && <Text>{`${snapshot.name} ainda não participou de nenhum evento`}</Text> }
             </View>
         </ScrollView>
     );
@@ -180,6 +201,23 @@ const styles = StyleSheet.create({
     email:{
         textDecorationLine: 'underline',
         marginTop: 10
+    },
+    followingAndFollowersWrapper:{
+        flexDirection: 'row',
+        paddingTop: 20
+    },
+    followingWrapper:{
+        flex: 1,
+        alignItems: 'center',
+        borderRightWidth: 1
+    },
+    followSectionTitle:{
+        fontWeight: 'bold',
+        marginBottom: 10
+    },
+    followtitle:{
+        fontSize: 18,
+        fontWeight: 'bold'
     },
     buttonsContainer:{
         position: 'absolute',
