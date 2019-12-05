@@ -21,6 +21,7 @@ import EventImageSlider from './EventImageSlider';
 import AvaliationCard from './AvaliationCard';
 import UserCard from './UserCard';
 import UserCardInContacts from './UserCardInContacts';
+import EventImageCardWhy from './EventImageCardWhy';
 
 export default {
     styles,
@@ -44,5 +45,6 @@ export default {
     EventImageSlider,
     AvaliationCard,
     UserCard,
-    UserCardInContacts
+    UserCardInContacts,
+    EventImageCardWhy
 };

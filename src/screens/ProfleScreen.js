@@ -6,6 +6,7 @@ import ColaeAPI from '../api';
 import {
     StyleSheet,
     Dimensions,
+    ScrollView,
     View,
     ActivityIndicator,
     Text,
@@ -34,7 +35,7 @@ const ProfileScreen = (props)=>{
         }
 
         fetchFirebase();
-    }, []);
+    },[]);
 
     if(loading){
         return (
@@ -42,10 +43,18 @@ const ProfileScreen = (props)=>{
                 <ActivityIndicator size='large' color={ColUITheme.main} />
             </View>
         );
-    }
+    };
+
+    const formatPhone = (phone)=>{
+        let phoneNumber = phone.substr(4, 9);
+        let firstPart = phoneNumber.substr(0, 5);
+        let lastPart = phoneNumber.substr(5, 4);
+        let ddd = phone.substr(2, 2);
+        return `(${ddd}) ${firstPart}-${lastPart}`;
+    };
 
     return (
-        <View style={styles.container}>
+        <ScrollView contentContainerStyle={styles.container}>
             <View style={styles.basicInfoContainer}>
                 <View style={styles.basicInfoWrapper}>
                     <View style={styles.left}>
@@ -67,8 +76,8 @@ const ProfileScreen = (props)=>{
                         <Text style={styles.location}> {`${snapshot.location.city}, ${snapshot.location.state}`} </Text>
                         <View style={styles.contactsWrapper}>
                             <Text style={styles.location}>Contato:</Text>
-                            <Text style={styles.email}> {`${snapshot.phone}`} </Text>
-                            <Text style={styles.email}> {`${snapshot.email}`} </Text>
+                            <Text style={[styles.email, { color: ColUITheme.main }]} onPress={()=>{Linking.openURL(`tel:${snapshot.phone}`)}}> {formatPhone(`${snapshot.phone}`)} </Text>
+                            <Text style={[styles.email, { color: ColUITheme.main }]} onPress={()=>{Linking.openURL(`mailto:${snapshot.email}`)}}> {`${snapshot.email}`} </Text>
                         </View>
                     </View>
                 </View>
@@ -78,9 +87,18 @@ const ProfileScreen = (props)=>{
                 </View>
             </View>
             <View style={styles.otherInfos}>
-
+                <Text style={[styles.title, { color: ColUITheme.gray.light }]}>Sobre</Text>
+                <Text style={[styles.about, { color: ColUITheme.gray.light }]}> {`${snapshot.about}`} </Text>
+                <Text style={[styles.title, { color: ColUITheme.gray.light }]}>Eventos em que já participou</Text>
+                <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.eventImageCardsContainer}>
+                    {
+                        snapshot.participatedin.map((reference, key)=>(
+                            <ColUI.EventImageCardWhy key={key.toString()} style={styles.eventImageCard} firebaseRef={reference} onPress={()=>navigation.navigate('EventInfo', { firebaseRef:reference })} />
+                        ))
+                    }
+                </ScrollView>
             </View>
-        </View>
+        </ScrollView>
     );
 }
 
@@ -103,8 +121,8 @@ const styles = StyleSheet.create({
     },
     basicInfoWrapper:{
         flexDirection: 'row',
-        backgroundColor: '#cff',
-        alignItems: 'flex-start'
+        alignItems: 'flex-start',
+        paddingTop: 15
     },
     left:{
         flex: 1,
@@ -112,9 +130,9 @@ const styles = StyleSheet.create({
         justifyContent: 'center'
     },
     profilephoto:{
-        width: 100,
-        height: 100,
-        borderRadius: 50,
+        width: 120,
+        height: 120,
+        borderRadius: 60,
         borderWidth: 1
     },
     imageWrapper:{
@@ -160,7 +178,8 @@ const styles = StyleSheet.create({
         bottom: 0
     },
     email:{
-        
+        textDecorationLine: 'underline',
+        marginTop: 10
     },
     buttonsContainer:{
         position: 'absolute',
@@ -175,7 +194,23 @@ const styles = StyleSheet.create({
     otherInfos:{
         flex: 1.5,
         width,
-        backgroundColor: '#cfc'
+        padding: 20
+    },
+    title:{
+        fontSize: 18,
+        fontWeight: 'bold',
+        marginBottom: 10
+    },
+    about:{
+        marginBottom: 50
+    },
+    eventImageCard:{
+        marginVertical: 10,
+        marginRight: 10
+    },
+    eventImageCardsContainer:{
+        justifyContent: 'flex-start',
+        alignItems: 'flex-start'
     }
 });
 
