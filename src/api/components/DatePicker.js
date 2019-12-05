@@ -11,10 +11,13 @@ class DatePicker extends React.Component {
     render(){
 
         const { ColUITheme, date, onPress } = this.props;
+        let dia = date.getDate().toString().length < 2 ? '0'+date.getDate().toString() : date.getDate().toString();
+        let mes = (date.getMonth()+1).toString().length < 2 ? '0'+(date.getMonth()+1).toString() : (date.getMonth()+1).toString();
+        let ano = date.getFullYear().toString().substr(2, 4);
 
         return (
             <TouchableOpacity style={[styles.container, { borderBottomColor: ColUITheme.main }]} onPress={onPress}>
-                <Text style={[styles.date, { color: ColUITheme.main }]}>{ date.toLocaleDateString('pt-BR', {day: '2-digit', month:'2-digit', year: '2-digit'}) }</Text>
+                <Text style={[styles.date, { color: ColUITheme.main }]}>{`${dia}/${mes}/${ano}`}</Text>
             </TouchableOpacity>
         );
     }
