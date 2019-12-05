@@ -1,5 +1,6 @@
 import React from 'react';
 import { firebase } from '@react-native-firebase/auth';
+import '@react-native-firebase/firestore';
 import {
     Dimensions,
     StyleSheet,
@@ -21,8 +22,12 @@ class MyProfileScreen extends React.Component {
 
     constructor(props){
         super(props);
+        this.state = {
+            userData: props.user
+        }
 
         this._logOut = this._logOut.bind(this);
+        this._fetchFirestore = this._fetchFirestore.bind(this);
 
         this.authentication = firebase.auth();
         
@@ -37,21 +42,37 @@ class MyProfileScreen extends React.Component {
         this.authentication.signOut();
     }
 
+    componentDidMount(){
+        this._fetchFirestore();
+    }
+
+    componentDidUpdate(){
+        this._fetchFirestore();
+    }
+
+    async _fetchFirestore(){
+        let s = this.state;
+        let res = await firebase.firestore().doc(`users/${this.props.user.firebaseRef}`).get();
+        s.userData = res.data();
+        this.setState(s);
+    }
+
     render(){
 
         const { user, navigation, ColUITheme } = this.props;
+        const { userData } = this.state;
 
         return (
             <ScrollView contentContainerStyle={styles.container}>
                 <ColUI.Card colSpan={6} contentContainerStyle={styles.card}>
                     <View style={styles.userInfoContainer}>
                         <View style={styles.profileImageContainer}>
-                            <Image source={{uri: user.profileimage}} style={styles.profileImage} />
+                            <Image source={{uri: userData.profileimage}} style={styles.profileImage} />
                         </View>
                         <View style={styles.InfoContainer}>
-                            <Text style={styles.name}>{ user.name+' '+user.lastname }</Text>
-                            <Text>{ user.username }</Text>
-                            <Text>de { user.from.city+' - '+user.from.state }</Text>
+                            <Text style={styles.name}>{ userData.name+' '+userData.lastname }</Text>
+                            <Text>{ userData.username }</Text>
+                            <Text>de { userData.from.city+' - '+userData.from.state }</Text>
                         </View>
                     </View>
                     <View style={styles.userButtonsContainer}>
