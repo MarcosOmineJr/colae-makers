@@ -24,7 +24,7 @@ class ProfileImageInput extends React.Component {
 
     render(){
 
-        const { ColUITheme, onPress, source, edit } = this.props;
+        const { ColUITheme, onPress, source, edit, style } = this.props;
 
         return (
             <TouchableHighlight style={[styles.round, shadow, { backgroundColor: ColUITheme.background }]} onPress={onPress} >
@@ -34,14 +34,14 @@ class ProfileImageInput extends React.Component {
                             <View style={{ flex: 1 }}>
                                 {
                                     this._renderIf(source != undefined, 
-                                        <View style={[styles.round, styles.withImage]}>
-                                            <Image source={source} style={styles.round} />
+                                        <View style={[styles.round, styles.withImage, style]}>
+                                            <Image source={source} style={[styles.round, style]} />
                                             <View style={[styles.round, styles.overlay]} />
                                         </View>
                                     )
                                 }
-                                <View style={[styles.round, styles.iconContainer]}>
-                                    <Icon type='MaterialIcons' name='add' style={[styles.icon, { color: ColUITheme.main }]} />
+                                <View style={[styles.round, styles.iconContainer, style]}>
+                                    <Icon type='MaterialIcons' name='create' style={[styles.icon, { color: ColUITheme.main }]} />
                                 </View>
                             </View>
                         )
@@ -52,7 +52,7 @@ class ProfileImageInput extends React.Component {
                                 {
                                     this._renderIf(source == undefined,
                                         <View style={[styles.round, styles.iconContainer]}>
-                                            <Icon type='MaterialIcons' name='add' style={[styles.icon, { color: ColUITheme.main }]} />
+                                            <Icon type='MaterialIcons' name='create' style={[styles.icon, { color: ColUITheme.main }]} />
                                         </View>
                                     )
                                 }
@@ -91,9 +91,9 @@ const styles = StyleSheet.create({
         fontSize: 35
     },
     round:{
-        width: 100,
-        height: 100,
-        borderRadius: 50
+        width: 120,
+        height: 120,
+        borderRadius: 60
     },
     overlay:{
         backgroundColor: 'rgba(0,0,0,0.3)',

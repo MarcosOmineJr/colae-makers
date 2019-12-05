@@ -58,7 +58,7 @@ class MyProfileScreen extends React.Component {
                         <Button transparent style={styles.transparentButtonWrapper} onPress={()=>navigation.navigate('Profile', { firebaseRef: user.firebaseRef, collection: 'users' })}>
                             <Text style={[styles.transparentButtonText, { color: ColUITheme.main }]}>Visualizar</Text>
                         </Button>
-                        <ColUI.Button label='editar' />
+                        <ColUI.Button label='editar' onPress={()=>navigation.navigate('EditProfile')} />
                     </View>
                 </ColUI.Card>
                 <TouchableOpacity>

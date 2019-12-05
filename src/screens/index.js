@@ -14,6 +14,7 @@ import ExploreScreen from './ExploreScreen';
 import ContactsForAdding from './ContactsForAdding';
 import ProfileScreen from './ProfleScreen';
 import HelpScreen from './HelpScreen';
+import EditProfileInfo from './EditProfileInfo';
 
 //SignUp:
 import SignUpScreens from './SignUp';
@@ -40,5 +41,6 @@ export {
     ExploreScreen,
     ContactsForAdding,
     ProfileScreen,
-    HelpScreen
+    HelpScreen,
+    EditProfileInfo
 };

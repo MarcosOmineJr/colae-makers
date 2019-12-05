@@ -2,7 +2,7 @@ import React from 'react';
 
 import { createStackNavigator } from 'react-navigation-stack';
 
-import { MyProfileScreen, ProfileScreen, HelpScreen } from '../screens';
+import { MyProfileScreen, ProfileScreen, HelpScreen, EditProfileInfo, InConstructionScreen } from '../screens';
 
 import ColaeAPI from '../api';
 
@@ -24,6 +24,24 @@ const MyProfileStack = createStackNavigator({
             title: 'Perfil',
             header: ({navigation})=>{
                 return <ColUI.Header noAuth navigation={navigation} title='Perfil' />;
+            }
+        }
+    },
+    EditProfile:{
+        screen:EditProfileInfo,
+        navigationOptions:{
+            title: 'Editar Perfil',
+            header: ({navigation})=>{
+                return <ColUI.Header noAuth navigation={navigation} title='Editar Perfil' />;
+            }
+        }
+    },
+    ChangePassword:{
+        screen:InConstructionScreen,
+        navigationOptions:{
+            title: 'Alterar Senha',
+            header: ({navigation})=>{
+                return <ColUI.Header noAuth navigation={navigation} title='Alterar Senha' />;
             }
         }
     },

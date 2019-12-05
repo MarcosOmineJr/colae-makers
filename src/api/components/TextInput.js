@@ -18,12 +18,12 @@ class TextInput extends React.Component {
 
     render(){
 
-        const { ColUITheme, style, label, labelStyle, onChangeText, keyboardType, secureTextEntry, textStyle } = this.props;
+        const { ColUITheme, style, label, labelStyle, onChangeText, keyboardType, secureTextEntry, textStyle, value } = this.props;
 
         return (
             <Item floatingLabel style={[{ borderColor: ColUITheme.main, marginBottom: 20, width: this._componentWidth }, style]}>
                 <Label style={[{ color: ColUITheme.main }, labelStyle]}>{ label }</Label>
-                <Input style={[{ color: ColUITheme.purple.light }, textStyle]} onChangeText={(t)=>{onChangeText(t)}} keyboardType={keyboardType} secureTextEntry={secureTextEntry} selectionColor={ ColUITheme.main } />
+                <Input style={[{ color: ColUITheme.purple.light }, textStyle]} value={value} onChangeText={(t)=>{onChangeText(t)}} keyboardType={keyboardType} secureTextEntry={secureTextEntry} selectionColor={ ColUITheme.main } />
             </Item>
         );
     }
