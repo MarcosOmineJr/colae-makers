@@ -500,30 +500,19 @@ class EventDescription extends React.Component {
     constructor(props){
         super(props);
         this.state = {
-            disabled: true,
             description: ''
         }
         this._handleInput = this._handleInput.bind(this);
-        this._confirm = this._confirm.bind(this);
     }
 
     _handleInput(d){
         let s = this.state;
-        if(d != ''){
-            s.disabled = false;
-        } else {
-            s.disabled = true;
-        }
         s.description = d;
         this.setState(s);
     }
 
-    _confirm(){
-        this.props.setTempDraft({ ...this.props.tempDraft, description: this.state.description });
-        this.props.navigation.goBack(null);
-    }
-
     render(){
+
         return (
             <View style={EventDescriptionStyles.container}>
                 <View style={EventDescriptionStyles.textContainer}>
