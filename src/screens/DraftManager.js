@@ -288,32 +288,84 @@ class EventType extends React.Component {
         super(props);
         this.state = {
             data: {
-                images: []
+                images: [],
+                categories: []
             }
         }
         this._handlePhotoInput = this._handlePhotoInput.bind(this);
-        this._removePhoto = this._removePhoto.bind(this);
+        this._handleCategoryInput = this._handleCategoryInput.bind(this);
     }
 
-    async _handlePhotoInput(){
+    async _handlePhotoInput(mode = 'put', key = 0){
 
         let s = this.state;
         const { images } = s.data;
         
-        try{
-            let image = await ImagePicker.openPicker({ cropping: false })
-            images.push(image);
-        }catch(error){
-            console.log('Erro ao tentar pegar imagem:', error);
-        }
+        switch(mode){
+            case 'put':
+                try{
+                    let image = await ImagePicker.openPicker({ cropping: false })
+                    images.push(image);
+                }catch(error){
+                    console.log('Erro ao tentar pegar imagem:', error);
+                }
+                break;
+            case 'delete':
+                images.splice(key, 1);
+                break;
+    }
 
         this.setState(s);
     }
 
-    async _removePhoto(key){
+    _handleCategoryInput(input){
         let s = this.state;
-        const { images } = s.data;
-        images.splice(key, 1);
+        const { categories } = s.data;
+
+        //converte o categories em uma string com vírgulas (ex.: Balada,Show,Outros):
+        //Obs.: Se categories for array vazio, vai dar uma string vazia ('');
+        let categoriesAsString = categories.toString();
+
+        //Vê se o input já existe nessa string:
+        let finder = categoriesAsString.search(input);
+
+        if(finder == -1){
+            //Se o input não existir ele reconverte a string para array e dá um push com o input:
+            //Obs.: Se ele vier como string vazia (que veio de array vazio), vai dar array com string vazia (['']):
+            //Obs2.: Portanto, o resultado final depois do push ficaria (['', 'valor_do_input'])
+            let categoriesAsArray = categoriesAsString.split(',');
+            categoriesAsArray.push(input);
+
+            //Tratamento para caso o array seja ['', 'valor_do_input'], simplesmente remove o primeiro valor do array:
+            if(categoriesAsArray[0] == ''){
+                categoriesAsArray.shift();
+            }
+
+            //Define o state como esse novo array de categorias:
+            s.data.categories = categoriesAsArray;
+        } else {
+            //Se o input existir ele substitui na string para nada (''):
+            let removed = categoriesAsString.replace(input, '');
+
+            //Tratamento 1: caso o input removido esteja no meio ('input1,input_para_remover,input2')
+            //O resultado vai acabar sendo 'input1,,input2'
+            //então é só substituir ',,' por ',' que normaliza:
+            let normalised = removed.replace(',,',',');
+
+            //Transforma de novo para array:
+            let normalisedAsArray = normalised.split(',');
+
+            //Tratamento 2: Se o input removido for o último ('input1,input2,input_para_remover'),
+            //A string acaba ficando 'input1,input2,' e o array ['input1', 'input2', '']
+            //Então é só ver se o último valor é '' e nesse caso apagá-lo:
+            if(normalisedAsArray[normalisedAsArray.length-1] == ''){
+                normalisedAsArray.pop();
+            }
+
+            //Define o state como o novo array de categorias:
+            s.data.categories = normalisedAsArray;
+        }
+
         this.setState(s);
     }
 
@@ -326,15 +378,15 @@ class EventType extends React.Component {
             <ScrollView contentContainerStyle={EventTypeStyles.container}>
                 <View style={EventTypeStyles.contentContainer}>
                     <Text style={[EventTypeStyles.sectionTitle, { color: ColUITheme.gray.light }, { marginTop:0 }]}>Adicionar Fotos</Text>
-                    {data.images[0] == undefined && <ColUI.PhotoInput onPress={this._handlePhotoInput} />}
+                    {data.images[0] == undefined && <ColUI.PhotoInput onPress={()=>this._handlePhotoInput('put')} />}
                     {data.images[0] != undefined &&
                         <View style={EventTypeStyles.imagesContainer}>
                             {
                                 data.images.map((image, key)=>(
-                                    <ColUI.PhotoInput key={key.toString()} onPress={()=>this._removePhoto(key)} source={{uri: image.path}} style={{marginRight: 10, marginBottom: 10}} />
+                                    <ColUI.PhotoInput key={key.toString()} onPress={()=>this._handlePhotoInput('delete', key)} source={{uri: image.path}} style={{marginRight: 10, marginBottom: 10}} />
                                 ))
                             }
-                            <ColUI.PhotoInput onPress={this._handlePhotoInput} style={{marginRight: 10, marginBottom: 10}} />
+                            <ColUI.PhotoInput onPress={()=>this._handlePhotoInput('put')} style={{marginRight: 10, marginBottom: 10}} />
                         </View>
                     }
 
@@ -342,24 +394,24 @@ class EventType extends React.Component {
 
                     <View style={EventTypeStyles.categoryContainer}>
                         <View style={EventTypeStyles.tagRow}>
-                            <ColUI.Tag contentContainerStyle={EventTypeStyles.tag} label='Show' onPress={()=>{}} />
-                            <ColUI.Tag contentContainerStyle={EventTypeStyles.tag} label='Palestra' onPress={()=>{}} />
-                            <ColUI.Tag contentContainerStyle={EventTypeStyles.tag} label='Balada' onPress={()=>{}} />
-                            <ColUI.Tag contentContainerStyle={EventTypeStyles.tag} label='Negócios' onPress={()=>{}} />
+                            <ColUI.Tag contentContainerStyle={EventTypeStyles.tag} label='Show' onPress={()=>this._handleCategoryInput('Show')} />
+                            <ColUI.Tag contentContainerStyle={EventTypeStyles.tag} label='Palestra' onPress={()=>this._handleCategoryInput('Palestra')} />
+                            <ColUI.Tag contentContainerStyle={EventTypeStyles.tag} label='Balada' onPress={()=>this._handleCategoryInput('Balada')} />
+                            <ColUI.Tag contentContainerStyle={EventTypeStyles.tag} label='Negócios' onPress={()=>this._handleCategoryInput('Negócios')} />
                         </View>
                         <View style={EventTypeStyles.tagRow}>
-                            <ColUI.Tag contentContainerStyle={EventTypeStyles.tag} label='Gastronomia' onPress={()=>{}} />
-                            <ColUI.Tag contentContainerStyle={EventTypeStyles.tag} label='Espetáculo' onPress={()=>{}} />
-                            <ColUI.Tag contentContainerStyle={EventTypeStyles.tag} label='Esportivo' onPress={()=>{}} />
+                            <ColUI.Tag contentContainerStyle={EventTypeStyles.tag} label='Gastronomia' onPress={()=>this._handleCategoryInput('Gastronomia')} />
+                            <ColUI.Tag contentContainerStyle={EventTypeStyles.tag} label='Espetáculo' onPress={()=>this._handleCategoryInput('Espetáculo')} />
+                            <ColUI.Tag contentContainerStyle={EventTypeStyles.tag} label='Esportivo' onPress={()=>this._handleCategoryInput('Esportivo')} />
                         </View>
                         <View style={EventTypeStyles.tagRow}>
-                            <ColUI.Tag contentContainerStyle={EventTypeStyles.tag} label='Religioso' onPress={()=>{}} />
-                            <ColUI.Tag contentContainerStyle={EventTypeStyles.tag} label='Curso/Workshop' onPress={()=>{}} />
-                            <ColUI.Tag contentContainerStyle={EventTypeStyles.tag} label='Arte e Cultura' onPress={()=>{}} />
+                            <ColUI.Tag contentContainerStyle={EventTypeStyles.tag} label='Religioso' onPress={()=>this._handleCategoryInput('Religioso')} />
+                            <ColUI.Tag contentContainerStyle={EventTypeStyles.tag} label='Curso/Workshop' onPress={()=>this._handleCategoryInput('Curso/Workshop')} />
+                            <ColUI.Tag contentContainerStyle={EventTypeStyles.tag} label='Arte e Cultura' onPress={()=>this._handleCategoryInput('Arte e Cultura')} />
                         </View>
                         <View style={EventTypeStyles.tagRow}>
-                            <ColUI.Tag contentContainerStyle={EventTypeStyles.tag} label='Tecnologia' onPress={()=>{}} />
-                            <ColUI.Tag contentContainerStyle={EventTypeStyles.tag} label='Outros' onPress={()=>{}} />
+                            <ColUI.Tag contentContainerStyle={EventTypeStyles.tag} label='Tecnologia' onPress={()=>this._handleCategoryInput('Tecnologia')} />
+                            <ColUI.Tag contentContainerStyle={EventTypeStyles.tag} label='Outros' onPress={()=>this._handleCategoryInput('Outros')} />
                         </View>
                     </View>
 
@@ -383,7 +435,6 @@ class EventType extends React.Component {
 
 const EventTypeStyles = StyleSheet.create({
     container:{
-        height,
         padding: 20,
         alignItems: 'center'
     },
@@ -424,7 +475,8 @@ const EventTypeStyles = StyleSheet.create({
     textArea:{
         width: GridWidth(6),
         borderRadius: 10,
-        borderColor: '#999999'
+        borderColor: '#999999',
+        marginBottom: height*0.13
     }
 });
 
