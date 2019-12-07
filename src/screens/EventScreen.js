@@ -43,7 +43,8 @@ class EventScreen extends React.Component {
         this.setState(s);
     }
 
-    _formatDate(date){
+    _formatDate(unixDate){
+        let date = new Date(unixDate);
         let day = date.getDate().toString().length > 1 ? date.getDate() : '0'+date.getDate().toString();
         let month;
         let hour = date.getHours().toString().length > 1 ? date.getHours() : '0'+date.getHours().toString();
@@ -132,9 +133,9 @@ class EventScreen extends React.Component {
                                     <Icon type='MaterialIcons' name='query-builder' style={styles.icon} />
                                     <View style={styles.durationTextContainer}>
                                         <Text style={[styles.durationTitle, { color: ColUITheme.gray.light }]}>Começa:</Text>
-                                        <Text style={[styles.date, { color: ColUITheme.gray.light, marginBottom: 10 }]}>{this._formatDate(event.dates.from.toDate())}</Text>
+                                        <Text style={[styles.date, { color: ColUITheme.gray.light, marginBottom: 10 }]}>{this._formatDate(event.dates.from)}</Text>
                                         <Text style={[styles.durationTitle, { color: ColUITheme.gray.light }]}>Termina:</Text>
-                                        <Text style={[styles.date, { color: ColUITheme.gray.light, marginBottom: 10 }]}>{this._formatDate(event.dates.to.toDate())}</Text>
+                                        <Text style={[styles.date, { color: ColUITheme.gray.light, marginBottom: 10 }]}>{this._formatDate(event.dates.to)}</Text>
                                     </View>
                                 </View>
                             </View>

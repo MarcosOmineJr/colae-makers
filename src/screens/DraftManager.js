@@ -630,9 +630,14 @@ class EventDescription extends React.Component {
     constructor(props){
         super(props);
         this.state = {
-            description: ''
+            description: '',
+            processing: false
         }
         this._handleInput = this._handleInput.bind(this);
+        this._goBackToSteps = this._goBackToSteps.bind(this);
+        this._proceedInSteps = this._proceedInSteps.bind(this);
+        this._saveAsDraft = this._saveAsDraft.bind(this);
+        this._fetchFirebase = this._fetchFirebase.bind(this);
     }
 
     _handleInput(d){
@@ -641,25 +646,80 @@ class EventDescription extends React.Component {
         this.setState(s);
     }
 
+    componentDidMount(){
+        this._fetchFirebase();
+    }
+
+    async _fetchFirebase(){
+
+        let s = this.state;
+        const { user } = this.props;
+        const { eventRef } = this.props.navigation.state.params;
+
+        let response = await firebase.firestore().collection('users').doc(user.firebaseRef).collection('events').doc(eventRef).get();
+        response = response.data();
+
+        if(response.description){
+            s.description = response.description;
+        }
+
+        this.setState(s);
+    }
+
+    async _saveAsDraft(){
+        let s = this.state;
+        const { user } = this.props;
+        const { eventRef } = this.props.navigation.state.params;
+
+        s.processing = true;
+        this.setState(s);
+        let event = firebase.firestore().collection('users').doc(user.firebaseRef).collection('events').doc(eventRef);
+        await event.set({ description: s.description },{ merge: true });
+        s.processing = false;
+        this.setState(s);
+    }
+
+    async _goBackToSteps(){
+        await this._saveAsDraft();
+        this.props.navigation.navigate('DraftProgress', { draftId: this.props.navigation.state.params.eventRef })
+    }
+
+    async _proceedInSteps(){
+        await this._saveAsDraft();
+        this.props.navigation.navigate('EventDescription', { draftId: this.props.navigation.state.params.eventRef })
+    }
+
     render(){
+
+        const { description, processing } = this.state;
+        const { ColUITheme } = this.props;
 
         return (
             <View style={EventDescriptionStyles.container}>
+                <Modal animationType='fade' visible={processing} transparent={true}>
+                    <View style={EventDescriptionStyles.modalContainer}>
+                        <View style={[EventDescriptionStyles.modal, { backgroundColor: ColUITheme.background }]}>
+                            <ActivityIndicator size='large' color={ColUITheme.main} />
+                            <Text style={[EventDescriptionStyles.modalText, { color: ColUITheme.main }]}>Salvando...</Text>
+                        </View>
+                    </View>
+                </Modal>
                 <View style={EventDescriptionStyles.textContainer}>
-                    <Text style={[EventDescriptionStyles.text, { color: this.props.ColUITheme.gray.light }]}>Adicione uma descrição para o seu evento</Text>
+                    <Text style={[EventDescriptionStyles.text, { color: ColUITheme.gray.light }]}>Adicione uma descrição para o seu evento</Text>
                 </View>
                 <View style={EventDescriptionStyles.textAreaContainer}>
                     <Textarea
                     rowSpan={10}
                     bordered 
                     placeholder='Descrição'
-                    style={[EventDescriptionStyles.textArea, { borderColor: this.props.ColUITheme.gray.light }]}
+                    style={[EventDescriptionStyles.textArea, { borderColor: ColUITheme.gray.light }]}
+                    value={description}
                     onChangeText={(d)=>this._handleInput(d)}
                     />
                 </View>
                 <View style={EventDescriptionStyles.buttonsContainer}>
-                    <ColUI.Button blue label='salvar rascunho' onPress={()=>{}} />
-                    <ColUI.Button label='próximo' />
+                    <ColUI.Button blue label='salvar rascunho' onPress={this._goBackToSteps} />
+                    <ColUI.Button label='próximo' onPress={this._proceedInSteps} />
                 </View>
             </View>
         );
@@ -697,6 +757,28 @@ const EventDescriptionStyles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'space-evenly',
         alignItems: 'center'
+    },
+    modalContainer:{
+        flex: 1,
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: 'rgba(0,0,0,0.5)'
+    },
+    modal:{
+        height: height*0.3,
+        width: width*0.8,
+        elevation: 5,
+        borderRadius: 10,
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: 20,
+        paddingTop: 50
+    },
+    modalText:{
+        fontSize: 30,
+        marginTop: 30,
+        fontWeight: 'bold',
+        textAlign: 'center'
     }
 });
 
@@ -711,15 +793,13 @@ class EventDate extends React.Component {
         tomorrow.setDate(tomorrow.getDate() + 1);
 
         this.state = {
-            dates: {
-                from: new Date(),
-                to: tomorrow
+            data:{
+                dates:{
+                    from: new Date(),
+                    to: new Date()
+                },
+                location: ''
             },
-            time:{
-                from: new Date(2000, 1, 2, 0, 0),
-                to: new Date(2000, 1, 2, 0, 0),
-            },
-            location:'',
             show: {
                 dates: {
                     from: false,
@@ -730,17 +810,51 @@ class EventDate extends React.Component {
                     to: false
                 }
             },
-            mode: 'datetime'
+            mode: 'datetime',
+            processing: false
         }
 
         this._openPicker = this._openPicker.bind(this);
         this._setDate = this._setDate.bind(this);
         this._handleLocalInput = this._handleLocalInput.bind(this);
+        this._fetchFirebase = this._fetchFirebase.bind(this);
+        this._goBackToSteps = this._goBackToSteps.bind(this);
+        this._proceedInSteps = this._proceedInSteps.bind(this);
+        this._saveAsDraft = this._saveAsDraft.bind(this);
+    }
+
+    componentDidMount(){
+        this._fetchFirebase();
+    }
+
+    async _fetchFirebase(){
+
+        let s = this.state;
+        const { user } = this.props;
+        const { eventRef } = this.props.navigation.state.params;
+
+        let event = firebase.firestore().collection('users').doc(user.firebaseRef).collection('events').doc(eventRef);
+        let response = await event.get();
+        response = response.data();
+
+        if(response.location){
+            s.data.location = response.location;
+        }
+        if(response.dates){
+            if(response.dates.from){
+                s.data.dates.from = new Date(response.dates.from);
+            }
+            if(response.dates.to){
+                s.data.dates.from = new Date(response.dates.to);
+            }
+        }
+
+        this.setState(s);
     }
 
     _handleLocalInput(input){
         let s = this.state;
-        s.location = input;
+        s.data.location = input;
         this.setState(s);
     }
 
@@ -761,24 +875,27 @@ class EventDate extends React.Component {
             switch(mode){
                 case 'dates':
                     if(field == 'to'){
-                        if(input.getTime() < s.dates.from.getTime()){
+                        if(input.getTime() < s.data.dates.from.getTime()){
                             alert('Você não pode colocar uma data de final de evento anterior à data de início');
                         } else {
-                            s[mode][field] = input;
+                            s.data[mode][field].setFullYear(input.getFullYear(), input.getMonth(), input.getDate());
                         }
                     } else {
-                        s[mode][field] = input;
+                        s.data[mode][field].setFullYear(input.getFullYear(), input.getMonth(), input.getDate());
                     }
                     break;
                 case 'time':
                     if(field == 'to'){
-                        if(input.getTime() < s.time.from.getTime()){
+                        input.setFullYear(s.data.dates.to.getFullYear(), s.data.dates.to.getMonth(), s.data.dates.to.getDate());
+                        if(input.getTime() < s.data.dates.from.getTime()){
                             alert('Você não pode colocar um horário de encerramento anterior ao horário de início');
                         } else {
-                            s[mode][field] = input;
+                            s.data.dates[field].setHours(input.getHours());
+                            s.data.dates[field].setMinutes(input.getMinutes());
                         }
                     } else {
-                        s[mode][field] = input;
+                        s.data.dates[field].setHours(input.getHours());
+                        s.data.dates[field].setMinutes(input.getMinutes());
                     }
                     break;
             }
@@ -787,40 +904,72 @@ class EventDate extends React.Component {
         this.setState(s);
     }
 
+    async _saveAsDraft(){
+        let s = this.state;
+        const { user } = this.props;
+        const { eventRef } = this.props.navigation.state.params;
+
+        s.processing = true;
+        this.setState(s);
+
+        let event = firebase.firestore().collection('users').doc(user.firebaseRef).collection('events').doc(eventRef);
+        await event.set({ location: s.data.location, dates: { from: s.data.dates.from.getTime(), to: s.data.dates.to.getTime() } },{merge: true});
+        s.processing = false;
+        this.setState(s);
+    }
+    
+    async _goBackToSteps(){
+        await this._saveAsDraft();
+        this.props.navigation.navigate('DraftProgress', { draftId: this.props.navigation.state.params.eventRef })
+    }
+
+    async _proceedInSteps(){
+        await this._saveAsDraft();
+        this.props.navigation.navigate('EventDescription', { draftId: this.props.navigation.state.params.eventRef })
+    }
+
     render(){
 
         const { ColUITheme } = this.props;
-        const { dates, time, show, mode } = this.state;
+        const { show, mode, processing, data } = this.state;
 
         return (
             <View style={EventDateStyles.container}>
+                <Modal animationType='fade' visible={processing} transparent={true}>
+                    <View style={EventDateStyles.modalContainer}>
+                        <View style={[EventDateStyles.modal, { backgroundColor: ColUITheme.background }]}>
+                            <ActivityIndicator size='large' color={ColUITheme.main} />
+                            <Text style={[EventDateStyles.modalText, { color: ColUITheme.main }]}>Salvando...</Text>
+                        </View>
+                    </View>
+                </Modal>
                 <Text style={[EventDateStyles.text, { color: ColUITheme.gray.light }]}>Adicione o Local, a data e horário</Text>
-                <ColUI.TextInput style={EventDateStyles.localInput} label='Local do Evento' onChangeText={t=>this._handleLocalInput(t)} />
+                <ColUI.TextInput value={data.location} style={EventDateStyles.localInput} label='Local do Evento' onChangeText={t=>this._handleLocalInput(t)} />
                 <View style={EventDateStyles.dateAndHourContainer}>
                     <View style={EventDateStyles.dateContainer}>
                         <Text style={[EventDateStyles.text, { color: ColUITheme.gray.light }]}>Data</Text>
                         <View style={EventDateStyles.inputsContainer}>
-                            <ColUI.DatePicker date={dates.from} onPress={()=>this._openPicker('dates','from')} />
-                            {show.dates.from && <DateTimePicker mode={mode} value={dates.from} onChange={(event, date)=>this._setDate(event, date,'dates','from')} />}
+                            <ColUI.DatePicker date={data.dates.from} onPress={()=>this._openPicker('dates','from')} />
+                            {show.dates.from && <DateTimePicker mode={mode} value={data.dates.from} onChange={(event, date)=>this._setDate(event, date,'dates','from')} />}
                             <Text style={EventDateStyles.text}>à</Text>
-                            <ColUI.DatePicker date={dates.to} onPress={()=>this._openPicker('dates','to')} />
-                            {show.dates.to && <DateTimePicker mode={mode} value={dates.from} onChange={(event, date)=>this._setDate(event, date,'dates','to')} />}
+                            <ColUI.DatePicker date={data.dates.to} onPress={()=>this._openPicker('dates','to')} />
+                            {show.dates.to && <DateTimePicker mode={mode} value={data.dates.to} onChange={(event, date)=>this._setDate(event, date,'dates','to')} />}
                         </View>
                     </View>
                     <View style={EventDateStyles.hourContainer}>
                         <Text style={[EventDateStyles.text, { color: ColUITheme.gray.light }]}>Horário</Text>
                         <View style={EventDateStyles.inputsContainer}>
-                            <ColUI.TimePicker time={time.from} onPress={()=>this._openPicker('time','from')} />
-                            {show.time.from && <DateTimePicker mode={mode} value={time.from} onChange={(event, date)=>this._setDate(event, date,'time','from')} />}
+                            <ColUI.TimePicker time={data.dates.from} onPress={()=>this._openPicker('time','from')} />
+                            {show.time.from && <DateTimePicker mode={mode} value={data.dates.from} onChange={(event, date)=>this._setDate(event, date,'time','from')} />}
                             <Text style={EventDateStyles.text}>às</Text>
-                            <ColUI.TimePicker time={time.to} onPress={()=>this._openPicker('time','to')} />
-                            {show.time.to && <DateTimePicker mode={mode} value={time.to} onChange={(event, date)=>this._setDate(event, date,'time','to')} />}
+                            <ColUI.TimePicker time={data.dates.to} onPress={()=>this._openPicker('time','to')} />
+                            {show.time.to && <DateTimePicker mode={mode} value={data.dates.to} onChange={(event, date)=>this._setDate(event, date,'time','to')} />}
                         </View>
                     </View>
                 </View>
                 <View style={EventDateStyles.buttonsContainer}>
-                    <ColUI.Button blue label='salvar rascunho' onPress={()=>{}} />
-                    <ColUI.Button label='próximo' />
+                    <ColUI.Button blue label='salvar rascunho' onPress={this._goBackToSteps} />
+                    <ColUI.Button label='próximo' onPress={this._proceedInSteps} />
                 </View>
             </View>
         );
@@ -872,6 +1021,28 @@ const EventDateStyles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'space-evenly',
         alignItems: 'center'
+    },
+    modalContainer:{
+        flex: 1,
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: 'rgba(0,0,0,0.5)'
+    },
+    modal:{
+        height: height*0.3,
+        width: width*0.8,
+        elevation: 5,
+        borderRadius: 10,
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: 20,
+        paddingTop: 50
+    },
+    modalText:{
+        fontSize: 30,
+        marginTop: 30,
+        fontWeight: 'bold',
+        textAlign: 'center'
     }
 });
 
