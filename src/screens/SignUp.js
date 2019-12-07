@@ -3,7 +3,6 @@ import { connect } from 'react-redux';
 import { firebase } from '@react-native-firebase/auth';
 import '@react-native-firebase/firestore';
 import '@react-native-firebase/storage';
-import RNFetchBlob from 'rn-fetch-blob';
 import ImagePicker from 'react-native-image-crop-picker';
 import {
     StyleSheet,

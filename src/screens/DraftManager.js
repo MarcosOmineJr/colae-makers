@@ -373,6 +373,7 @@ class EventType extends React.Component {
 
         const { ColUITheme } = this.props;
         const { data } = this.state;
+        const { categories } = data;
 
         return (
             <ScrollView contentContainerStyle={EventTypeStyles.container}>
@@ -394,24 +395,24 @@ class EventType extends React.Component {
 
                     <View style={EventTypeStyles.categoryContainer}>
                         <View style={EventTypeStyles.tagRow}>
-                            <ColUI.Tag contentContainerStyle={EventTypeStyles.tag} label='Show' onPress={()=>this._handleCategoryInput('Show')} />
-                            <ColUI.Tag contentContainerStyle={EventTypeStyles.tag} label='Palestra' onPress={()=>this._handleCategoryInput('Palestra')} />
-                            <ColUI.Tag contentContainerStyle={EventTypeStyles.tag} label='Balada' onPress={()=>this._handleCategoryInput('Balada')} />
-                            <ColUI.Tag contentContainerStyle={EventTypeStyles.tag} label='Negócios' onPress={()=>this._handleCategoryInput('Negócios')} />
+                            <ColUI.Tag active={ categories.includes('Show') } contentContainerStyle={EventTypeStyles.tag} label='Show' onPress={()=>this._handleCategoryInput('Show')} />
+                            <ColUI.Tag active={ categories.includes('Palestra') } contentContainerStyle={EventTypeStyles.tag} label='Palestra' onPress={()=>this._handleCategoryInput('Palestra')} />
+                            <ColUI.Tag active={ categories.includes('Balada') } contentContainerStyle={EventTypeStyles.tag} label='Balada' onPress={()=>this._handleCategoryInput('Balada')} />
+                            <ColUI.Tag active={ categories.includes('Negócios') } contentContainerStyle={EventTypeStyles.tag} label='Negócios' onPress={()=>this._handleCategoryInput('Negócios')} />
                         </View>
                         <View style={EventTypeStyles.tagRow}>
-                            <ColUI.Tag contentContainerStyle={EventTypeStyles.tag} label='Gastronomia' onPress={()=>this._handleCategoryInput('Gastronomia')} />
-                            <ColUI.Tag contentContainerStyle={EventTypeStyles.tag} label='Espetáculo' onPress={()=>this._handleCategoryInput('Espetáculo')} />
-                            <ColUI.Tag contentContainerStyle={EventTypeStyles.tag} label='Esportivo' onPress={()=>this._handleCategoryInput('Esportivo')} />
+                            <ColUI.Tag active={ categories.includes('Gastronomia') } contentContainerStyle={EventTypeStyles.tag} label='Gastronomia' onPress={()=>this._handleCategoryInput('Gastronomia')} />
+                            <ColUI.Tag active={ categories.includes('Espetáculo') } contentContainerStyle={EventTypeStyles.tag} label='Espetáculo' onPress={()=>this._handleCategoryInput('Espetáculo')} />
+                            <ColUI.Tag active={ categories.includes('Esportivo') } contentContainerStyle={EventTypeStyles.tag} label='Esportivo' onPress={()=>this._handleCategoryInput('Esportivo')} />
                         </View>
                         <View style={EventTypeStyles.tagRow}>
-                            <ColUI.Tag contentContainerStyle={EventTypeStyles.tag} label='Religioso' onPress={()=>this._handleCategoryInput('Religioso')} />
-                            <ColUI.Tag contentContainerStyle={EventTypeStyles.tag} label='Curso/Workshop' onPress={()=>this._handleCategoryInput('Curso/Workshop')} />
-                            <ColUI.Tag contentContainerStyle={EventTypeStyles.tag} label='Arte e Cultura' onPress={()=>this._handleCategoryInput('Arte e Cultura')} />
+                            <ColUI.Tag active={ categories.includes('Religioso') } contentContainerStyle={EventTypeStyles.tag} label='Religioso' onPress={()=>this._handleCategoryInput('Religioso')} />
+                            <ColUI.Tag active={ categories.includes('Curso/Workshop') } contentContainerStyle={EventTypeStyles.tag} label='Curso/Workshop' onPress={()=>this._handleCategoryInput('Curso/Workshop')} />
+                            <ColUI.Tag active={ categories.includes('Arte e Cultura') } contentContainerStyle={EventTypeStyles.tag} label='Arte e Cultura' onPress={()=>this._handleCategoryInput('Arte e Cultura')} />
                         </View>
                         <View style={EventTypeStyles.tagRow}>
-                            <ColUI.Tag contentContainerStyle={EventTypeStyles.tag} label='Tecnologia' onPress={()=>this._handleCategoryInput('Tecnologia')} />
-                            <ColUI.Tag contentContainerStyle={EventTypeStyles.tag} label='Outros' onPress={()=>this._handleCategoryInput('Outros')} />
+                            <ColUI.Tag active={ categories.includes('Tecnologia') } contentContainerStyle={EventTypeStyles.tag} label='Tecnologia' onPress={()=>this._handleCategoryInput('Tecnologia')} />
+                            <ColUI.Tag active={ categories.includes('Outros') } contentContainerStyle={EventTypeStyles.tag} label='Outros' onPress={()=>this._handleCategoryInput('Outros')} />
                         </View>
                     </View>
 
