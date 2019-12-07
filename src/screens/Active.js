@@ -41,8 +41,6 @@ class Home extends React.Component {
         this._renderEvents = this._renderEvents.bind(this);
         this._fetchFirebase = this._fetchFirebase.bind(this);
         this._refreshSnapshot = this._refreshSnapshot.bind(this);
-
-        console.log(props.userData);
     }
 
     componentDidMount(){

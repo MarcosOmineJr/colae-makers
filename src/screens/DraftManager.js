@@ -90,14 +90,18 @@ class DraftProgress extends React.Component {
     _docRef = '';
 
     componentDidMount(){
+
+        const { firebaseRef } = this.props.user;
+        const { tempDraft } = this.props;
+
         if(this.props.navigation.getParam('draftId', 'NO-ID') == 'NO-ID'){
 
             //Se ele vier para essa tela sem um param draftID, ele conecta com o firestore pelo tempDraft;
 
-            this.unsubscribe = firebase.firestore().doc('events/'+this.props.tempDraft.firestoreReferenceId).onSnapshot({
+            this.unsubscribe = firebase.firestore().collection('users').doc(firebaseRef).collection('events').doc(tempDraft.firestoreReferenceId).onSnapshot({
                 error: e=>console.error('erro ao pegar rascunho do firestore:', e),
                 next: QuerySnapshot=>{
-                    // Salva o rascunho no state e ref do documento em this.docRef e dá setState():
+                    // Salva o rascunho no state e ref do documento em this._docRef e dá setState():
 
                     let s = this.state;
                     s.draft = QuerySnapshot.data();
@@ -141,12 +145,16 @@ class DraftProgress extends React.Component {
     }
 
     _saveAsDraft(){
+
+        //pega o ref do usuário:
+        const { firebaseRef } = this.props.user;
+
         //Verifica se firestorereferenceId está definido e se estiver tira ele, depois, invariavelmente do if guarda tempDraft no banco;
 
         if(this.props.tempDraft != undefined){
             delete this.props.tempDraft.firestoreReferenceId;
         }
-        firebase.firestore().doc('events/'+this._docRef).set({...this.props.tempDraft, published: false}, { merge: true });
+        firebase.firestore().collection('users').doc(firebaseRef).collection('events').doc(this._docRef).set({...this.props.tempDraft}, { merge: true });
         this.props.navigation.navigate('Drafts');
     }
 
@@ -217,9 +225,13 @@ class EventNameInput extends React.Component {
     }
 
     async _confirm(){
+
+        //Pegando a referência do usuário para o registro no Firebase:
+        const { firebaseRef } = this.props.user;
+
         //Cria um draft no Firestore, pega o id gerado dele e o nome e coloca em tempDraft, depois redireciona para 'OpenDraft', que é o fluxo normal de rascunhos:
-        let eventRef = firebase.firestore().collection('events').doc(); //Cria novo documento no firestore
-        eventRef.set({name: this.state.name, published: false}); //seta o nome dentro do documento
+        let eventRef = firebase.firestore().collection('users').doc(firebaseRef).collection('events').doc(); //Cria novo documento no firestore
+        eventRef.set({name: this.state.name, owner: firebaseRef}); //seta o nome dentro do documento
 
         //Seta o tempDraft == AVISO == setTempDraft() aparentemente é assíncrono
         await this.props.setTempDraft({name: this.state.name, firestoreReferenceId: eventRef.id, createdAt: firebase.firestore.FieldValue.serverTimestamp()});
@@ -854,7 +866,8 @@ const EventServicesStyles = StyleSheet.create({
 
 const mapStateToProps = (state)=>({
     ColUITheme: state.themesReducer.ColUITheme,
-    tempDraft: state.draftsReducer.temp
+    tempDraft: state.draftsReducer.temp,
+    user: state.userReducer
 });
 
 const mapDispatchToProps = (dispatch)=>({

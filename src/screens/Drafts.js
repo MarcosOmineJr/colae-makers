@@ -24,7 +24,7 @@ class Drafts extends React.Component {
 
         this._renderEvents = this._renderEvents.bind(this);
 
-        const unsubscribe = firestore().collection('events').where('published', '==', false).orderBy('createdAt', 'desc').onSnapshot({
+        const unsubscribe = firestore().collection('users').doc(props.user.firebaseRef).collection('events').orderBy('createdAt', 'desc').onSnapshot({
             error: (e)=>console.log('Erro:', e),
             next: (QuerySnapshot)=>{
                 let data = [];
@@ -157,7 +157,8 @@ const styles = StyleSheet.create({
 const mapStateToProps = (state)=>{
     return {
         ColUITheme: state.themesReducer.ColUITheme,
-        events: state.draftsReducer.remote
+        events: state.draftsReducer.remote,
+        user: state.userReducer
     };
 }
 

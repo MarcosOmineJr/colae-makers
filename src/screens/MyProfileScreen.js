@@ -31,7 +31,7 @@ class MyProfileScreen extends React.Component {
 
         this.authentication = firebase.auth();
         
-        this.authentication.onAuthStateChanged(user=>{
+        this.unsubscribe = this.authentication.onAuthStateChanged(user=>{
             if(!user){
                 props.navigation.navigate('Login');
             }
@@ -48,6 +48,10 @@ class MyProfileScreen extends React.Component {
 
     componentDidUpdate(){
         this._fetchFirestore();
+    }
+
+    componentWillUnmount(){
+        this.unsubscribe();
     }
 
     async _fetchFirestore(){
