@@ -289,11 +289,13 @@ class EventType extends React.Component {
         this.state = {
             data: {
                 images: [],
-                categories: []
+                categories: [],
+                keywords: ''
             }
         }
         this._handlePhotoInput = this._handlePhotoInput.bind(this);
         this._handleCategoryInput = this._handleCategoryInput.bind(this);
+        this._handleKeywordsInput = this._handleKeywordsInput.bind(this);
     }
 
     async _handlePhotoInput(mode = 'put', key = 0){
@@ -369,6 +371,15 @@ class EventType extends React.Component {
         this.setState(s);
     }
 
+    _handleKeywordsInput(input){
+        let s = this.state;
+
+        let keywords = input.split(',');
+        s.data.keywords = keywords;
+
+        this.setState(s);
+    }
+
     render(){
 
         const { ColUITheme } = this.props;
@@ -421,7 +432,8 @@ class EventType extends React.Component {
                     rowSpan={5}
                     bordered
                     style={EventTypeStyles.textArea}
-                    onChangeText={()=>{}}
+                    placeholder='Digite as palavras chave, elas devem ser separadas por vírgula (Ex.: Rock, Anos 60, Música, etc...)'
+                    onChangeText={(t)=>this._handleKeywordsInput(t)}
                     />
                 </View>
                 
