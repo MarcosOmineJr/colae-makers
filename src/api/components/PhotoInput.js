@@ -24,10 +24,10 @@ class ProfileImageInput extends React.Component {
 
     render(){
 
-        const { ColUITheme, onPress, source, edit } = this.props;
+        const { ColUITheme, onPress, source, style } = this.props;
 
         return (
-            <TouchableOpacity style={[styles.container, { backgroundColor: ColUITheme.background, borderColor: ColUITheme.main }]} onPress={onPress} >
+            <TouchableOpacity style={[styles.container, { backgroundColor: ColUITheme.background, borderColor: ColUITheme.main }, style]} onPress={onPress} >
                 <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
                     {
                         this._renderIf(source == undefined,

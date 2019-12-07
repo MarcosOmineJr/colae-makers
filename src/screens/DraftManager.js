@@ -7,13 +7,15 @@ import {
     ActivityIndicator,
     TouchableOpacity,
     Alert,
-    ScrollView
+    ScrollView,
+    FlatList
 } from 'react-native';
 import {
     Textarea,
     Button,
     Icon
 } from 'native-base';
+import ImagePicker from 'react-native-image-crop-picker';
 import { NavigationEvents } from 'react-navigation';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { connect } from 'react-redux';
@@ -281,15 +283,60 @@ const EventNameInputStyles = StyleSheet.create({
 //=========================================================================================
 
 class EventType extends React.Component {
+
+    constructor(props){
+        super(props);
+        this.state = {
+            data: {
+                images: []
+            }
+        }
+        this._handlePhotoInput = this._handlePhotoInput.bind(this);
+        this._removePhoto = this._removePhoto.bind(this);
+    }
+
+    async _handlePhotoInput(){
+
+        let s = this.state;
+        const { images } = s.data;
+        
+        try{
+            let image = await ImagePicker.openPicker({ cropping: false })
+            images.push(image);
+        }catch(error){
+            console.log('Erro ao tentar pegar imagem:', error);
+        }
+
+        this.setState(s);
+    }
+
+    async _removePhoto(key){
+        let s = this.state;
+        const { images } = s.data;
+        images.splice(key, 1);
+        this.setState(s);
+    }
+
     render(){
 
         const { ColUITheme } = this.props;
+        const { data } = this.state;
 
         return (
-            <View style={EventTypeStyles.container}>
+            <ScrollView contentContainerStyle={EventTypeStyles.container}>
                 <View style={EventTypeStyles.contentContainer}>
                     <Text style={[EventTypeStyles.sectionTitle, { color: ColUITheme.gray.light }, { marginTop:0 }]}>Adicionar Fotos</Text>
-                    <ColUI.PhotoInput />
+                    {data.images[0] == undefined && <ColUI.PhotoInput onPress={this._handlePhotoInput} />}
+                    {data.images[0] != undefined &&
+                        <View style={EventTypeStyles.imagesContainer}>
+                            {
+                                data.images.map((image, key)=>(
+                                    <ColUI.PhotoInput key={key.toString()} onPress={()=>this._removePhoto(key)} source={{uri: image.path}} style={{marginRight: 10, marginBottom: 10}} />
+                                ))
+                            }
+                            <ColUI.PhotoInput onPress={this._handlePhotoInput} style={{marginRight: 10, marginBottom: 10}} />
+                        </View>
+                    }
 
                     <Text style={[EventTypeStyles.sectionTitle, { color: ColUITheme.gray.light }]}>Categoria de Evento</Text>
 
@@ -329,14 +376,13 @@ class EventType extends React.Component {
                     <ColUI.Button blue label='salvar rascunho' onPress={()=>{}} />
                     <ColUI.Button label='próximo' />
                 </View>
-            </View>
+            </ScrollView>
         );
     }
 }
 
 const EventTypeStyles = StyleSheet.create({
     container:{
-        flex: 1,
         height,
         padding: 20,
         alignItems: 'center'
@@ -344,6 +390,11 @@ const EventTypeStyles = StyleSheet.create({
     contentContainer:{
         width: '100%',
         alignItems: 'flex-start'
+    },
+    imagesContainer:{
+        flexDirection: 'row',
+        justifyContent: 'flex-start',
+        flexWrap: 'wrap'
     },
     sectionTitle:{
         fontSize: 20,
