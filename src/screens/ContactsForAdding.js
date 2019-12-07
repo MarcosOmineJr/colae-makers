@@ -72,13 +72,19 @@ const ContactsForAdding = (props)=>{
 
     const { ColUITheme, navigation } = props;
     const [snapshot, setSnapshot] = useState([]);
+    const [selected, setSelected] = useState([]);
 
     useEffect(()=>{
         async function fetchFirestore(){
-            let response = await firestore().collection('services').get();
-            response.forEach((r)=>{
+            let services = await firestore().collection('services').get();
+            services.forEach((r)=>{
                 let responseAdd = {...r.data(), ref: r.id}
-                setSnapshot([...snapshot, responseAdd]);
+                setSnapshot(snapshot=>snapshot.concat(responseAdd));
+            });
+            let producers = await firestore().collection('users').get();
+            producers.forEach(r=>{
+                let responseAdd = {...r.data(), ref: r.id }
+                setSnapshot(snapshot=>snapshot.concat(responseAdd));
             })
         }
 
@@ -86,7 +92,37 @@ const ContactsForAdding = (props)=>{
         
     },[]);
 
-    return (
+    function _handleSelection(userRef){
+
+        if(!selected.includes(userRef)){
+            setSelected(selected=>selected.concat(userRef));
+        } else {
+            let selAsString = selected.toString();
+            selAsString = selAsString.replace(userRef, '');
+
+            //Tratamento remoção no meio:
+            selAsString = selAsString.replace(',,',',');
+
+            //Reconvertendo para array:
+            let selAsArray = selAsString.split(',');
+
+            //Tratamento remoção no início:
+            if(selAsArray[0] == ''){
+                selAsArray.shift();
+            }
+
+            //Tratamento remoção no final:
+            if(selAsArray[selAsArray.length-1] == ''){
+                selAsArray.pop();
+            }
+
+            setSelected(selAsArray);
+        }
+    }
+
+    console.log(selected);
+
+    return (    
         <View style={{ flex: 1 }}>
             <View style={styles.searchBarContainer}>
                 <View style={styles.searchBarContentsContainer}>
@@ -108,7 +144,7 @@ const ContactsForAdding = (props)=>{
                 {
                     snapshot.map((user, key)=>(
                         <TouchableOpacity key={key.toString()} style={styles.contactCard} onPress={()=>navigation.navigate('Profile', { firebaseRef: user.ref, collection: 'services' })}>
-                            <ColUI.UserCardInContacts data={user} />
+                            <ColUI.UserCardInContacts selected={selected.includes(user.ref)} data={user} onAdd={()=>_handleSelection(user.ref)} />
                         </TouchableOpacity>
                         
                     ))

@@ -364,6 +364,13 @@ class EventType extends React.Component {
                 normalisedAsArray.pop();
             }
 
+            //Tratamento 3: Se o input removido for o primeiro ('input_para_remover,input2,input3'),
+            //A string acaba ficando ',input1,input2' e o array ['','input1', 'input2']
+            //Então é só ver se o primeiro valor é '' e nesse caso apagá-lo:
+            if(normalisedAsArray[0] == ''){
+                normalisedAsArray.shift();
+            }
+
             //Define o state como o novo array de categorias:
             s.data.categories = normalisedAsArray;
         }
@@ -658,8 +665,6 @@ class EventDate extends React.Component {
     }
 
     render(){
-
-        console.log(this.state);
 
         const { ColUITheme } = this.props;
         const { dates, time, show, mode } = this.state;

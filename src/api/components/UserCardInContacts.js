@@ -15,7 +15,7 @@ const { width, height } = Dimensions.get('screen');
 
 const UserCardInContacts = (props)=>{
 
-    const { ColUITheme, data } = props;
+    const { ColUITheme, data, selected, onAdd } = props;
 
     return (
         <Card contentContainerStyle={styles.card}>
@@ -32,12 +32,24 @@ const UserCardInContacts = (props)=>{
                     <Text numberOfLines={1} style={[styles.userType, { color: ColUITheme.gray.light }]}>{data.usertype}</Text>
                 </View>
             </View>
-            <TouchableOpacity style={styles.buttonContainer}>
-                <Icon type='MaterialIcons' name='add' style={[styles.icon, { color: ColUITheme.main }]} />
-                <Text style={[styles.followButtonText, { color: ColUITheme.main }]}>ADICIONAR</Text>
-            </TouchableOpacity>
+            {!selected &&
+                <TouchableOpacity style={styles.buttonContainer} onPress={onAdd}>
+                    <Icon type='MaterialIcons' name='add' style={[styles.icon, { color: ColUITheme.main }]} />
+                    <Text style={[styles.followButtonText, { color: ColUITheme.main }]}>ADICIONAR</Text>
+                </TouchableOpacity>
+            }
+            {selected &&
+                <TouchableOpacity style={styles.buttonContainer} onPress={onAdd}>
+                    <Icon type='MaterialIcons' name='check' style={[styles.icon, { fontSize: 30,color: ColUITheme.gray.light }]} />
+                    <Text style={[styles.followButtonText, { color: ColUITheme.gray.light }]}>ADICIONADO</Text>
+                </TouchableOpacity>
+            }
         </Card>
     );
+}
+
+UserCardInContacts.defaultProps = {
+    selected: false
 }
 
 const styles = StyleSheet.create({
