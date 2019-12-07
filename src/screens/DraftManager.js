@@ -1200,35 +1200,116 @@ const EventProductsStyles = StyleSheet.create({
 
 class EventServices extends React.Component {
 
+    constructor(props){
+        super(props);
+        this.state = {
+            selected: [],
+            processing: false
+        }
 
+        this._checkForParams = this._checkForParams.bind(this);
+        this._fetchFirebase = this._fetchFirebase.bind(this);
+        this._goBackToSteps = this._goBackToSteps.bind(this);
+        this._proceedInSteps = this._proceedInSteps.bind(this);
+        this._saveAsDraft = this._saveAsDraft.bind(this);
+    }
+
+    componentDidMount(){
+        this._fetchFirebase();
+    }
+
+    async _fetchFirebase(){
+        let s = this.state;
+        const { user } = this.props;
+        const { eventRef } = this.props.navigation.state.params;
+
+        let event = firebase.firestore().collection('users').doc(user.firebaseRef).collection('events').doc(eventRef);
+        let response = await event.get();
+        response = response.data();
+        if(response.producers){
+            s.selected = response.producers;
+        }
+        this.setState(s);
+    }
+
+    _checkForParams(){
+        let s = this.state;
+        if(this.props.navigation.state.params.selected){
+            s.selected = this.props.navigation.state.params.selected;
+        }
+        this.setState(s);
+    }
+
+    async _saveAsDraft(){
+        let s = this.state;
+        s.processing = true;
+        this.setState(s);
+        const { user } = this.props;
+        const { eventRef } = this.props.navigation.state.params;
+
+        let event = firebase.firestore().collection('users').doc(user.firebaseRef).collection('events').doc(eventRef);
+        await event.set({ producers: s.selected },{merge:true});
+        s.processing = false;
+        this.setState(s);
+    }
+
+    async _goBackToSteps(){
+        await this._saveAsDraft();
+        this.props.navigation.navigate('DraftProgress', { draftId: this.props.navigation.state.params.eventRef })
+    }
+
+    async _proceedInSteps(){
+        await this._saveAsDraft();
+        this.props.navigation.navigate('EventDescription', { draftId: this.props.navigation.state.params.eventRef })
+    }
 
     render(){
 
         const { ColUITheme, navigation } = this.props;
+        const { selected, processing } = this.state;
 
         return (
             <View style={EventServicesStyles.container}>
+                <NavigationEvents onDidFocus={this._checkForParams} />
+                <Modal animationType='fade' visible={processing} transparent={true}>
+                    <View style={EventServicesStyles.modalContainer}>
+                        <View style={[EventServicesStyles.modal, { backgroundColor: ColUITheme.background }]}>
+                            <ActivityIndicator size='large' color={ColUITheme.main} />
+                            <Text style={[EventServicesStyles.modalText, { color: ColUITheme.main }]}>Salvando...</Text>
+                        </View>
+                    </View>
+                </Modal>
                 <View style={EventServicesStyles.organizadoresWrapper}>
                     <ScrollView contentContainerStyle={EventServicesStyles.organzizadoresScrollView}>
                         <Text style={[EventServicesStyles.title, { color: ColUITheme.gray.light }]}>Organizadores</Text>
-                        <Button iconLeft transparent onPress={()=>navigation.navigate('AddContacts')}>
+                        <Button iconLeft transparent onPress={()=>navigation.navigate('AddContacts', { eventRef: this.props.navigation.state.params.eventRef })}>
                             <Icon type='MaterialIcons' name='add' style={[EventServicesStyles.icon, { color: ColUITheme.main }]} />
                             <Text style={{ color: ColUITheme.main }}>ADICIONAR ORGANIZADOR</Text>
                         </Button>
+                        {selected &&
+                            selected.map((user, key)=>(
+                                <Text key={key.toString()}>{user}</Text>
+                            ))
+                        }
                     </ScrollView>
                 </View>
                 <View style={EventServicesStyles.prestadoresWrapper}>
                     <ScrollView contentContainerStyle={EventServicesStyles.prestadoresScrollView}>
                         <Text style={[EventServicesStyles.title, { color: ColUITheme.gray.light }]}>Prestadores de Serviços</Text>
-                        <Button iconLeft transparent onPress={()=>navigation.navigate('AddContacts')}>
+                        <Button iconLeft transparent onPress={()=>navigation.navigate('AddContacts', { eventRef: this.props.navigation.state.params.eventRef })}>
                             <Icon type='MaterialIcons' name='add' style={[EventServicesStyles.icon, { color: ColUITheme.main }]} />
                             <Text style={{ color: ColUITheme.main }}>ADICIONAR PRESTADOR DE SERVIÇO</Text>
                         </Button>
+                        {selected &&
+                            selected.map((user, key)=>(
+                                <Text key={key.toString()}>{user}</Text>
+                            ))
+                        }
                     </ScrollView>
                 </View>
                 <View style={EventServicesStyles.buttonsContainer}>
-                    <ColUI.Button blue label='salvar rascunho' onPress={()=>{}} />
-                    <ColUI.Button label='próximo' />
+                    <ColUI.Button blue label='salvar rascunho' onPress={this._goBackToSteps} />
+                    <ColUI.Button label='próximo' onPress={this._proceedInSteps} />
                 </View>
             </View>
         );
@@ -1273,6 +1354,28 @@ const EventServicesStyles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'space-evenly',
         alignItems: 'center'
+    },
+    modalContainer:{
+        flex: 1,
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: 'rgba(0,0,0,0.5)'
+    },
+    modal:{
+        height: height*0.3,
+        width: width*0.8,
+        elevation: 5,
+        borderRadius: 10,
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: 20,
+        paddingTop: 50
+    },
+    modalText:{
+        fontSize: 30,
+        marginTop: 30,
+        fontWeight: 'bold',
+        textAlign: 'center'
     }
 });
 
