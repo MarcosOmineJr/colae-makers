@@ -589,6 +589,7 @@ class EventDate extends React.Component {
                 from: new Date(2000, 1, 2, 0, 0),
                 to: new Date(2000, 1, 2, 0, 0),
             },
+            location:'',
             show: {
                 dates: {
                     from: false,
@@ -604,6 +605,13 @@ class EventDate extends React.Component {
 
         this._openPicker = this._openPicker.bind(this);
         this._setDate = this._setDate.bind(this);
+        this._handleLocalInput = this._handleLocalInput.bind(this);
+    }
+
+    _handleLocalInput(input){
+        let s = this.state;
+        s.location = input;
+        this.setState(s);
     }
 
     _openPicker(mode, field){
@@ -651,13 +659,15 @@ class EventDate extends React.Component {
 
     render(){
 
+        console.log(this.state);
+
         const { ColUITheme } = this.props;
         const { dates, time, show, mode } = this.state;
 
         return (
             <View style={EventDateStyles.container}>
                 <Text style={[EventDateStyles.text, { color: ColUITheme.gray.light }]}>Adicione o Local, a data e horário</Text>
-                <ColUI.TextInput style={EventDateStyles.localInput} label='Local do Evento' />
+                <ColUI.TextInput style={EventDateStyles.localInput} label='Local do Evento' onChangeText={t=>this._handleLocalInput(t)} />
                 <View style={EventDateStyles.dateAndHourContainer}>
                     <View style={EventDateStyles.dateContainer}>
                         <Text style={[EventDateStyles.text, { color: ColUITheme.gray.light }]}>Data</Text>
