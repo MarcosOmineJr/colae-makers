@@ -7,7 +7,7 @@ import {
     Text,
     Dimensions,
     StyleSheet,
-    View
+    ActivityIndicator
 } from 'react-native';
 
 import { shadow } from './styles';
@@ -26,6 +26,14 @@ class Button extends React.Component {
     render(){
         if(!this.props.textOnly){
             if(!this.props.secondary){
+                if(this.props.loading){
+                    return (
+                        <TouchableOpacity
+                        style={[styles.container, { height: this._componentHeight, width: this._componentWidth },this.props.disabled?{backgroundColor: '#ccc'}:this.props.blue?{ backgroundColor: this.props.ColUITheme.accent}:{ backgroundColor: this.props.ColUITheme.main}, shadow, this.props.contentContainerStyle]}>
+                            <ActivityIndicator size='small' color={this.props.ColUITheme.background} />
+                        </TouchableOpacity>
+                    );
+                }
                 return (
                     <TouchableOpacity
                     style={[styles.container, { height: this._componentHeight, width: this._componentWidth },this.props.disabled?{backgroundColor: '#ccc'}:this.props.blue?{ backgroundColor: this.props.ColUITheme.accent}:{ backgroundColor: this.props.ColUITheme.main}, shadow, this.props.contentContainerStyle]}

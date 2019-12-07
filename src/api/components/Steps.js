@@ -19,11 +19,11 @@ class Steps extends React.Component {
 
     _renderSteps(step, index, length){
 
-        const { ColUITheme } = this.props;
+        const { ColUITheme, eventRef } = this.props;
 
         if(index == 0){
             return (
-                <TouchableOpacity key={index} style={styles.stepContainer} onPress={()=>this.props.navigation.navigate(step.routename)}>
+                <TouchableOpacity key={index} style={styles.stepContainer} onPress={()=>this.props.navigation.navigate(step.routename, { eventRef: eventRef })}>
                     <View style={styles.stepIndicatorContainer}>
                         <View style={styles.topConnectorContainer} />
                         <View style={[styles.circleContainer, {justifyContent: 'flex-end'}]}>
@@ -41,7 +41,7 @@ class Steps extends React.Component {
             );
         } else if(index == (length-1)){
             return (
-                <TouchableOpacity key={index} style={styles.stepContainer} onPress={()=>this.props.navigation.navigate(step.routename)}>
+                <TouchableOpacity key={index} style={styles.stepContainer} onPress={()=>this.props.navigation.navigate(step.routename, { eventRef: eventRef })}>
                     <View style={styles.stepIndicatorContainer}>
                         <View style={styles.topConnectorContainer} >
                             <View style={[styles.connector, step.done?{ backgroundColor: this.props.ColUITheme.main } : { backgroundColor: '#ccc' }]} />
@@ -59,7 +59,7 @@ class Steps extends React.Component {
             );
         } else {
             return (
-                <TouchableOpacity key={index} style={styles.stepContainer} onPress={()=>this.props.navigation.navigate(step.routename)}>
+                <TouchableOpacity key={index} style={styles.stepContainer} onPress={()=>this.props.navigation.navigate(step.routename, { eventRef: eventRef })}>
                     <View style={styles.stepIndicatorContainer}>
                         <View style={styles.topConnectorContainer} >
                             <View style={[styles.connector, step.done?{ backgroundColor: this.props.ColUITheme.main } : { backgroundColor: '#ccc' }]} />

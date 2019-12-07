@@ -8,7 +8,7 @@ import {
     TouchableOpacity,
     Alert,
     ScrollView,
-    FlatList
+    Modal
 } from 'react-native';
 import {
     Textarea,
@@ -22,6 +22,7 @@ import { connect } from 'react-redux';
 import ColaeAPI from '../api';
 import firebase from '@react-native-firebase/app';
 import '@react-native-firebase/firestore';
+import '@react-native-firebase/storage';
 
 const { ColUI } = ColaeAPI;
 
@@ -167,7 +168,7 @@ class DraftProgress extends React.Component {
                 <View style={draftProgressStyles.textContainer}>
                     <Text style={[draftProgressStyles.text, { color: this.props.ColUITheme.main }]}>Preencha os dados para criar o evento</Text>
                 </View>
-                <ColUI.Steps navigation={this.props.navigation} stepsData={this.state.stepData} />
+                <ColUI.Steps navigation={this.props.navigation} stepsData={this.state.stepData} eventRef={this._docRef} />
                 <View style={draftProgressStyles.buttonsContainer}>
                     <ColUI.Button blue label='salvar rascunho' onPress={()=>this._saveAsDraft()} />
                     <ColUI.Button label='publicar' />
@@ -291,11 +292,101 @@ class EventType extends React.Component {
                 images: [],
                 categories: [],
                 keywords: ''
-            }
+            },
+            processing: false
         }
         this._handlePhotoInput = this._handlePhotoInput.bind(this);
         this._handleCategoryInput = this._handleCategoryInput.bind(this);
         this._handleKeywordsInput = this._handleKeywordsInput.bind(this);
+        this._saveAsDraft = this._saveAsDraft.bind(this);
+        this._fetchFirebase = this._fetchFirebase.bind(this);
+        this.__uploadToFirebase = this._uploadToFirebase.bind(this);
+        this._goBackToSteps = this._goBackToSteps.bind(this);
+        this.__proceedInSteps = this._proceedInSteps.bind(this);
+
+        this.imagesURL = [];
+    }
+
+    componentDidMount(){
+        this._fetchFirebase();
+    }
+
+    async _fetchFirebase(){
+
+        let s = this.state;
+        const { user } = this.props;
+        const { eventRef } = this.props.navigation.state.params;
+
+        let response = await firebase.firestore().collection('users').doc(user.firebaseRef).collection('events').doc(eventRef).get();
+        response = response.data();
+        if(response.photos){
+            s.data.images = response.photos;
+        }
+        if(response.categories){
+            s.data.categories = response.categories;
+        }
+        if(response.keywords){
+            s.data.keywords = response.keywords;
+        }
+
+        this.setState(s);
+    }
+
+    async _saveAsDraft(){
+        let s = this.state;
+        const { images } = s.data;
+        const { eventRef } = this.props.navigation.state.params;
+
+        s.processing = true;
+        this.setState(s);
+
+        let imagesURL = [];
+
+        //Salva as imagens no Cloud Storage:
+        images.forEach((image, key)=>{
+            if(typeof image == 'string'){
+                imagesURL.push(image);
+                this._uploadToFirebase(imagesURL);
+            } else {
+                firebase.storage().ref(`events/${eventRef}/image_${key.toString()}`).putFile(image.path).on(firebase.storage.TaskEvent.STATE_CHANGED, snapshot=>{
+                    if(snapshot.state === firebase.storage.TaskState.SUCCESS){
+                        firebase.storage().ref(`events/${eventRef}/image_${key.toString()}`).getDownloadURL()
+                            .then(url=>{
+                                imagesURL.push(url);
+                                this._uploadToFirebase(imagesURL);
+                            })
+                    }
+                },error=>{
+                    console.log('Erro ao fazer o upload de imagens: ', error.message);
+                })
+            }
+        })
+    }
+
+    async _goBackToSteps(){
+        await this._saveAsDraft();
+        this.props.navigation.navigate('DraftProgress', { draftId: this.props.navigation.state.params.eventRef })
+    }
+
+    async _proceedInSteps(){
+        await this._saveAsDraft();
+        this.props.navigation.navigate('EventDescription', { draftId: this.props.navigation.state.params.eventRef })
+    }
+
+    async _uploadToFirebase(readyURLs){
+
+        let s = this.state;
+
+        const { user } = this.props;
+        const { eventRef } = this.props.navigation.state.params;
+        const { images, categories, keywords } = s.data;
+
+        if(readyURLs.length == images.length){
+            //alert('fez upload de todas as imagens');
+            await firebase.firestore().collection('users').doc(user.firebaseRef).collection('events').doc(eventRef).set({ categories: categories, keywords: keywords, photos: readyURLs },{merge: true});
+            s.processing = false;
+            this.setState(s);
+        }
     }
 
     async _handlePhotoInput(mode = 'put', key = 0){
@@ -390,20 +481,29 @@ class EventType extends React.Component {
     render(){
 
         const { ColUITheme } = this.props;
-        const { data } = this.state;
-        const { categories } = data;
+        const { data, processing } = this.state;
+        const { categories, keywords } = data;
 
         return (
             <ScrollView contentContainerStyle={EventTypeStyles.container}>
+                <Modal animationType='fade' visible={processing} transparent={true}>
+                    <View style={EventTypeStyles.modalContainer}>
+                        <View style={[EventTypeStyles.modal, { backgroundColor: ColUITheme.background }]}>
+                            <ActivityIndicator size='large' color={ColUITheme.main} />
+                            <Text style={[EventTypeStyles.modalText, { color: ColUITheme.main }]}>Salvando...</Text>
+                        </View>
+                    </View>
+                </Modal>
                 <View style={EventTypeStyles.contentContainer}>
                     <Text style={[EventTypeStyles.sectionTitle, { color: ColUITheme.gray.light }, { marginTop:0 }]}>Adicionar Fotos</Text>
                     {data.images[0] == undefined && <ColUI.PhotoInput onPress={()=>this._handlePhotoInput('put')} />}
                     {data.images[0] != undefined &&
                         <View style={EventTypeStyles.imagesContainer}>
                             {
-                                data.images.map((image, key)=>(
-                                    <ColUI.PhotoInput key={key.toString()} onPress={()=>this._handlePhotoInput('delete', key)} source={{uri: image.path}} style={{marginRight: 10, marginBottom: 10}} />
-                                ))
+                                data.images.map((image, key)=>{
+                                    let imageURI = typeof image == 'string'? {uri: image } : {uri: image.path};
+                                    return <ColUI.PhotoInput key={key.toString()} onPress={()=>this._handlePhotoInput('delete', key)} source={imageURI} style={{marginRight: 10, marginBottom: 10}} />
+                                })
                             }
                             <ColUI.PhotoInput onPress={()=>this._handlePhotoInput('put')} style={{marginRight: 10, marginBottom: 10}} />
                         </View>
@@ -440,13 +540,14 @@ class EventType extends React.Component {
                     bordered
                     style={EventTypeStyles.textArea}
                     placeholder='Digite as palavras chave, elas devem ser separadas por vírgula (Ex.: Rock, Anos 60, Música, etc...)'
+                    value={keywords.toString()}
                     onChangeText={(t)=>this._handleKeywordsInput(t)}
                     />
                 </View>
                 
                 <View style={EventTypeStyles.buttonsContainer}>
-                    <ColUI.Button blue label='salvar rascunho' onPress={()=>{}} />
-                    <ColUI.Button label='próximo' />
+                    <ColUI.Button blue loading={processing} label='salvar rascunho' onPress={()=>this._goBackToSteps()} />
+                    <ColUI.Button label='próximo' onPress={()=>this._proceedInSteps()} />
                 </View>
             </ScrollView>
         );
@@ -497,6 +598,28 @@ const EventTypeStyles = StyleSheet.create({
         borderRadius: 10,
         borderColor: '#999999',
         marginBottom: height*0.13
+    },
+    modalContainer:{
+        flex: 1,
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: 'rgba(0,0,0,0.5)'
+    },
+    modal:{
+        height: height*0.3,
+        width: width*0.8,
+        elevation: 5,
+        borderRadius: 10,
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: 20,
+        paddingTop: 50
+    },
+    modalText:{
+        fontSize: 30,
+        marginTop: 30,
+        fontWeight: 'bold',
+        textAlign: 'center'
     }
 });
 
