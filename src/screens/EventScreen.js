@@ -10,7 +10,9 @@ import {
     View,
     Text,
     ActivityIndicator,
-    ScrollView
+    ScrollView,
+    TouchableOpacity,
+    Modal
 } from 'react-native';
 
 const { ColUI } = ColaeAPI;
@@ -24,11 +26,15 @@ class EventScreen extends React.Component {
             event: {
                 photos:['']
             },
-            loading: true
+            loading: true,
+            settings: false,
+            confirmDeletion: false
         }
 
         this._fetchFirebase = this._fetchFirebase.bind(this);
         this._fetchProducersInfo = this._fetchProducersInfo.bind(this);
+        this._deleteEvent = this._deleteEvent.bind(this);
+        this._backToDraft = this._backToDraft.bind(this);
     }
 
     componentDidMount(){
@@ -71,6 +77,26 @@ class EventScreen extends React.Component {
                 this.setState(s);
             })
         }
+    }
+
+    async _deleteEvent(){
+        const { firebaseRef } = this.props.navigation.state.params;
+        let event = firebase.firestore().doc('events/'+firebaseRef);
+        await event.delete();
+        this.props.navigation.navigate('Active');
+    }
+
+    async _backToDraft(){
+        const { user } = this.props;
+        const { firebaseRef } = this.props.navigation.state.params;
+        let publishedEvent = firebase.firestore().doc('events/'+firebaseRef);
+        let peInfo = await publishedEvent.get();
+        peInfo = peInfo.data();
+
+        let draft = firebase.firestore().collection('users').doc(user.firebaseRef).collection('events').doc();
+        await draft.set(peInfo);
+        await publishedEvent.delete();
+        this.props.navigation.navigate('Drafts');
     }
 
     _formatDate(unixDate){
@@ -122,7 +148,7 @@ class EventScreen extends React.Component {
 
     render(){
 
-        const { event, loading } = this.state;
+        const { event, loading, settings, confirmDeletion } = this.state;
         const { ColUITheme, navigation } = this.props;
 
         if(loading){
@@ -135,8 +161,37 @@ class EventScreen extends React.Component {
 
         return (
             <ScrollView>
+                <Modal animationType='fade' visible={settings} transparent={true}>
+                    <View style={styles.modalContainer}>
+                        <View style={[styles.modal, { backgroundColor: ColUITheme.background }]}>
+                            <View style={{ width: '100%', alignItems: 'flex-end' }}>
+                                <TouchableOpacity onPress={()=>{this.setState({ ...this.state, settings: false })}}>
+                                    <Icon type='MaterialIcons' name='close' />
+                                </TouchableOpacity>
+                            </View>
+                            <View style={{ flex: 1, alignItems: 'center', justifyContent: 'space-evenly' }}>
+                                <ColUI.Button colSpan={4} blue label='Voltar para Rascunho' onPress={()=>this._backToDraft()} />
+                                <ColUI.Button secondary colSpan={4} label='Apagar' onPress={()=>{this.setState({...this.state, confirmDeletion: true})}} />
+                            </View>
+                        </View>
+                    </View>
+                </Modal>
+                <Modal animationType='slide' visible={confirmDeletion} transparent={true}>
+                    <View style={[styles.modalContainer, { backgroundColor: 'transparent' }]}>
+                        <View style={[styles.modal, { backgroundColor: ColUITheme.background }]}>
+                            <View style={{ flex: 1, alignItems: 'center', justifyContent: 'space-evenly' }}>
+                                <Text style={{ fontSize: 16, color: ColUITheme.main, textAlign: 'center' }} >Você tem certeza? O evento não poderá ser recuperado depois</Text>
+                                <ColUI.Button colSpan={4} blue label='Apagar' onPress={()=>{this._deleteEvent()}} />
+                                <ColUI.Button secondary colSpan={4} label='cancelar' onPress={()=>{this.setState({...this.state, confirmDeletion: false})}} />
+                            </View>
+                        </View>
+                    </View>
+                </Modal>
                 <View style={[styles.basicInfoContainer, shadow]}>
                     <ColUI.EventImageSlider photos={event.photos} />
+                    <TouchableOpacity style={styles.configButton} onPress={()=>{this.setState({ ...this.state, settings: true })}}>
+                        <Icon type='Entypo' name='cog' color={ColUITheme.gray.light} />
+                    </TouchableOpacity>
                     <View style={styles.textualBasicInfo}>
                         <Text style={[styles.name, { color: ColUITheme.gray.light }]}>{event.name}</Text>
                         <View style={[styles.metricsAndAvaliation, { borderBottomColor: ColUITheme.main }]}>
@@ -208,6 +263,18 @@ const styles = StyleSheet.create({
     basicInfoContainer:{
 
     },
+    configButton:{
+        position: 'absolute',
+        top: 15,
+        right: 15,
+        backgroundColor: '#ffffff',
+        height: 35,
+        width: 35,
+        borderRadius: 17.5,
+        elevation: 5,
+        alignItems: 'center',
+        justifyContent: 'center'
+    },
     textualBasicInfo:{
         padding: 20
     },
@@ -275,11 +342,31 @@ const styles = StyleSheet.create({
     tag:{
         marginBottom: 10,
         marginRight: 10
+    },
+    modalContainer:{
+        flex: 1,
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: 'rgba(0,0,0,0.5)'
+    },
+    modal:{
+        height: height*0.3,
+        width: width*0.8,
+        elevation: 5,
+        borderRadius: 10,
+        padding: 20
+    },
+    modalText:{
+        fontSize: 30,
+        marginTop: 30,
+        fontWeight: 'bold',
+        textAlign: 'center'
     }
 });
 
 const mapStateToProps = (state)=>({
-    ColUITheme: state.themesReducer.ColUITheme
+    ColUITheme: state.themesReducer.ColUITheme,
+    user: state.userReducer
 })
 
 export default connect(mapStateToProps)(EventScreen);

@@ -7,8 +7,10 @@ import {
     StyleSheet,
     Dimensions,
     TouchableHighlight,
+    TouchableOpacity,
     RefreshControl
 } from 'react-native';
+import { Icon } from 'native-base';
 import { connect } from 'react-redux';
 import { NavigationEvents } from 'react-navigation';
 import { firebase } from '@react-native-firebase/firestore';
@@ -63,14 +65,20 @@ class Home extends React.Component {
     }
 
     async _fetchFirebase(){
-        const { refreshSnapshot } = this.props;
+        const { refreshSnapshot, userData } = this.props;
         let s = this.state;
 
-        let querySnapshot = await firebase.firestore().collection('events').where('published', '==', true).get();
+        let querySnapshot = await firebase.firestore().collection('events').where('owner','==', userData.firebaseRef).get();
         let data = [];
         querySnapshot.docs.map((doc, key)=>{
-            data.push({ ...doc.data(), key: key.toString(), ref: doc.id });
+            data.push({ ...doc.data(), ref: doc.id });
         });
+
+        let anotherQuery = await firebase.firestore().collection('events').where('producers','array-contains', userData.firebaseRef).get();
+        anotherQuery.docs.map((doc, key)=>{
+            data.push({ ...doc.data(), ref: doc.id });
+        })
+
         refreshSnapshot(data);
 
         s.events = data;
@@ -114,7 +122,7 @@ class Home extends React.Component {
 
         return (
             <View style={styles.container}>
-                <NavigationEvents onDidFocus={()=>this.props.setTempDraft(null)} />
+                <NavigationEvents onDidFocus={()=>{this.props.setTempDraft(null); this._fetchFirebase()}} />
                 <View style={styles.topButtonsContainer} >
                     <ColUI.IconButton label='CRIAR EVENTO' iconName='add' onPress={()=>this.props.navigation.navigate('CreateDraft')} />
                 </View>
@@ -122,6 +130,7 @@ class Home extends React.Component {
                 contentContainerStyle={styles.eventCardsContainer}
                 data={events}
                 renderItem={({item})=>this._renderEvents(item)}
+                keyExtractor={item=>item.ref}
                 ListEmptyComponent={()=>(<View style={styles.emptyListContainer}><Text>Você não gerencia nenhum evento por enquanto</Text></View>)}
                 refreshControl={ <RefreshControl refreshing={refreshing} onRefresh={this._refreshSnapshot} colors={this.refreshColors} /> }
                 showsVerticalScrollIndicator={false}
