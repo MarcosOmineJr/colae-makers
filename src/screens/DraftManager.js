@@ -845,7 +845,7 @@ class EventDate extends React.Component {
                 s.data.dates.from = new Date(response.dates.from);
             }
             if(response.dates.to){
-                s.data.dates.from = new Date(response.dates.to);
+                s.data.dates.to = new Date(response.dates.to);
             }
         }
 
@@ -887,6 +887,7 @@ class EventDate extends React.Component {
                 case 'time':
                     if(field == 'to'){
                         input.setFullYear(s.data.dates.to.getFullYear(), s.data.dates.to.getMonth(), s.data.dates.to.getDate());
+                        console.log('PORRA: ', input);
                         if(input.getTime() < s.data.dates.from.getTime()){
                             alert('Você não pode colocar um horário de encerramento anterior ao horário de início');
                         } else {
@@ -908,6 +909,8 @@ class EventDate extends React.Component {
         let s = this.state;
         const { user } = this.props;
         const { eventRef } = this.props.navigation.state.params;
+
+        console.log('caraio velho: ',s.data.dates);
 
         s.processing = true;
         this.setState(s);
