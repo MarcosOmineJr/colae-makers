@@ -28,10 +28,12 @@ class EventScreen extends React.Component {
         }
 
         this._fetchFirebase = this._fetchFirebase.bind(this);
+        this._fetchProducersInfo = this._fetchProducersInfo.bind(this);
     }
 
     componentDidMount(){
         this._fetchFirebase();
+        this._fetchProducersInfo();
     }
 
     async _fetchFirebase(){
@@ -39,8 +41,36 @@ class EventScreen extends React.Component {
         let s = this.state;
         let data = await firebase.firestore().doc('events/'+firebaseRef).get();
         s.event = data.data();
-        s.loading = false;
+
         this.setState(s);
+    }
+
+    async _fetchProducersInfo(){
+
+        let s = this.state;
+        const { firebaseRef } = this.props.navigation.state.params;
+
+        let event = await firebase.firestore().doc('events/'+firebaseRef).get();
+        event = event.data();
+
+        let people = [];
+
+        if(event.producers){
+            event.producers.forEach(async (producer)=>{
+                let doc = await firebase.firestore().collection('users').doc(producer).get();
+                if(doc.exists){
+                    let parsedDoc = doc.data();
+                    people.push({lastname: parsedDoc.lastname, name: parsedDoc.name, uid: doc.id, collection:'users' });
+                } else {
+                    doc = await firebase.firestore().collection('services').doc(producer).get();
+                    let parsedDoc = doc.data();
+                    people.push({lastname: parsedDoc.lastname, name: parsedDoc.name, uid: doc.id, collection:'services' });
+                }
+                s.event.producers = people;
+                s.loading = false;
+                this.setState(s);
+            })
+        }
     }
 
     _formatDate(unixDate){
@@ -116,7 +146,7 @@ class EventScreen extends React.Component {
                                     <Text style={[styles.btnLabel, { color: ColUITheme.main }]}>Ver detalhes da avaliação ></Text>
                                 </Button>
                             </View>
-                            <View style={{flex: 1, alignItems: 'flex-end'}} >
+                            <View style={{flex: 1, alignItems: 'flex-end', justifyContent: 'flex-end'}} >
                                 <ColUI.Button label='ver métricas' onPress={()=>navigation.navigate('Metrics')} />
                             </View>
                         </View>
@@ -155,7 +185,7 @@ class EventScreen extends React.Component {
                         <View style={styles.tagRow}>
                             {
                             event.producers.map((producer, key)=>(
-                                <ColUI.Tag key={key.toString()} user contentContainerStyle={styles.tag} label={producer.name+' '+producer.lastname} onPress={()=>navigation.navigate('Profile', { firebaseRef: producer.uid, collection: 'users' })} />
+                                <ColUI.Tag key={key.toString()} user contentContainerStyle={styles.tag} label={producer.name+' '+producer.lastname} onPress={()=>navigation.navigate('Profile', { firebaseRef: producer.uid, collection: producer.collection })} />
                             ))
                             }
                         </View>

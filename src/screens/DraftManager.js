@@ -76,75 +76,110 @@ class DraftProgress extends React.Component {
         this.state = {
 
             //Estado dos dados que serão carregados no step:
-            stepData: [
-                {routename: 'EventType', fields: ['template'], description: 'Informações Básicas', done: true},
+            stepsData: [
+                {routename: 'EventType', fields: ['photos','categories','keywords'], description: 'Informações Básicas', done: true},
                 {routename: 'EventDescription', fields: ['description'], description: 'Descrição do Evento', done: true},
-                {routename: 'EventDate', fields: ['dates', 'locale', 'duration'], description: 'Local, data e horário', done: false},
-                {routename: 'EventServices', fields:['schedule'], description: 'Organizadores e Serviços', done: false},
+                {routename: 'EventDate', fields: ['dates', 'location'], description: 'Local, data e horário', done: false},
+                {routename: 'EventServices', fields:['producers'], description: 'Organizadores e Serviços', done: false},
                 {routename: 'EventTickets', fields:['tickets'], description: 'Ingressos', done: false}
             ],
-            draft: {}
+            draft: {},
+            loading: true,
+            done: [],
+            eventRef: ''
         }
         this._saveAsDraft = this._saveAsDraft.bind(this);
-        this._checkSteps = this._checkSteps.bind(this);
+        this._renderSteps = this._renderSteps.bind(this);
+        this._fetchFirebase = this._fetchFirebase.bind(this);
     }
 
-    //Propriedade inicialmente vazia:
-    _docRef = '';
+    async _fetchFirebase(){
 
-    componentDidMount(){
+        let s = this.state;
+        const { user } = this.props;
 
-        const { firebaseRef } = this.props.user;
-        const { tempDraft } = this.props;
+        let response;
+
+        s.done = [];
 
         if(this.props.navigation.getParam('draftId', 'NO-ID') == 'NO-ID'){
 
             //Se ele vier para essa tela sem um param draftID, ele conecta com o firestore pelo tempDraft;
+            let event = firebase.firestore().collection('users').doc(user.firebaseRef).collection('events').doc(tempDraft.firestoreReferenceId)
+            response = await event.get();
+            response = response.data();
 
-            this.unsubscribe = firebase.firestore().collection('users').doc(firebaseRef).collection('events').doc(tempDraft.firestoreReferenceId).onSnapshot({
-                error: e=>console.error('erro ao pegar rascunho do firestore:', e),
-                next: QuerySnapshot=>{
-                    // Salva o rascunho no state e ref do documento em this._docRef e dá setState():
 
-                    let s = this.state;
-                    s.draft = QuerySnapshot.data();
-                    this._docRef = QuerySnapshot.ref.id;
-                    this.setState(s);
-                }
-            });
+            if(response.photos && response.categories && response.keywords){
+                s.done.push(true);
+            } else {
+                s.done.push(false);
+            }
+            if(response.description){
+                s.done.push(true);
+            } else {
+                s.done.push(false);
+            }
+            if(response.location && response.dates){
+                s.done.push(true);
+            } else {
+                s.done.push(false);
+            }
+            if(response.producers){
+                s.done.push(true);
+            } else {
+                s.done.push(false);
+            }
+            if(response.tickets){
+                s.done.push(true);
+            } else {
+                s.done.push(false);
+            }
 
+            s.eventRef = tempDraft.firestoreReferenceId;
         } else {
-            
-            //Se vier para a tela com param draftId, ele usa essa informação para pegar os dados do firestore;
 
-            this.unsubscribe = firebase.firestore().doc('events/'+this.props.navigation.getParam('draftId', 'NO-ID')).onSnapshot({
-                error: e=>console.error('erro ao pegar rascunho do firestore:', e),
-                next: QuerySnapshot=>{
-                    // Salva o rascunho no state e ref do documento em this.docRef e dá setState():
+            let event = firebase.firestore().collection('users').doc(user.firebaseRef).collection('events').doc(this.props.navigation.state.params.draftId);
+            response = await event.get();
+            response = response.data();
 
-                    let s = this.state;
-                    s.draft = QuerySnapshot.data();
-                    this._docRef = QuerySnapshot.ref.id;
 
-                    //Seta o tempDraft com seja lá o que tiver recebido do Firestore + um 'firestoreReferenceId' que é o id do evento:
-                    this.props.setTempDraft(QuerySnapshot.data());
+            if(response.photos && response.categories && response.keywords){
+                s.done.push(true);
+            } else {
+                s.done.push(false);
+            }
+            if(response.description){
+                s.done.push(true);
+            } else {
+                s.done.push(false);
+            }
+            if(response.location && response.dates){
+                s.done.push(true);
+            } else {
+                s.done.push(false);
+            }
+            if(response.producers){
+                s.done.push(true);
+            } else {
+                s.done.push(false);
+            }
+            if(response.tickets){
+                s.done.push(true);
+            } else {
+                s.done.push(false);
+            }
 
-                    this.setState(s);
-                }
-            });
-
+            s.eventRef = this.props.navigation.state.params.draftId;
         }
+
+        s.loading = false;
+
+        this.setState(s);
     }
 
-    componentWillUnmount(){
-        //Limpa o listener quando o componente fica vazio:
-
-        this.unsubscribe();
-    }
-
-    _checkSteps(){
-        //Deve checar a completude dos passos e atualizar o state
-        console.log('rodou _checkSteps');
+    componentDidMount(){
+        this._fetchFirebase();
     }
 
     _saveAsDraft(){
@@ -161,14 +196,90 @@ class DraftProgress extends React.Component {
         this.props.navigation.navigate('Drafts');
     }
 
+    _renderSteps(step, index, length){
+
+
+        const { done, eventRef } = this.state;
+        const { ColUITheme } = this.props;
+
+        if(index == 0){
+            return (
+                <TouchableOpacity key={index} style={draftProgressStyles.stepContainer} onPress={()=>this.props.navigation.navigate(step.routename, { eventRef: eventRef })}>
+                    <View style={draftProgressStyles.stepIndicatorContainer}>
+                        <View style={draftProgressStyles.topConnectorContainer} />
+                        <View style={[draftProgressStyles.circleContainer, {justifyContent: 'flex-end'}]}>
+                            <View style={[draftProgressStyles.bar, {height: '50%'}, done[index]?{ backgroundColor: this.props.ColUITheme.main } : { backgroundColor: '#ccc' }]} />
+                            <View style={[draftProgressStyles.circle, done[index]?{ backgroundColor: this.props.ColUITheme.main } : { backgroundColor: '#ccc' }]} />
+                        </View>
+                        <View style={draftProgressStyles.bottomConnectorContainer}>
+                            <View style={[draftProgressStyles.connector, done[index]?{ backgroundColor: this.props.ColUITheme.main } : { backgroundColor: '#ccc' }]} />
+                        </View>
+                    </View>
+                    <View style={draftProgressStyles.stepNameContainer}>
+                        <Text style={[draftProgressStyles.stepName, done[index] ? { fontWeight: 'bold', color: ColUITheme.main } : { fontWeight: 'normal', color: ColUITheme.gray.light } ]}>{step.description}</Text>
+                    </View>
+                </TouchableOpacity>
+            );
+        } else if(index == (length-1)){
+            return (
+                <TouchableOpacity key={index} style={draftProgressStyles.stepContainer} onPress={()=>this.props.navigation.navigate(step.routename, { eventRef: eventRef })}>
+                    <View style={draftProgressStyles.stepIndicatorContainer}>
+                        <View style={draftProgressStyles.topConnectorContainer} >
+                            <View style={[draftProgressStyles.connector, done[index]?{ backgroundColor: this.props.ColUITheme.main } : { backgroundColor: '#ccc' }]} />
+                        </View>
+                        <View style={[draftProgressStyles.circleContainer, {justifyContent: 'flex-start'}]}>
+                            <View style={[draftProgressStyles.bar, {height: '50%'}, done[index]?{ backgroundColor: this.props.ColUITheme.main } : { backgroundColor: '#ccc' }]} />
+                            <View style={[draftProgressStyles.circle, done[index]?{ backgroundColor: this.props.ColUITheme.main } : { backgroundColor: '#ccc' }]} />
+                        </View>
+                        <View style={draftProgressStyles.bottomConnectorContainer} />
+                    </View>
+                    <View style={draftProgressStyles.stepNameContainer}>
+                    <Text style={[draftProgressStyles.stepName, done[index] ? { fontWeight: 'bold', color: ColUITheme.main } : { fontWeight: 'normal', color: ColUITheme.gray.light } ]}>{step.description}</Text>
+                    </View>
+                </TouchableOpacity>
+            );
+        } else {
+            return (
+                <TouchableOpacity key={index} style={draftProgressStyles.stepContainer} onPress={()=>this.props.navigation.navigate(step.routename, { eventRef: eventRef })}>
+                    <View style={draftProgressStyles.stepIndicatorContainer}>
+                        <View style={draftProgressStyles.topConnectorContainer} >
+                            <View style={[draftProgressStyles.connector, done[index]?{ backgroundColor: this.props.ColUITheme.main } : { backgroundColor: '#ccc' }]} />
+                        </View>
+                        <View style={draftProgressStyles.circleContainer}>
+                            <View style={[draftProgressStyles.bar, done[index]?{ backgroundColor: this.props.ColUITheme.main } : { backgroundColor: '#ccc' }]} />
+                            <View style={[draftProgressStyles.circle, done[index]?{ backgroundColor: this.props.ColUITheme.main } : { backgroundColor: '#ccc' }]} />
+                        </View>
+                        <View style={draftProgressStyles.bottomConnectorContainer} >
+                            <View style={[draftProgressStyles.connector, done[index]?{ backgroundColor: this.props.ColUITheme.main } : { backgroundColor: '#ccc' }]} />
+                        </View>
+                    </View>
+                    <View style={draftProgressStyles.stepNameContainer}>
+                    <Text style={[draftProgressStyles.stepName, done[index] ? { fontWeight: 'bold', color: ColUITheme.main } : { fontWeight: 'normal', color: ColUITheme.gray.light } ]}>{step.description}</Text>
+                    </View>
+                </TouchableOpacity>
+            );
+        }
+    }
+
     render(){
+
+        const { loading, stepsData } = this.state;
+        const { ColUITheme } = this.props;
+
+        if(loading){
+            return (
+                <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
+                    <ActivityIndicator size='large' color={ColUITheme.main} />
+                </View>
+            )
+        }
         return (
             <View style={draftProgressStyles.container}>
-                <NavigationEvents onDidFocus={this._checkSteps} />
+                <NavigationEvents onDidFocus={()=>{ let s = this.state; s.loading = true; this.setState(s); this._fetchFirebase();}} />
                 <View style={draftProgressStyles.textContainer}>
                     <Text style={[draftProgressStyles.text, { color: this.props.ColUITheme.main }]}>Preencha os dados para criar o evento</Text>
                 </View>
-                <ColUI.Steps navigation={this.props.navigation} stepsData={this.state.stepData} eventRef={this._docRef} />
+                {stepsData.map((step, index)=>this._renderSteps(step, index, stepsData.length))}
                 <View style={draftProgressStyles.buttonsContainer}>
                     <ColUI.Button blue label='salvar rascunho' onPress={()=>this._saveAsDraft()} />
                     <ColUI.Button label='publicar' />
@@ -199,6 +310,53 @@ const draftProgressStyles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'space-evenly',
         alignItems: 'center'
+    },
+    stepContainer:{
+        flex: 1,
+        flexDirection:'row'
+    },
+    stepIndicatorContainer:{
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center'
+    },
+    topConnectorContainer:{
+        flex:2,
+        alignItems: 'center'
+    },
+    connector:{
+        backgroundColor: '#ccc',
+        height: '100%',
+        width: 3
+    },
+    bar:{
+        backgroundColor: '#ccc',
+        height: '100%',
+        width: 3
+    },
+    circleContainer:{
+        width: '100%',
+        height: 20,
+        alignItems: 'center',
+    },
+    circle:{
+        position: 'absolute',
+        backgroundColor: '#ccc',
+        height: 15,
+        width: 15,
+        borderRadius: 7.5
+    },
+    bottomConnectorContainer:{
+        flex:2,
+        alignItems: 'center'
+    },
+    stepNameContainer:{
+        flex: 3,
+        justifyContent: 'center',
+        paddingRight: 20
+    },
+    stepName:{
+        fontSize: 18
     }
 });
 
@@ -1389,7 +1547,7 @@ class EventServices extends React.Component {
         const { eventRef } = this.props.navigation.state.params;
 
         let event = firebase.firestore().collection('users').doc(user.firebaseRef).collection('events').doc(eventRef);
-        await event.set({ producers: s.selected },{merge:true});
+        await event.set({ producers: s.selected, tickets:[{fullprice:0, halfprice:0}] },{merge:true});
         s.processing = false;
         this.setState(s);
     }

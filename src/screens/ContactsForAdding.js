@@ -74,7 +74,7 @@ const ContactsForAdding = (props)=>{
         }
     }
 
-    return (    
+    return (
         <View style={{ flex: 1 }}>
             <View style={styles.searchBarContainer}>
                 <View style={styles.searchBarContentsContainer}>
