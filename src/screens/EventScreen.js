@@ -172,7 +172,7 @@ class EventScreen extends React.Component {
                             <View style={styles.PricesContainer}>
                                 <View style={{flex: 1, alignItems: 'center', justifyContent: 'center', paddingLeft: 25}}>
                                     <Text style={{ color: ColUITheme.gray.light }}>A partir de:</Text>
-                                    <Text style={{ color: ColUITheme.main, fontWeight: 'bold', fontSize: 16 }}>R$ {parseFloat(event.ticket).toFixed(2).replace('.',',')}</Text>
+                                    <Text style={{ color: ColUITheme.main, fontWeight: 'bold', fontSize: 16 }}>R$ {parseFloat(event.tickets[0].fullprice).toFixed(2).replace('.',',')}</Text>
                                 </View>
                                 <View style={{flex: 1}} />
                             </View>
