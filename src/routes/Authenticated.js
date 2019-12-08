@@ -1,6 +1,9 @@
 import React from 'react';
 
 import { Icon } from 'native-base';
+import Prancheta from '../assets/icons/exporte_prancheta.svg';
+import Lupa from '../assets/icons/exporte_lupa.svg';
+import Perfil from '../assets/icons/exporte_perfil.svg';
 
 import { createBottomTabNavigator } from 'react-navigation-tabs';
 
@@ -17,21 +20,21 @@ const Authenticated = createBottomTabNavigator({
         screen: HomeTabs,
         navigationOptions:{
             tabBarLabel: 'Meus Eventos',
-            tabBarIcon: ({focused})=>{return <Icon type="MaterialIcons" name="assignment" style={focused?{color: '#EA1F5A'}:{color:'#aaa'}} />}
+            tabBarIcon: ({focused})=>{ return focused ? <Prancheta width={30} height={30} fill='#EA1F5A' /> : <Prancheta width={30} height={30} fill='#AAAAAA' /> }
         }
     },
     Search:{
         screen: ExploreStack,
         navigationOptions:{
             tabBarLabel: 'Explorar',
-            tabBarIcon: ({focused})=>{return <Icon type="MaterialIcons" name="search" style={focused?{color: '#EA1F5A'}:{color:'#aaa'}} />}
+            tabBarIcon: ({focused})=>{ return focused ? <Lupa width={30} height={30} fill='#EA1F5A' /> : <Lupa width={30} height={30} fill='#AAAAAA' /> }
         }
     },
     Profile:{
         screen: MyProfileStack,
         navigationOptions:{
             tabBarLabel: 'Meu Perfil',
-            tabBarIcon: ({focused})=>{return <Icon type="MaterialIcons" name="account-circle" style={focused?{color: '#EA1F5A'}:{color:'#aaa'}} />}
+            tabBarIcon: ({focused})=>{ return focused ? <Perfil width={30} height={30} fill='#EA1F5A' /> : <Perfil width={30} height={30} fill='#AAAAAA' /> }
         }
     }
 },{
