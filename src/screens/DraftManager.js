@@ -293,7 +293,8 @@ class EventType extends React.Component {
                 categories: [],
                 keywords: ''
             },
-            processing: false
+            processing: false,
+            loading: true
         }
         this._handlePhotoInput = this._handlePhotoInput.bind(this);
         this._handleCategoryInput = this._handleCategoryInput.bind(this);
@@ -328,6 +329,7 @@ class EventType extends React.Component {
         if(response.keywords){
             s.data.keywords = response.keywords;
         }
+        s.loading = false;
 
         this.setState(s);
     }
@@ -481,9 +483,16 @@ class EventType extends React.Component {
     render(){
 
         const { ColUITheme } = this.props;
-        const { data, processing } = this.state;
+        const { data, processing, loading } = this.state;
         const { categories, keywords } = data;
 
+        if(loading){
+            return (
+                <View style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}>
+                    <ActivityIndicator size='large' color={ColUITheme.main} />
+                </View>
+            );
+        }
         return (
             <ScrollView contentContainerStyle={EventTypeStyles.container}>
                 <Modal animationType='fade' visible={processing} transparent={true}>
@@ -631,7 +640,8 @@ class EventDescription extends React.Component {
         super(props);
         this.state = {
             description: '',
-            processing: false
+            processing: false,
+            loading: true
         }
         this._handleInput = this._handleInput.bind(this);
         this._goBackToSteps = this._goBackToSteps.bind(this);
@@ -662,6 +672,7 @@ class EventDescription extends React.Component {
         if(response.description){
             s.description = response.description;
         }
+        s.loading = false;
 
         this.setState(s);
     }
@@ -686,14 +697,21 @@ class EventDescription extends React.Component {
 
     async _proceedInSteps(){
         await this._saveAsDraft();
-        this.props.navigation.navigate('EventDescription', { draftId: this.props.navigation.state.params.eventRef })
+        this.props.navigation.navigate('EventDate', { draftId: this.props.navigation.state.params.eventRef })
     }
 
     render(){
 
-        const { description, processing } = this.state;
+        const { description, processing, loading } = this.state;
         const { ColUITheme } = this.props;
 
+        if(loading){
+            return (
+                <View style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}>
+                    <ActivityIndicator size='large' color={ColUITheme.main} />
+                </View>
+            );
+        }
         return (
             <View style={EventDescriptionStyles.container}>
                 <Modal animationType='fade' visible={processing} transparent={true}>
@@ -811,7 +829,8 @@ class EventDate extends React.Component {
                 }
             },
             mode: 'datetime',
-            processing: false
+            processing: false,
+            loading: true
         }
 
         this._openPicker = this._openPicker.bind(this);
@@ -848,6 +867,7 @@ class EventDate extends React.Component {
                 s.data.dates.to = new Date(response.dates.to);
             }
         }
+        s.loading = false;
 
         this.setState(s);
     }
@@ -925,14 +945,21 @@ class EventDate extends React.Component {
 
     async _proceedInSteps(){
         await this._saveAsDraft();
-        this.props.navigation.navigate('EventDescription', { draftId: this.props.navigation.state.params.eventRef })
+        this.props.navigation.navigate('EventServices', { draftId: this.props.navigation.state.params.eventRef })
     }
 
     render(){
 
         const { ColUITheme } = this.props;
-        const { show, mode, processing, data } = this.state;
+        const { show, mode, processing, data, loading } = this.state;
 
+        if(loading){
+            return (
+                <View style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}>
+                    <ActivityIndicator size='large' color={ColUITheme.main} />
+                </View>
+            );
+        }
         return (
             <View style={EventDateStyles.container}>
                 <Modal animationType='fade' visible={processing} transparent={true}>
@@ -1073,24 +1100,84 @@ const EventScheduleStyles = StyleSheet.create({
 
 class EventTickets extends React.Component {
 
-    _TEMP_mockData = {
-        day: new Date()
+    constructor(props){
+        super(props);
+        this.state = {
+            processing: false,
+            day: new Date(),
+            loading: true
+        }
+
+        this._fetchFirebase = this._fetchFirebase.bind(this);
+        this._goBackToSteps = this._goBackToSteps.bind(this);
+        this._saveAsDraft = this._saveAsDraft.bind(this);
+    }
+
+    componentDidMount(){
+        this._fetchFirebase();
+    }
+
+    async _fetchFirebase(){
+
+        let s = this.state;
+        const { user } = this.props;
+        const { eventRef } = this.props.navigation.state.params;
+
+        let response = await firebase.firestore().collection('users').doc(user.firebaseRef).collection('events').doc(eventRef).get();
+        response = response.data();
+        
+        s.day = new Date(response.dates.from);
+        s.loading = false
+
+        this.setState(s);
+    }
+
+    async _saveAsDraft(){
+        let s = this.state;
+        s.processing = true;
+        this.setState(s);
+
+        /* Futuros processamentos do Firebase */
+
+        s.processing = false;
+        this.setState(s);
+    }
+
+    async _goBackToSteps(){
+        this._saveAsDraft();
+        this.props.navigation.navigate('DraftProgress', { draftId: this.props.navigation.state.params.eventRef });
     }
 
     render(){
 
         const { ColUITheme } = this.props;
+        const { processing, day, loading } = this.state;
 
+        if(loading){
+            return (
+                <View style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}>
+                    <ActivityIndicator size='large' color={ColUITheme.main} />
+                </View>
+            );
+        }
         return (
             <View style={EventTicketsStyles.container}>
+                <Modal animationType='fade' visible={processing} transparent={true}>
+                    <View style={EventTicketsStyles.modalContainer}>
+                        <View style={[EventTicketsStyles.modal, { backgroundColor: ColUITheme.background }]}>
+                            <ActivityIndicator size='large' color={ColUITheme.main} />
+                            <Text style={[EventTicketsStyles.modalText, { color: ColUITheme.main }]}>Salvando...</Text>
+                        </View>
+                    </View>
+                </Modal>
                 <Text style={[EventTicketsStyles.title, { color: ColUITheme.gray.light }]}>Ingressos</Text>
                 <View style={[EventTicketsStyles.dayContainer, { backgroundColor: ColUITheme.main }]}>
                     <Text style={EventTicketsStyles.dayText}>{
-                    (this._TEMP_mockData.day.getDate().toString().length > 1 ? this._TEMP_mockData.day.getDate() :  '0'+this._TEMP_mockData.day.getDate().toString())
+                    (day.getDate().toString().length > 1 ? day.getDate() :  '0'+day.getDate().toString())
                     +'/'+
-                    ((this._TEMP_mockData.day.getMonth()+1).toString().length > 1 ? (this._TEMP_mockData.day.getMonth()+1) : '0'+(this._TEMP_mockData.day.getMonth+1).toString())
+                    ((day.getMonth()+1).toString().length > 1 ? (day.getMonth()+1) : '0'+(day.getMonth+1).toString())
                     +'/'+
-                    this._TEMP_mockData.day.getFullYear()
+                    day.getFullYear()
                     }</Text>
                 </View>
                 <View style={EventTicketsStyles.ticketsContainer}>
@@ -1111,8 +1198,7 @@ class EventTickets extends React.Component {
                     <ColUI.SecondaryCard onPress={()=>Alert.alert('Esperaê!','Na versão Closed Alpha ainda só é possível fazer eventos gratuitos')} />
                 </View>
                 <View style={EventDateStyles.buttonsContainer}>
-                    <ColUI.Button blue label='salvar rascunho' onPress={()=>{}} />
-                    <ColUI.Button label='próximo' />
+                    <ColUI.Button blue label='salvar rascunho' onPress={this._goBackToSteps} />
                 </View>
             </View>
         );
@@ -1170,6 +1256,28 @@ const EventTicketsStyles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'space-evenly',
         alignItems: 'center'
+    },
+    modalContainer:{
+        flex: 1,
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: 'rgba(0,0,0,0.5)'
+    },
+    modal:{
+        height: height*0.3,
+        width: width*0.8,
+        elevation: 5,
+        borderRadius: 10,
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: 20,
+        paddingTop: 50
+    },
+    modalText:{
+        fontSize: 30,
+        marginTop: 30,
+        fontWeight: 'bold',
+        textAlign: 'center'
     }
 });
 
@@ -1204,7 +1312,8 @@ class EventServices extends React.Component {
         super(props);
         this.state = {
             selected: [],
-            processing: false
+            processing: false,
+            loading: true
         }
 
         this._checkForParams = this._checkForParams.bind(this);
@@ -1212,6 +1321,7 @@ class EventServices extends React.Component {
         this._goBackToSteps = this._goBackToSteps.bind(this);
         this._proceedInSteps = this._proceedInSteps.bind(this);
         this._saveAsDraft = this._saveAsDraft.bind(this);
+        this._handleDeselection = this._handleDeselection.bind(this);
     }
 
     componentDidMount(){
@@ -1229,6 +1339,8 @@ class EventServices extends React.Component {
         if(response.producers){
             s.selected = response.producers;
         }
+        s.loading = false;
+
         this.setState(s);
     }
 
@@ -1237,6 +1349,35 @@ class EventServices extends React.Component {
         if(this.props.navigation.state.params.selected){
             s.selected = this.props.navigation.state.params.selected;
         }
+        this.setState(s);
+    }
+
+    _handleDeselection(userRef){
+
+        let s = this.state;
+
+        let { selected } = this.state;
+
+        let selAsString = selected.toString();
+        selAsString = selAsString.replace(userRef, '');
+
+        //Tratamento remoção no meio:
+        selAsString = selAsString.replace(',,',',');
+
+        //Reconvertendo para array:
+        let selAsArray = selAsString.split(',');
+
+        //Tratamento remoção no início:
+        if(selAsArray[0] == ''){
+            selAsArray.shift();
+        }
+
+        //Tratamento remoção no final:
+        if(selAsArray[selAsArray.length-1] == ''){
+            selAsArray.pop();
+        }
+
+        s.selected = selAsArray;
         this.setState(s);
     }
 
@@ -1260,14 +1401,21 @@ class EventServices extends React.Component {
 
     async _proceedInSteps(){
         await this._saveAsDraft();
-        this.props.navigation.navigate('EventDescription', { draftId: this.props.navigation.state.params.eventRef })
+        this.props.navigation.navigate('EventTickets', { draftId: this.props.navigation.state.params.eventRef })
     }
 
     render(){
 
         const { ColUITheme, navigation } = this.props;
-        const { selected, processing } = this.state;
+        const { selected, processing, loading } = this.state;
 
+        if(loading){
+            return (
+                <View style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}>
+                    <ActivityIndicator size='large' color={ColUITheme.main} />
+                </View>
+            );
+        }
         return (
             <View style={EventServicesStyles.container}>
                 <NavigationEvents onDidFocus={this._checkForParams} />
@@ -1282,13 +1430,13 @@ class EventServices extends React.Component {
                 <View style={EventServicesStyles.organizadoresWrapper}>
                     <ScrollView contentContainerStyle={EventServicesStyles.organzizadoresScrollView}>
                         <Text style={[EventServicesStyles.title, { color: ColUITheme.gray.light }]}>Organizadores</Text>
-                        <Button iconLeft transparent onPress={()=>navigation.navigate('AddContacts', { eventRef: this.props.navigation.state.params.eventRef })}>
+                        <Button iconLeft transparent onPress={()=>navigation.navigate('AddContacts', { eventRef: this.props.navigation.state.params.eventRef, selected: this.state.selected })}>
                             <Icon type='MaterialIcons' name='add' style={[EventServicesStyles.icon, { color: ColUITheme.main }]} />
                             <Text style={{ color: ColUITheme.main }}>ADICIONAR ORGANIZADOR</Text>
                         </Button>
                         {selected &&
                             selected.map((user, key)=>(
-                                <Text key={key.toString()}>{user}</Text>
+                                <ColUI.AnotherCardOhMyGod key={key.toString()} firebaseRef={user} contentContainerStyle={EventServicesStyles.card} onRemove={()=>this._handleDeselection(user)} />
                             ))
                         }
                     </ScrollView>
@@ -1296,13 +1444,13 @@ class EventServices extends React.Component {
                 <View style={EventServicesStyles.prestadoresWrapper}>
                     <ScrollView contentContainerStyle={EventServicesStyles.prestadoresScrollView}>
                         <Text style={[EventServicesStyles.title, { color: ColUITheme.gray.light }]}>Prestadores de Serviços</Text>
-                        <Button iconLeft transparent onPress={()=>navigation.navigate('AddContacts', { eventRef: this.props.navigation.state.params.eventRef })}>
+                        <Button iconLeft transparent onPress={()=>navigation.navigate('AddContacts', { eventRef: this.props.navigation.state.params.eventRef, selected: this.state.selected })}>
                             <Icon type='MaterialIcons' name='add' style={[EventServicesStyles.icon, { color: ColUITheme.main }]} />
                             <Text style={{ color: ColUITheme.main }}>ADICIONAR PRESTADOR DE SERVIÇO</Text>
                         </Button>
-                        {selected &&
+                        {false && selected &&
                             selected.map((user, key)=>(
-                                <Text key={key.toString()}>{user}</Text>
+                                <ColUI.AnotherCardOhMyGod key={key.toString()} firebaseRef={user} contentContainerStyle={EventServicesStyles.card} onRemove={()=>this._handleDeselection(user)} />
                             ))
                         }
                     </ScrollView>
@@ -1376,6 +1524,9 @@ const EventServicesStyles = StyleSheet.create({
         marginTop: 30,
         fontWeight: 'bold',
         textAlign: 'center'
+    },
+    card:{
+        marginBottom: 10
     }
 });
 

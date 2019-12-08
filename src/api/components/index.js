@@ -22,6 +22,7 @@ import AvaliationCard from './AvaliationCard';
 import UserCard from './UserCard';
 import UserCardInContacts from './UserCardInContacts';
 import EventImageCardWhy from './EventImageCardWhy';
+import AnotherCardOhMyGod from './AnotherCardOhMyGod';
 
 export default {
     styles,
@@ -46,5 +47,6 @@ export default {
     AvaliationCard,
     UserCard,
     UserCardInContacts,
-    EventImageCardWhy
+    EventImageCardWhy,
+    AnotherCardOhMyGod
 };

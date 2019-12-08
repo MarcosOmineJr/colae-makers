@@ -23,6 +23,12 @@ const ContactsForAdding = (props)=>{
     const [selected, setSelected] = useState([]);
 
     useEffect(()=>{
+        if(props.navigation.state.params.selected){
+            setSelected(props.navigation.state.params.selected);
+        }
+    }, []);
+
+    useEffect(()=>{
         async function fetchFirestore(){
             let services = await firestore().collection('services').get();
             services.forEach((r)=>{
@@ -38,22 +44,6 @@ const ContactsForAdding = (props)=>{
 
         fetchFirestore();
         
-    },[]);
-
-    useEffect(()=>{
-        async function fetchFirestore(){
-
-            const { user } = props;
-            const { eventRef } = props.navigation.state.params;
-
-            let event = firestore().collection('users').doc(user.firebaseRef).collection('events').doc(eventRef);
-            let response = await event.get();
-            response = response.data();
-            if(response.producers){
-                setSelected(response.producers);
-            }
-        }
-        fetchFirestore();
     },[]);
 
     function _handleSelection(userRef){
@@ -83,8 +73,6 @@ const ContactsForAdding = (props)=>{
             setSelected(selAsArray);
         }
     }
-
-    console.log(selected);
 
     return (    
         <View style={{ flex: 1 }}>
