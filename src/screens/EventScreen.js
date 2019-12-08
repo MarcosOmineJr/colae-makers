@@ -141,7 +141,10 @@ class EventScreen extends React.Component {
                         <Text style={[styles.name, { color: ColUITheme.gray.light }]}>{event.name}</Text>
                         <View style={[styles.metricsAndAvaliation, { borderBottomColor: ColUITheme.main }]}>
                             <View style={{flex: 1}} >
+                                {event.rating &&
                                 <ColUI.EventGlobalRating lightContent={false} rating={event.rating} avaliationCount={event.avaliation_count} />
+                                }
+                                {!event.rating && <Text style={{fontSize: 16, color: ColUITheme.main, fontWeight: 'bold'}}>Novo!</Text>}
                                 <Button transparent onPress={()=>navigation.navigate('Avaliations')}>
                                     <Text style={[styles.btnLabel, { color: ColUITheme.main }]}>Ver detalhes da avaliação ></Text>
                                 </Button>

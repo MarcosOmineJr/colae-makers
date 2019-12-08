@@ -38,7 +38,10 @@ const Authenticated = createBottomTabNavigator({
     initialRouteName: 'Home',
     tabBarComponent: (props) => (
         <ColUI.BottomTabNavigator {...props} />
-    )
+    ),
+    defaultNavigationOptions:{
+        resetOnBlur: true
+    }
 });
 
 

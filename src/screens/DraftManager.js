@@ -86,17 +86,52 @@ class DraftProgress extends React.Component {
             draft: {},
             loading: true,
             done: [],
-            eventRef: ''
+            eventRef: '',
+            processing: false
         }
+
+        this._publish = this._publish.bind(this);
         this._saveAsDraft = this._saveAsDraft.bind(this);
         this._renderSteps = this._renderSteps.bind(this);
         this._fetchFirebase = this._fetchFirebase.bind(this);
     }
 
+    async _publish(){
+        let s = this.state;
+        const { user } = this.props;
+
+        let youShallNotPass = false;
+
+        s.done.forEach(v=>{
+            if(!v){
+                youShallNotPass = true;
+            }
+        })
+
+        if(youShallNotPass){
+            Alert.alert('Esperaê!', 'Você deve preencher todos os campos acima para poder publicar o evento!');
+        } else {
+            s.processing = true;
+            this.setState(s);
+            let draft = firebase.firestore().collection('users').doc(user.firebaseRef).collection('events').doc(s.eventRef);
+            let draftResponse = await draft.get();
+            let parsedDraftResponse = draftResponse.data();
+            if(parsedDraftResponse){
+                await firebase.firestore().collection('events').doc().set({...parsedDraftResponse, published: true, publishedAt: firebase.firestore.FieldValue.serverTimestamp() });
+                //tem que apagar o outro agora:
+                await draft.delete()
+
+                s.processing = false;
+                this.setState(s);
+                this.props.navigation.navigate('Active');
+            }
+        }
+    }
+
     async _fetchFirebase(){
 
         let s = this.state;
-        const { user } = this.props;
+        const { user, tempDraft } = this.props;
 
         let response;
 
@@ -192,7 +227,7 @@ class DraftProgress extends React.Component {
         if(this.props.tempDraft != undefined){
             delete this.props.tempDraft.firestoreReferenceId;
         }
-        firebase.firestore().collection('users').doc(firebaseRef).collection('events').doc(this._docRef).set({...this.props.tempDraft}, { merge: true });
+        firebase.firestore().collection('users').doc(firebaseRef).collection('events').doc(this.state.eventRef).set({...this.props.tempDraft}, { merge: true });
         this.props.navigation.navigate('Drafts');
     }
 
@@ -263,7 +298,7 @@ class DraftProgress extends React.Component {
 
     render(){
 
-        const { loading, stepsData } = this.state;
+        const { loading, stepsData, processing } = this.state;
         const { ColUITheme } = this.props;
 
         if(loading){
@@ -276,13 +311,21 @@ class DraftProgress extends React.Component {
         return (
             <View style={draftProgressStyles.container}>
                 <NavigationEvents onDidFocus={()=>{ let s = this.state; s.loading = true; this.setState(s); this._fetchFirebase();}} />
+                <Modal animationType='fade' visible={processing} transparent={true}>
+                    <View style={draftProgressStyles.modalContainer}>
+                        <View style={[draftProgressStyles.modal, { backgroundColor: ColUITheme.background }]}>
+                            <ActivityIndicator size='large' color={ColUITheme.main} />
+                            <Text style={[draftProgressStyles.modalText, { color: ColUITheme.main }]}>Processando...</Text>
+                        </View>
+                    </View>
+                </Modal>
                 <View style={draftProgressStyles.textContainer}>
                     <Text style={[draftProgressStyles.text, { color: this.props.ColUITheme.main }]}>Preencha os dados para criar o evento</Text>
                 </View>
                 {stepsData.map((step, index)=>this._renderSteps(step, index, stepsData.length))}
                 <View style={draftProgressStyles.buttonsContainer}>
                     <ColUI.Button blue label='salvar rascunho' onPress={()=>this._saveAsDraft()} />
-                    <ColUI.Button label='publicar' />
+                    <ColUI.Button label='publicar' onPress={()=>this._publish()} />
                 </View>
             </View>
         );
@@ -357,6 +400,28 @@ const draftProgressStyles = StyleSheet.create({
     },
     stepName:{
         fontSize: 18
+    },
+    modalContainer:{
+        flex: 1,
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: 'rgba(0,0,0,0.5)'
+    },
+    modal:{
+        height: height*0.3,
+        width: width*0.8,
+        elevation: 5,
+        borderRadius: 10,
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: 20,
+        paddingTop: 50
+    },
+    modalText:{
+        fontSize: 30,
+        marginTop: 30,
+        fontWeight: 'bold',
+        textAlign: 'center'
     }
 });
 
@@ -392,7 +457,7 @@ class EventNameInput extends React.Component {
 
         //Cria um draft no Firestore, pega o id gerado dele e o nome e coloca em tempDraft, depois redireciona para 'OpenDraft', que é o fluxo normal de rascunhos:
         let eventRef = firebase.firestore().collection('users').doc(firebaseRef).collection('events').doc(); //Cria novo documento no firestore
-        eventRef.set({name: this.state.name, owner: firebaseRef}); //seta o nome dentro do documento
+        eventRef.set({name: this.state.name, owner: firebaseRef, createdAt: firebase.firestore.FieldValue.serverTimestamp()}); //seta o nome dentro do documento
 
         //Seta o tempDraft == AVISO == setTempDraft() aparentemente é assíncrono
         await this.props.setTempDraft({name: this.state.name, firestoreReferenceId: eventRef.id, createdAt: firebase.firestore.FieldValue.serverTimestamp()});
@@ -457,11 +522,11 @@ class EventType extends React.Component {
         this._handlePhotoInput = this._handlePhotoInput.bind(this);
         this._handleCategoryInput = this._handleCategoryInput.bind(this);
         this._handleKeywordsInput = this._handleKeywordsInput.bind(this);
-        this._saveAsDraft = this._saveAsDraft.bind(this);
         this._fetchFirebase = this._fetchFirebase.bind(this);
-        this.__uploadToFirebase = this._uploadToFirebase.bind(this);
         this._goBackToSteps = this._goBackToSteps.bind(this);
-        this.__proceedInSteps = this._proceedInSteps.bind(this);
+        this._proceedInSteps = this._proceedInSteps.bind(this);
+        this._uploadToFirebaseAndGoBack = this._uploadToFirebaseAndGoBack.bind(this);
+        this._uploadToFirebaseAndProceed = this._uploadToFirebaseAndProceed.bind(this);
 
         this.imagesURL = [];
     }
@@ -492,7 +557,7 @@ class EventType extends React.Component {
         this.setState(s);
     }
 
-    async _saveAsDraft(){
+    async _goBackToSteps(){
         let s = this.state;
         const { images } = s.data;
         const { eventRef } = this.props.navigation.state.params;
@@ -506,14 +571,14 @@ class EventType extends React.Component {
         images.forEach((image, key)=>{
             if(typeof image == 'string'){
                 imagesURL.push(image);
-                this._uploadToFirebase(imagesURL);
+                this._uploadToFirebaseAndGoBack(imagesURL);
             } else {
                 firebase.storage().ref(`events/${eventRef}/image_${key.toString()}`).putFile(image.path).on(firebase.storage.TaskEvent.STATE_CHANGED, snapshot=>{
                     if(snapshot.state === firebase.storage.TaskState.SUCCESS){
                         firebase.storage().ref(`events/${eventRef}/image_${key.toString()}`).getDownloadURL()
                             .then(url=>{
                                 imagesURL.push(url);
-                                this._uploadToFirebase(imagesURL);
+                                this._uploadToFirebaseAndGoBack(imagesURL);
                             })
                     }
                 },error=>{
@@ -523,17 +588,38 @@ class EventType extends React.Component {
         })
     }
 
-    async _goBackToSteps(){
-        await this._saveAsDraft();
-        this.props.navigation.navigate('DraftProgress', { draftId: this.props.navigation.state.params.eventRef })
-    }
-
     async _proceedInSteps(){
-        await this._saveAsDraft();
-        this.props.navigation.navigate('EventDescription', { draftId: this.props.navigation.state.params.eventRef })
+        let s = this.state;
+        const { images } = s.data;
+        const { eventRef } = this.props.navigation.state.params;
+
+        s.processing = true;
+        this.setState(s);
+
+        let imagesURL = [];
+
+        //Salva as imagens no Cloud Storage:
+        images.forEach((image, key)=>{
+            if(typeof image == 'string'){
+                imagesURL.push(image);
+                this._uploadToFirebaseAndProceed(imagesURL);
+            } else {
+                firebase.storage().ref(`events/${eventRef}/image_${key.toString()}`).putFile(image.path).on(firebase.storage.TaskEvent.STATE_CHANGED, snapshot=>{
+                    if(snapshot.state === firebase.storage.TaskState.SUCCESS){
+                        firebase.storage().ref(`events/${eventRef}/image_${key.toString()}`).getDownloadURL()
+                            .then(url=>{
+                                imagesURL.push(url);
+                                this._uploadToFirebaseAndProceed(imagesURL);
+                            })
+                    }
+                },error=>{
+                    console.log('Erro ao fazer o upload de imagens: ', error.message);
+                })
+            }
+        })
     }
 
-    async _uploadToFirebase(readyURLs){
+    async _uploadToFirebaseAndGoBack(readyURLs){
 
         let s = this.state;
 
@@ -546,6 +632,24 @@ class EventType extends React.Component {
             await firebase.firestore().collection('users').doc(user.firebaseRef).collection('events').doc(eventRef).set({ categories: categories, keywords: keywords, photos: readyURLs },{merge: true});
             s.processing = false;
             this.setState(s);
+            this.props.navigation.navigate('DraftProgress', { draftId: this.props.navigation.state.params.eventRef })
+        }
+    }
+
+    async _uploadToFirebaseAndProceed(readyURLs){
+
+        let s = this.state;
+
+        const { user } = this.props;
+        const { eventRef } = this.props.navigation.state.params;
+        const { images, categories, keywords } = s.data;
+
+        if(readyURLs.length == images.length){
+            //alert('fez upload de todas as imagens');
+            await firebase.firestore().collection('users').doc(user.firebaseRef).collection('events').doc(eventRef).set({ categories: categories, keywords: keywords, photos: readyURLs },{merge: true});
+            s.processing = false;
+            this.setState(s);
+            this.props.navigation.navigate('EventDescription', { eventRef: this.props.navigation.state.params.eventRef })
         }
     }
 
@@ -804,7 +908,6 @@ class EventDescription extends React.Component {
         this._handleInput = this._handleInput.bind(this);
         this._goBackToSteps = this._goBackToSteps.bind(this);
         this._proceedInSteps = this._proceedInSteps.bind(this);
-        this._saveAsDraft = this._saveAsDraft.bind(this);
         this._fetchFirebase = this._fetchFirebase.bind(this);
     }
 
@@ -835,7 +938,7 @@ class EventDescription extends React.Component {
         this.setState(s);
     }
 
-    async _saveAsDraft(){
+    async _goBackToSteps(){
         let s = this.state;
         const { user } = this.props;
         const { eventRef } = this.props.navigation.state.params;
@@ -846,16 +949,21 @@ class EventDescription extends React.Component {
         await event.set({ description: s.description },{ merge: true });
         s.processing = false;
         this.setState(s);
-    }
-
-    async _goBackToSteps(){
-        await this._saveAsDraft();
         this.props.navigation.navigate('DraftProgress', { draftId: this.props.navigation.state.params.eventRef })
     }
 
     async _proceedInSteps(){
-        await this._saveAsDraft();
-        this.props.navigation.navigate('EventDate', { draftId: this.props.navigation.state.params.eventRef })
+        let s = this.state;
+        const { user } = this.props;
+        const { eventRef } = this.props.navigation.state.params;
+
+        s.processing = true;
+        this.setState(s);
+        let event = firebase.firestore().collection('users').doc(user.firebaseRef).collection('events').doc(eventRef);
+        await event.set({ description: s.description },{ merge: true });
+        s.processing = false;
+        this.setState(s);
+        this.props.navigation.navigate('EventDate', { eventRef: this.props.navigation.state.params.eventRef })
     }
 
     render(){
@@ -997,7 +1105,6 @@ class EventDate extends React.Component {
         this._fetchFirebase = this._fetchFirebase.bind(this);
         this._goBackToSteps = this._goBackToSteps.bind(this);
         this._proceedInSteps = this._proceedInSteps.bind(this);
-        this._saveAsDraft = this._saveAsDraft.bind(this);
     }
 
     componentDidMount(){
@@ -1081,8 +1188,8 @@ class EventDate extends React.Component {
         s.show[mode][field] = false;
         this.setState(s);
     }
-
-    async _saveAsDraft(){
+    
+    async _goBackToSteps(){
         let s = this.state;
         const { user } = this.props;
         const { eventRef } = this.props.navigation.state.params;
@@ -1094,16 +1201,22 @@ class EventDate extends React.Component {
         await event.set({ location: s.data.location, dates: { from: s.data.dates.from.getTime(), to: s.data.dates.to.getTime() } },{merge: true});
         s.processing = false;
         this.setState(s);
-    }
-    
-    async _goBackToSteps(){
-        await this._saveAsDraft();
         this.props.navigation.navigate('DraftProgress', { draftId: this.props.navigation.state.params.eventRef })
     }
 
     async _proceedInSteps(){
-        await this._saveAsDraft();
-        this.props.navigation.navigate('EventServices', { draftId: this.props.navigation.state.params.eventRef })
+        let s = this.state;
+        const { user } = this.props;
+        const { eventRef } = this.props.navigation.state.params;
+
+        s.processing = true;
+        this.setState(s);
+
+        let event = firebase.firestore().collection('users').doc(user.firebaseRef).collection('events').doc(eventRef);
+        await event.set({ location: s.data.location, dates: { from: s.data.dates.from.getTime(), to: s.data.dates.to.getTime() } },{merge: true});
+        s.processing = false;
+        this.setState(s);
+        this.props.navigation.navigate('EventServices', { eventRef: this.props.navigation.state.params.eventRef })
     }
 
     render(){
@@ -1268,7 +1381,6 @@ class EventTickets extends React.Component {
 
         this._fetchFirebase = this._fetchFirebase.bind(this);
         this._goBackToSteps = this._goBackToSteps.bind(this);
-        this._saveAsDraft = this._saveAsDraft.bind(this);
     }
 
     componentDidMount(){
@@ -1290,7 +1402,7 @@ class EventTickets extends React.Component {
         this.setState(s);
     }
 
-    async _saveAsDraft(){
+    async _goBackToSteps(){
         let s = this.state;
         s.processing = true;
         this.setState(s);
@@ -1299,10 +1411,6 @@ class EventTickets extends React.Component {
 
         s.processing = false;
         this.setState(s);
-    }
-
-    async _goBackToSteps(){
-        this._saveAsDraft();
         this.props.navigation.navigate('DraftProgress', { draftId: this.props.navigation.state.params.eventRef });
     }
 
@@ -1471,19 +1579,24 @@ class EventServices extends React.Component {
         this.state = {
             selected: [],
             processing: false,
-            loading: true
+            loading: true,
+            ready: false
         }
 
         this._checkForParams = this._checkForParams.bind(this);
         this._fetchFirebase = this._fetchFirebase.bind(this);
         this._goBackToSteps = this._goBackToSteps.bind(this);
         this._proceedInSteps = this._proceedInSteps.bind(this);
-        this._saveAsDraft = this._saveAsDraft.bind(this);
         this._handleDeselection = this._handleDeselection.bind(this);
     }
 
     componentDidMount(){
         this._fetchFirebase();
+        setTimeout(()=>{
+            let s = this.state;
+            s.ready = true;
+            this.setState(s);
+        }, 1000);
     }
 
     async _fetchFirebase(){
@@ -1539,7 +1652,7 @@ class EventServices extends React.Component {
         this.setState(s);
     }
 
-    async _saveAsDraft(){
+    async _goBackToSteps(){
         let s = this.state;
         s.processing = true;
         this.setState(s);
@@ -1550,22 +1663,27 @@ class EventServices extends React.Component {
         await event.set({ producers: s.selected, tickets:[{fullprice:0, halfprice:0}] },{merge:true});
         s.processing = false;
         this.setState(s);
-    }
-
-    async _goBackToSteps(){
-        await this._saveAsDraft();
         this.props.navigation.navigate('DraftProgress', { draftId: this.props.navigation.state.params.eventRef })
     }
 
     async _proceedInSteps(){
-        await this._saveAsDraft();
-        this.props.navigation.navigate('EventTickets', { draftId: this.props.navigation.state.params.eventRef })
+        let s = this.state;
+        s.processing = true;
+        this.setState(s);
+        const { user } = this.props;
+        const { eventRef } = this.props.navigation.state.params;
+
+        let event = firebase.firestore().collection('users').doc(user.firebaseRef).collection('events').doc(eventRef);
+        await event.set({ producers: s.selected, tickets:[{fullprice:0, halfprice:0}] },{merge:true});
+        s.processing = false;
+        this.setState(s);
+        this.props.navigation.navigate('EventTickets', { eventRef: this.props.navigation.state.params.eventRef })
     }
 
     render(){
 
         const { ColUITheme, navigation } = this.props;
-        const { selected, processing, loading } = this.state;
+        const { selected, processing, loading, ready } = this.state;
 
         if(loading){
             return (
@@ -1592,7 +1710,12 @@ class EventServices extends React.Component {
                             <Icon type='MaterialIcons' name='add' style={[EventServicesStyles.icon, { color: ColUITheme.main }]} />
                             <Text style={{ color: ColUITheme.main }}>ADICIONAR ORGANIZADOR</Text>
                         </Button>
-                        {selected &&
+                        {selected && !ready &&
+                            <View style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}>
+                                <ActivityIndicator size='large' color={ColUITheme.main} />
+                            </View>
+                        }
+                        {selected && ready &&
                             selected.map((user, key)=>(
                                 <ColUI.AnotherCardOhMyGod key={key.toString()} firebaseRef={user} contentContainerStyle={EventServicesStyles.card} onRemove={()=>this._handleDeselection(user)} />
                             ))

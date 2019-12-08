@@ -91,6 +91,7 @@ class Home extends React.Component {
     _renderEvents(event){
 
         const { navigate } = this.props.navigation;
+        const { ColUITheme } = this.props;
 
         return (
             <TouchableHighlight style={{ marginBottom: 20 }} onPress={()=>navigate('EventInfo', { firebaseRef: event.ref })}>
@@ -98,7 +99,8 @@ class Home extends React.Component {
                     <Image source={{uri: event.photos[0]}} style={styles.eventCoverImage} resizeMode='cover' />
                     <View style={styles.eventInfoContainer}>
                         <Text style={styles.eventName} numberOfLines={1}>{event.name}</Text>
-                        <ColUI.EventGlobalRating style={styles.rating} rating={event.rating} avaliationCount={event.avaliation_count} />
+                        {event.rating && <ColUI.EventGlobalRating style={styles.rating} rating={event.rating} avaliationCount={event.avaliation_count} />}
+                        {!event.rating && <Text style={[styles.rating, { fontSize: 16, color: ColUITheme.background, fontWeight: 'bold' }]}>Novo!</Text>}
                         <Text style={styles.eventDescription} numberOfLines={5}>{event.description}</Text>
                     </View>
                 </ColUI.Card>
