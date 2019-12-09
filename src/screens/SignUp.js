@@ -236,8 +236,6 @@ class SignUp3 extends React.Component {
         const { disabled, loading, states, data } = this.state;
         const { ColUITheme } = this.props;
 
-        console.log(data);
-
         if(loading){
             return (
                 <View style={{flex: 1, alignItems: 'center', justifyContent: 'center'}} >
@@ -284,64 +282,61 @@ const SignUp4 = (props)=>{
 
     useEffect(()=>{
         _signOut();
-        auth.signInAnonymously();
         return auth.onAuthStateChanged((user)=>{
             if(user){
-                if(!user.isAnonymous){
-                    try{
-                    //Fazendo o upload da imagem de perfil no Storage:
-                    async function fetchFirebase(){
-                        let imagem = data.profileimage.path;
-                        firebase.storage().ref(`profileimages/${user.uid}/profileimage`).putFile(imagem.replace('file://','')).on(firebase.storage.TaskEvent.STATE_CHANGED,snapshot=>{
-                            if(snapshot.state === firebase.storage.TaskState.SUCCESS){
-                                firebase.storage().ref(`profileimages/${user.uid}/profileimage`).getDownloadURL()
-                                    .then((url)=>{
+                try{
+                //Fazendo o upload da imagem de perfil no Storage:
+                async function fetchFirebase(){
+                    console.log('ta rodando isso?');
+                    let imagem = data.profileimage.path;
+                    firebase.storage().ref(`profileimages/${user.uid}/profileimage`).putFile(imagem.replace('file://','')).on(firebase.storage.TaskEvent.STATE_CHANGED,snapshot=>{
+                        if(snapshot.state === firebase.storage.TaskState.SUCCESS){
+                            firebase.storage().ref(`profileimages/${user.uid}/profileimage`).getDownloadURL()
+                                .then((url)=>{
 
-                                        //colocando em data a info certinha:
-                                        setData({ ...data, email: loginInfo.email, firebaseRef: user.uid, profileimage: url, usertype: 'promoter', participatedin:[], phone: data.whatsapp });
+                                    //colocando em data a info certinha:
+                                    setData({ ...data, email: loginInfo.email, firebaseRef: user.uid, profileimage: url, usertype: 'promoter', participatedin:[], phone: data.whatsapp });
 
-                                        //recebendo o UID do usuário e criando o documento no Firestore:
-                                        firestore.collection('users').doc(user.uid).set({ ...data, email: loginInfo.email, firebaseRef: user.uid, profileimage: url, usertype: 'promoter', participatedin:[], phone: data.whatsapp });
+                                    //recebendo o UID do usuário e criando o documento no Firestore:
+                                    firestore.collection('users').doc(user.uid).set({ ...data, email: loginInfo.email, firebaseRef: user.uid, profileimage: url, usertype: 'promoter', participatedin:[], phone: data.whatsapp });
 
-                                        //Guardando no Redux:
-                                        props.setUserInfo({ ...data, email: loginInfo.email, firebaseRef: user.uid, profileimage: url, usertype: 'promoter', participatedin:[], phone: data.whatsapp });
+                                    //Guardando no Redux:
+                                    props.setUserInfo({ ...data, email: loginInfo.email, firebaseRef: user.uid, profileimage: url, usertype: 'promoter', participatedin:[], phone: data.whatsapp });
 
-                                        //Redirecionando para as rotas autenticadas:
-                                        navigation.navigate('Authenticated');
-                                    });
-                                }
-                            },error=>{
-                                console.log('Erro:', error);
-                            });
-                        }
-
-                        if(data.profileimage){
-                            console.log('profileimage: ', data.profileimage);
-                            console.log('entrou quando não deveria ter entrado...');
-                            //fetchFirebase();
-                        } else {
-                            //colocando em data a info certinha:
-                            setData({ ...data, email: loginInfo.email, firebaseRef: user.uid, profileimage:'', usertype: 'promoter', participatedin:[], phone: data.whatsapp });
-
-                            //recebendo o UID do usuário e criando o documento no Firestore:
-                            firestore.collection('users').doc(user.uid).set({ ...data, email: loginInfo.email, firebaseRef: user.uid, profileimage: url, usertype: 'promoter', participatedin:[], phone: data.whatsapp });
-
-                            //Guardando no Redux:
-                            props.setUserInfo({ ...data, email: loginInfo.email, firebaseRef: user.uid, profileimage: url, usertype: 'promoter', participatedin:[], phone: data.whatsapp });
-
-                            //Redirecionando para as rotas autenticadas:
-                            navigation.navigate('Authenticated');
-                        }
-                    } catch(e){
-                        console.log('Erro:', e);
+                                    //Redirecionando para as rotas autenticadas:
+                                    navigation.navigate('Authenticated');
+                                });
+                            }
+                        },error=>{
+                            console.log('Erro:', error);
+                        });
                     }
+
+                    if(data.profileimage){
+                        console.log('profileimage: ', data.profileimage);
+                        console.log('entrou quando não deveria ter entrado...');
+                        fetchFirebase();
+                    } else {
+                        //colocando em data a info certinha:
+                        setData({ ...data, email: loginInfo.email, firebaseRef: user.uid, profileimage:'', usertype: 'promoter', participatedin:[], phone: data.whatsapp });
+
+                        //recebendo o UID do usuário e criando o documento no Firestore:
+                        firestore.collection('users').doc(user.uid).set({ ...data, email: loginInfo.email, firebaseRef: user.uid, profileimage: '', usertype: 'promoter', participatedin:[], phone: data.whatsapp });
+
+                        //Guardando no Redux:
+                        props.setUserInfo({ ...data, email: loginInfo.email, firebaseRef: user.uid, profileimage: '', usertype: 'promoter', participatedin:[], phone: data.whatsapp });
+
+                        //Redirecionando para as rotas autenticadas:
+                        navigation.navigate('Authenticated');
+                    }
+                } catch(e){
+                    console.log('Erro:', e);
                 }
             }
         });
     });
 
     async function _signUp(){
-        await auth.signOut();
         if(loginInfo.password == confirmPassword){
             setLoading(true);
             let usernameCheck = await firebase.firestore().collection('users').where('username', '==', data.username).get();
