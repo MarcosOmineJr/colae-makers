@@ -144,9 +144,12 @@ class DraftProgress extends React.Component {
             response = await event.get();
             response = response.data();
 
-            console.log('response.photos[0]: ',response.photos[0]);
-            if(response.photos[0] && response.categories && response.keywords){
-                s.done.push(true);
+            if(response.photos){
+                if(response.photos[0] && response.categories && response.keywords){
+                    s.done.push(true);
+                } else {
+                    s.done.push(false);
+                }
             } else {
                 s.done.push(false);
             }
@@ -178,8 +181,12 @@ class DraftProgress extends React.Component {
             response = await event.get();
             response = response.data();
 
-            if(response.photos[0] && response.categories && response.keywords){
-                s.done.push(true);
+            if(response.photos){
+                if(response.photos[0] && response.categories && response.keywords){
+                    s.done.push(true);
+                } else {
+                    s.done.push(false);
+                }
             } else {
                 s.done.push(false);
             }
@@ -1722,7 +1729,7 @@ class EventServices extends React.Component {
                             <Icon type='MaterialIcons' name='add' style={[EventServicesStyles.icon, { color: ColUITheme.main }]} />
                             <Text style={{ color: ColUITheme.main }}>ADICIONAR ORGANIZADOR</Text>
                         </Button>
-                        {selected && !ready &&
+                        {selected && !ready && false &&
                             <View style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}>
                                 <ActivityIndicator size='large' color={ColUITheme.main} />
                             </View>

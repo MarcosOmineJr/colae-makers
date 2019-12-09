@@ -25,6 +25,7 @@ const Login = (props)=>{
 
     const [disabled, setDisabled] = useState(true);
     const [loginInfo, setLoginInfo] = useState({email: '', password: ''});
+    const [loading, setLoading] = useState(false);
 
     const auth = firebase.auth();
     const firestore = firebase.firestore();
@@ -66,6 +67,7 @@ const Login = (props)=>{
     };
 
     async function _login(){
+        setLoading(true);
         try{
             await auth.signInWithEmailAndPassword(loginInfo.email, loginInfo.password);
         } catch(error){
@@ -97,7 +99,7 @@ const Login = (props)=>{
                 </ColaeAPI.ColUI.Card>
             </View>
             <View style={styles.btnContainer}>
-                <ColaeAPI.ColUI.Button blue disabled={disabled} label='login' colSpan={4} onPress={()=>_login()} />
+                <ColaeAPI.ColUI.Button blue loading={loading} disabled={disabled} label='login' colSpan={4} onPress={()=>_login()} />
                 <Button transparent onPress={()=>navigation.navigate('ForgotPassword')} >
                     <Text style={styles.btnLabel}>Esqueceu a senha?</Text>
                 </Button>

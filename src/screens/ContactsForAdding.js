@@ -40,7 +40,6 @@ const ContactsForAdding = (props)=>{
                 let responseAdd = {...r.data(), ref: r.id, collection: 'users' }
                 setSnapshot(snapshot=>snapshot.concat(responseAdd));
             })
-            console.log(snapshot);
         }
 
         fetchFirestore();

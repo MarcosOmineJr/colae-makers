@@ -237,6 +237,7 @@ const SignUp4 = (props)=>{
     const [data, setData] = useState({...navigation.state.params.data, username:''});
     const [loginInfo, setLoginInfo] = useState({email: '', password: ''});
     const [confirmPassword, setConfirmPassword] = useState('');
+    const [loading, setLoading] = useState(false);
 
     async function _signOut(){
         try{
@@ -286,6 +287,7 @@ const SignUp4 = (props)=>{
 
     async function _signUp(){
         if(loginInfo.password == confirmPassword){
+            setLoading(true);
             try{
                 await auth.createUserWithEmailAndPassword(loginInfo.email, loginInfo.password);
 
@@ -345,7 +347,7 @@ const SignUp4 = (props)=>{
             </View>
             <View style={styles.btnContainer}>
                 <View style={styles.finishContainer}>
-                    <ColUI.Button blue disabled={disabled} colSpan={4} label='finalizar cadastro' onPress={()=>_signUp()} />
+                    <ColUI.Button blue loading={loading} disabled={disabled} colSpan={4} label='finalizar cadastro' onPress={()=>_signUp()} />
                     <Text style={styles.warning}>Ao clicar em prosseguir você confirma que leu e concorda com os nossos <Text style={styles.inlineButton} onPress={()=>navigation.navigate('SU_Termos')}>Termos e Condições de Uso</Text> e <Text style={styles.inlineButton} onPress={()=>navigation.navigate('SU_Privacidade')}>Política de Privacidade</Text></Text>
                 </View>
                 <View style={styles.loginContainer}>

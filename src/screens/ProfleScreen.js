@@ -62,8 +62,8 @@ const ProfileScreen = (props)=>{
                             <Image source={{uri: snapshot.profileimage}} style={[styles.profilephoto, { borderColor: ColUITheme.main }]} />
                         </View>
                         <View style={styles.userTypeWrapper}>
-                            { snapshot.usertype == 'palestrante' && <Icon type='MaterialIcons' name='add' style={[styles.icon, { color: ColUITheme.main }]} /> }
-                            { snapshot.usertype == 'ator' && <Icon type='MaterialIcons' name='add' style={[styles.icon, { color: ColUITheme.main }]} /> }
+                            { false && snapshot.usertype == 'palestrante' && <Icon type='MaterialIcons' name='add' style={[styles.icon, { color: ColUITheme.main }]} /> }
+                            { false && snapshot.usertype == 'ator' && <Icon type='MaterialIcons' name='add' style={[styles.icon, { color: ColUITheme.main }]} /> }
                             <Text numberOfLines={1} style={[styles.userType, { color: ColUITheme.gray.light }]}>{snapshot.usertype}</Text>
                         </View>
                     </View>
@@ -109,7 +109,7 @@ const ProfileScreen = (props)=>{
                 { snapshot.about != '' && snapshot.about != undefined && <Text style={[styles.about, { color: ColUITheme.gray.light }]}>{`${snapshot.about}`}</Text>}
                 <Text style={[styles.title, { color: ColUITheme.gray.light }]}>Eventos em que já participou</Text>
                 {
-                    snapshot.participatedin[0] != '' &&
+                    snapshot.participatedin && snapshot.participatedin[0] != '' &&
                     <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.eventImageCardsContainer}>
                         {
                             snapshot.participatedin.map((reference, key)=>(
@@ -118,7 +118,7 @@ const ProfileScreen = (props)=>{
                         }
                     </ScrollView>
                 }
-                { snapshot.participatedin[0] == '' && <Text>{`${snapshot.name} ainda não participou de nenhum evento`}</Text> }
+                { snapshot.participatedin && snapshot.participatedin[0] == '' && <Text>{`${snapshot.name} ainda não participou de nenhum evento`}</Text> }
             </View>
         </ScrollView>
     );

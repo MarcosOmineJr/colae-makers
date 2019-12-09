@@ -27,8 +27,8 @@ const UserCardInContacts = (props)=>{
                     <Text style={styles.name} numberOfLines={1}>{`${data.name} ${data.lastname}`}</Text>
                 </View>
                 <View style={styles.profileType}>
-                    { data.usertype == 'palestrante' && <Icon type='MaterialIcons' name='add' style={[styles.icon, { color: ColUITheme.main }]} /> }
-                    { data.usertype == 'ator' && <Icon type='MaterialIcons' name='add' style={[styles.icon, { color: ColUITheme.main }]} /> }
+                    { false && data.usertype == 'palestrante' && <Icon type='MaterialIcons' name='add' style={[styles.icon, { color: ColUITheme.main }]} /> }
+                    { false && data.usertype == 'ator' && <Icon type='MaterialIcons' name='add' style={[styles.icon, { color: ColUITheme.main }]} /> }
                     <Text numberOfLines={1} style={[styles.userType, { color: ColUITheme.gray.light }]}>{data.usertype}</Text>
                 </View>
             </View>
