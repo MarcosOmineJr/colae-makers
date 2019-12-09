@@ -19,6 +19,7 @@ class TextInput extends React.Component {
     render(){
 
         const { ColUITheme, style, label, labelStyle, onChangeText, keyboardType, secureTextEntry, autoCapitalize, textStyle, value, placeholder } = this.props;
+        //console.log('textinput autoCapitalize: ', autoCapitalize);
 
         return (
             <Item floatingLabel style={[{ borderColor: ColUITheme.main, marginBottom: 20, width: this._componentWidth }, style]}>

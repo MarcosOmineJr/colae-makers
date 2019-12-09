@@ -8,7 +8,9 @@ import {
     StyleSheet,
     View,
     Text,
-    Dimensions
+    Dimensions,
+    Alert,
+    ActivityIndicator
 } from 'react-native';
 import {
     Button
@@ -57,7 +59,7 @@ class SignUp1 extends React.Component {
             console.log('erro:', e);
         }
 
-        if(s.data.profileimage != undefined && s.data.name != '' && s.data.lastname != '' && s.data.whatsapp != ''){
+        if(s.data.name != '' && s.data.lastname != '' && s.data.whatsapp != ''){
             s.disabled = true;
         } else {
             s.disabled = false
@@ -70,10 +72,10 @@ class SignUp1 extends React.Component {
         let s = this.state;
         s.prevWhatsapp = s.data.whatsapp;
         s.data[mode] = input;
-        if(s.data.profileimage != undefined && s.data.name != '' && s.data.lastname != '' && s.data.whatsapp != ''){
+        if(s.data.name != '' && s.data.lastname != '' && s.data.whatsapp != ''){
             s.disabled = false;
         } else {
-            s.disabled = false;  //mudar aqui
+            s.disabled = true;
         }
         if(mode == 'whatsapp'){
             function putWhatsAppThings(number){
@@ -101,7 +103,7 @@ class SignUp1 extends React.Component {
 
     _nextPage(){
         let s = this.state;
-        if(s.data.profileimage != undefined && s.data.name != '' && s.data.lastname != '' && s.data.whatsapp != ''){
+        if(s.data.name != '' && s.data.lastname != '' && s.data.whatsapp != ''){
             function removeWhatsAppThings(number){
                 let countryCode = number.substr(1, 2);
                 let ddd = number.substr(5, 2);
@@ -113,7 +115,7 @@ class SignUp1 extends React.Component {
             
             this.props.navigation.navigate('SU_Location', { data: {...s.data, whatsapp: removeWhatsAppThings(s.data.whatsapp) } });
         } else {
-            alert('Preencha todos os campos!');
+            Alert.alert('Esperaê!', 'Preencha todos os campos para poder prosseguir');
         }
     }
 
@@ -124,41 +126,34 @@ class SignUp1 extends React.Component {
         return (
             <View style={styles.container}>
                 <ColaeAPI.ColUI.Background />
-                <View style={styles.cardContainer}>
-                    <ColUI.Card contentContainerStyle={styles.card}>
-                        <ColUI.ProfileImageInput onPress={this._imageInputHandler} source={imagePath} />
-                        <ColUI.TextInput autoCapitalize='words' label='Nome' style={{marginBottom: '10%'}} onChangeText={(t)=>{this._handleInput(t, 'name')}} />
-                        <ColUI.TextInput autoCapitalize='words' label='Sobrenome' style={{marginBottom: '10%'}} onChangeText={(t)=>{this._handleInput(t, 'lastname')}} />
-                        <ColUI.TextInput label='WhatsApp' value={data.whatsapp} placeholder='(11) 91234-5678' keyboardType='numeric' style={{marginBottom: '10%'}} onChangeText={(t)=>{this._handleInput(t, 'whatsapp')}} />
-                    </ColUI.Card>
-                </View>
-                <View style={styles.btnContainer}>
-                    <ColUI.Button blue disabled={disabled} colSpan={4} label='Próximo' onPress={this._nextPage} />
-                    <Button transparent onPress={()=>this.props.navigation.navigate('Login')}>
-                        <Text style={styles.btnLabel}>Já tenho uma conta!</Text>
-                    </Button>
-                </View>
+                <ColUI.Card contentContainerStyle={styles.card}>
+                    <ColUI.ProfileImageInput onPress={this._imageInputHandler} source={imagePath} />
+                    <ColUI.TextInput autoCapitalize='words' label='Nome' style={{marginBottom: '10%'}} onChangeText={(t)=>{this._handleInput(t, 'name')}} />
+                    <ColUI.TextInput autoCapitalize='words' label='Sobrenome' style={{marginBottom: '10%'}} onChangeText={(t)=>{this._handleInput(t, 'lastname')}} />
+                    <ColUI.TextInput label='WhatsApp' value={data.whatsapp} placeholder='(11) 91234-5678' keyboardType='numeric' style={{marginBottom: '10%'}} onChangeText={(t)=>{this._handleInput(t, 'whatsapp')}} />
+                </ColUI.Card>
+                <ColUI.Button blue disabled={disabled} colSpan={4} label='Próximo' onPress={this._nextPage} />
+                <Button transparent onPress={()=>this.props.navigation.navigate('Login')}>
+                    <Text style={styles.btnLabel}>Já tenho uma conta!</Text>
+                </Button>
             </View>
         );
     }
 }
 
 class SignUp2 extends React.Component {
+
     render(){
         return (
             <View style={styles.container}>
                 <ColaeAPI.ColUI.Background />
-                <View style={styles.cardContainer}>
-                    <ColUI.Card contentContainerStyle={styles.card}>
-                        <Text style={{color: this.props.ColUITheme.accent, fontSize: 30}}>Cadastro 2</Text>
-                    </ColUI.Card>
-                </View>
-                <View style={styles.btnContainer}>
-                    <ColUI.Button blue colSpan={4} label='Próximo' onPress={()=>this.props.navigation.navigate('SU_Location')} />
-                    <Button transparent onPress={()=>this.props.navigation.navigate('Login')}>
-                        <Text style={styles.btnLabel}>Já tenho uma conta!</Text>
-                    </Button>
-                </View>
+                <ColUI.Card contentContainerStyle={styles.card}>
+                    <Text style={{color: this.props.ColUITheme.accent, fontSize: 30}}>Cadastro 2</Text>
+                </ColUI.Card>
+                <ColUI.Button blue colSpan={4} label='Próximo' onPress={()=>this.props.navigation.navigate('SU_Location')} />
+                <Button transparent onPress={()=>this.props.navigation.navigate('Login')}>
+                    <Text style={styles.btnLabel}>Já tenho uma conta!</Text>
+                </Button>
             </View>
         );
     }
@@ -173,15 +168,48 @@ class SignUp3 extends React.Component {
             data:{
                 ...props.navigation.state.params.data,
                 from:{
-                    state: '',
+                    state: undefined,
                     city: ''
                 }
-            }
+            },
+            states: [],
+            cities: false,
+            loading: true
         }
 
         this._handleInput = this._handleInput.bind(this);
         this._nextPage = this._nextPage.bind(this);
+        this._fetchStates = this._fetchStates.bind(this);
+        //this._fetchCities = this._fetchCities.bind(this);
     }
+
+    componentDidMount(){
+        this._fetchStates();
+    }
+
+    async _fetchStates(){
+        let s = this.state;
+        let response = await fetch('https://servicodados.ibge.gov.br/api/v1/localidades/regioes/1%7C2%7C3%7C4%7C5/estados');
+        response = await response.json();
+        s.states = response;
+        s.loading = false;
+        this.setState(s);
+    }
+
+    /*async _fetchCities(UF){
+        let id;
+        let s = this.state;
+        s.states.map((state, key)=>{
+            if(state.sigla == UF){
+                id = state.id;
+            }
+        });
+        let response = await fetch('https://servicodados.ibge.gov.br/api/v1/localidades/estados/'+id+'/municipios');
+        response = await response.json();
+        s.cities = response;
+        s.loading = false;
+        this.setState(s);
+    }*/
 
     _handleInput(input, mode){
         let s = this.state;
@@ -199,29 +227,36 @@ class SignUp3 extends React.Component {
         if(s.data.from.city != '' && s.data.from.state != ''){
             this.props.navigation.navigate('SU_LoginInfo', { data: s.data });
         } else {
-            alert('Preencha todos os campos!');
+            Alert.alert('Esperaê!', 'Preencha todos os campos!');
         }
     }
 
     render(){
 
-        const { disabled } = this.state;
+        const { disabled, loading, states, data } = this.state;
+        const { ColUITheme } = this.props;
 
+        console.log(data);
+
+        if(loading){
+            return (
+                <View style={{flex: 1, alignItems: 'center', justifyContent: 'center'}} >
+                    <ActivityIndicator size='large' color={ColUITheme.main} />
+                </View>
+            );
+        }
         return (
             <View style={styles.container}>
                 <ColaeAPI.ColUI.Background />
-                <View style={styles.cardContainer}>
-                    <ColUI.Card contentContainerStyle={[styles.card, { justifyContent: 'center' }]}>
-                        <ColUI.TextInput autoCapitalize='characters' label='Estado' style={{marginBottom: '10%'}} onChangeText={(t)=>{this._handleInput(t, 'state')}} />
-                        <ColUI.TextInput autoCapitalize='words' label='Cidade' style={{marginBottom: '10%'}} onChangeText={(t)=>{this._handleInput(t, 'city')}} />
-                    </ColUI.Card>
-                </View>
-                <View style={styles.btnContainer}>
-                    <ColUI.Button blue disabled={disabled} colSpan={4} label='Próximo' onPress={this._nextPage} />
-                    <Button transparent onPress={()=>this.props.navigation.navigate('Login')}>
-                        <Text style={styles.btnLabel}>Já tenho uma conta!</Text>
-                    </Button>
-                </View>
+                <ColUI.Card contentContainerStyle={[styles.card, { paddingTop: '10%',alignItems: 'center', justifyContent: 'center' }]}>
+                    <ColUI.Picker  state style={{marginBottom: '10%'}} pickerItems={states} value={data.from.state} onValueChange={(v)=>{this._handleInput(v, 'state')}} />
+                    {false && cities && <ColUI.Picker  state style={{marginBottom: '10%'}} pickerItems={cities} value={test.city} onValueChange={(v)=>{this.setState({...this.state, test: {...this.state.test, city:v }})}} />}
+                    <ColUI.TextInput autoCapitalize='words' label='Cidade' onChangeText={(t)=>{this._handleInput(t, 'city')}} />
+                </ColUI.Card>
+                <ColUI.Button blue disabled={disabled} colSpan={4} label='Próximo' onPress={this._nextPage} />
+                <Button transparent onPress={()=>this.props.navigation.navigate('Login')}>
+                    <Text style={styles.btnLabel}>Já tenho uma conta!</Text>
+                </Button>
             </View>
         );
     }
@@ -249,9 +284,11 @@ const SignUp4 = (props)=>{
 
     useEffect(()=>{
         _signOut();
+        auth.signInAnonymously();
         return auth.onAuthStateChanged((user)=>{
             if(user){
-                try{
+                if(!user.isAnonymous){
+                    try{
                     //Fazendo o upload da imagem de perfil no Storage:
                     async function fetchFirebase(){
                         let imagem = data.profileimage.path;
@@ -272,42 +309,71 @@ const SignUp4 = (props)=>{
                                         //Redirecionando para as rotas autenticadas:
                                         navigation.navigate('Authenticated');
                                     });
-                            }
-                        },error=>{
-                            console.log('Erro:', error);
-                        });
+                                }
+                            },error=>{
+                                console.log('Erro:', error);
+                            });
+                        }
+
+                        if(data.profileimage){
+                            console.log('profileimage: ', data.profileimage);
+                            console.log('entrou quando não deveria ter entrado...');
+                            //fetchFirebase();
+                        } else {
+                            //colocando em data a info certinha:
+                            setData({ ...data, email: loginInfo.email, firebaseRef: user.uid, profileimage:'', usertype: 'promoter', participatedin:[], phone: data.whatsapp });
+
+                            //recebendo o UID do usuário e criando o documento no Firestore:
+                            firestore.collection('users').doc(user.uid).set({ ...data, email: loginInfo.email, firebaseRef: user.uid, profileimage: url, usertype: 'promoter', participatedin:[], phone: data.whatsapp });
+
+                            //Guardando no Redux:
+                            props.setUserInfo({ ...data, email: loginInfo.email, firebaseRef: user.uid, profileimage: url, usertype: 'promoter', participatedin:[], phone: data.whatsapp });
+
+                            //Redirecionando para as rotas autenticadas:
+                            navigation.navigate('Authenticated');
+                        }
+                    } catch(e){
+                        console.log('Erro:', e);
                     }
-                    fetchFirebase();
-                } catch(e){
-                    console.log('Erro:', e);
                 }
             }
         });
     });
 
     async function _signUp(){
+        await auth.signOut();
         if(loginInfo.password == confirmPassword){
             setLoading(true);
-            try{
-                await auth.createUserWithEmailAndPassword(loginInfo.email, loginInfo.password);
-
-            } catch(error){
-                switch(error.code){
-                    case 'auth/invalid-email':
-                        alert('Insira um endereço de e-mail válido');
-                        break;
-                    case 'auth/weak-password':
-                        alert('A senha precisa ter no mínimo 6 caracteres');
-                        break;
-                    case 'auth/email-already-in-use':
-                        alert('Esse endereço de e-mail já está cadastrado!');
-                        break;
-                    default:
-                        alert(error.message);
+            let usernameCheck = await firebase.firestore().collection('users').where('username', '==', data.username).get();
+            if(usernameCheck.empty){
+                try{
+                    await auth.createUserWithEmailAndPassword(loginInfo.email, loginInfo.password);
+                } catch(error){
+                    switch(error.code){
+                        case 'auth/invalid-email':
+                            Alert.alert('Esperaê!','Insira um endereço de e-mail válido');
+                            setLoading(false);
+                            break;
+                        case 'auth/weak-password':
+                            Alert.alert('Esperaê!','A senha precisa ter no mínimo 6 caracteres');
+                            setLoading(false);
+                            break;
+                        case 'auth/email-already-in-use':
+                            Alert.alert('Esperaê!','Esse endereço de e-mail já está cadastrado!');
+                            setLoading(false);
+                            break;
+                        default:
+                            Alert.alert('Esperaê!', error.message);
+                            setLoading(false);
+                    }
                 }
+            } else {
+                Alert.alert('Opa!', 'Seu nome de usuário já está sendo usado');
+                setLoading(false);
             }
         } else {
-            alert('A sua senha não coincide com a confirmação!');
+            Alert.alert('Esperaê!','A sua senha não coincide com a confirmação!');
+            setLoading(false);
         }
     }
 
@@ -329,33 +395,26 @@ const SignUp4 = (props)=>{
         if(data.username != '' && loginInfo.email != '' && loginInfo.password != '' && confirmPassword != ''){
             setDisabled(false);
         } else {
-            setDisabled(true);
+            setDisabled(true); //mudar
         }
-        console.log('data em _handleInput', data);
     }
 
     return (
         <View style={styles.container}>
             <ColaeAPI.ColUI.Background />
-            <View style={styles.cardContainer}>
-                <ColUI.Card contentContainerStyle={styles.card}>
-                    <ColUI.TextInput autoCapitalize='none' label='Nome de usuário (deve ser único)' style={{marginBottom: '10%'}} onChangeText={(t)=>{_handleInput(t, 'username')}} />
-                    <ColUI.TextInput autocapitalize='none' keyboardType='email-address' label='E-mail' style={{marginBottom: '10%'}} onChangeText={(t)=>{_handleInput(t, 'email')}} />
-                    <ColUI.TextInput secureTextEntry={true} label='Senha' style={{marginBottom: '10%'}} onChangeText={(t)=>{_handleInput(t, 'password')}} />
-                    <ColUI.TextInput secureTextEntry={true} label='Confirmar senha' style={{marginBottom: '10%'}} onChangeText={(t)=>{_handleInput(t, 'confirmPassword')}} />
-                </ColUI.Card>
+            <ColUI.Card contentContainerStyle={styles.card}>
+                <ColUI.TextInput autoCapitalize='none' label='Nome de usuário (deve ser único)' style={{marginBottom: '10%'}} onChangeText={(t)=>{_handleInput(t, 'username')}} />
+                <ColUI.TextInput autocapitalize='none' keyboardType='email-address' label='E-mail' style={{marginBottom: '10%'}} onChangeText={(t)=>{_handleInput(t, 'email')}} />
+                <ColUI.TextInput secureTextEntry={true} label='Senha' style={{marginBottom: '10%'}} onChangeText={(t)=>{_handleInput(t, 'password')}} />
+                <ColUI.TextInput secureTextEntry={true} label='Confirmar senha' style={{marginBottom: '10%'}} onChangeText={(t)=>{_handleInput(t, 'confirmPassword')}} />
+            </ColUI.Card>
+            <View style={styles.finishContainer}>
+                <ColUI.Button blue loading={loading} disabled={disabled} colSpan={4} label='finalizar cadastro' onPress={()=>_signUp()} />
+                <Text style={styles.warning}>Ao clicar em prosseguir você confirma que leu e concorda com os nossos <Text style={styles.inlineButton} onPress={()=>navigation.navigate('SU_Termos')}>Termos e Condições de Uso</Text> e <Text style={styles.inlineButton} onPress={()=>navigation.navigate('SU_Privacidade')}>Política de Privacidade</Text></Text>
             </View>
-            <View style={styles.btnContainer}>
-                <View style={styles.finishContainer}>
-                    <ColUI.Button blue loading={loading} disabled={disabled} colSpan={4} label='finalizar cadastro' onPress={()=>_signUp()} />
-                    <Text style={styles.warning}>Ao clicar em prosseguir você confirma que leu e concorda com os nossos <Text style={styles.inlineButton} onPress={()=>navigation.navigate('SU_Termos')}>Termos e Condições de Uso</Text> e <Text style={styles.inlineButton} onPress={()=>navigation.navigate('SU_Privacidade')}>Política de Privacidade</Text></Text>
-                </View>
-                <View style={styles.loginContainer}>
-                    <Button transparent onPress={()=>navigation.navigate('Login')}>
-                        <Text style={styles.btnLabel}>Já tenho uma conta!</Text>
-                    </Button>
-                </View>
-            </View>
+            <Button transparent onPress={()=>navigation.navigate('Login')}>
+                <Text style={styles.btnLabel}>Já tenho uma conta!</Text>
+            </Button>
         </View>
     );
 }
@@ -364,29 +423,17 @@ const styles = StyleSheet.create({
     container:{
         flex: 1,
         alignItems: 'center',
-        justifyContent: 'center'
-    },
-    cardContainer:{
-        flex: 2,
-        width,
-        alignItems: 'center',
-        justifyContent: 'center'
+        justifyContent: 'space-evenly'
     },
     card:{
-        height: height*0.504,
+        paddingVertical: '10%',
         justifyContent: 'flex-start'
-    },
-    btnContainer:{
-        flex: 1,
-        width,
-        alignItems: 'center',
-        justifyContent: 'space-evenly'
     },
     btnLabel:{
         color: '#ffffff'
     },
     finishContainer:{
-        flex: 1,
+        height: '17.5%',
         width,
         justifyContent: 'space-between',
         alignItems: 'center',

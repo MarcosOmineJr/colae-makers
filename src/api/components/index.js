@@ -23,6 +23,7 @@ import UserCard from './UserCard';
 import UserCardInContacts from './UserCardInContacts';
 import EventImageCardWhy from './EventImageCardWhy';
 import AnotherCardOhMyGod from './AnotherCardOhMyGod';
+import Picker from './Picker';
 
 export default {
     styles,
@@ -48,5 +49,6 @@ export default {
     UserCard,
     UserCardInContacts,
     EventImageCardWhy,
-    AnotherCardOhMyGod
+    AnotherCardOhMyGod,
+    Picker
 };

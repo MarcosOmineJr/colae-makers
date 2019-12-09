@@ -29,9 +29,23 @@ const ProfileScreen = (props)=>{
 
     useEffect(()=>{
         async function fetchFirebase(){
+            
+            //Pronto! Agora ele abre o perfil independentemente de em que coleção o usuário está...
+            let response = await firestore().collection('users').doc(firebaseRef).get();
+            if(response.exists){
+                setSnapshot(response.data());
+                setLoading(false);
+            } else {
+                response = await firestore().collection('services').doc(firebaseRef).get();
+                setSnapshot(response.data());
+                setLoading(false);
+            }
+            
+            /*
             let response = await firestore().doc(collection+'/'+firebaseRef).get();
             setSnapshot(response.data());
             setLoading(false);
+            */
         }
 
         fetchFirebase();
