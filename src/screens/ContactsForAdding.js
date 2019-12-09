@@ -32,14 +32,15 @@ const ContactsForAdding = (props)=>{
         async function fetchFirestore(){
             let services = await firestore().collection('services').get();
             services.forEach((r)=>{
-                let responseAdd = {...r.data(), ref: r.id}
+                let responseAdd = {...r.data(), ref: r.id, collection: 'services'}
                 setSnapshot(snapshot=>snapshot.concat(responseAdd));
             });
             let producers = await firestore().collection('users').get();
             producers.forEach(r=>{
-                let responseAdd = {...r.data(), ref: r.id }
+                let responseAdd = {...r.data(), ref: r.id, collection: 'users' }
                 setSnapshot(snapshot=>snapshot.concat(responseAdd));
             })
+            console.log(snapshot);
         }
 
         fetchFirestore();
@@ -95,10 +96,9 @@ const ContactsForAdding = (props)=>{
 
                 {
                     snapshot.map((user, key)=>(
-                        <TouchableOpacity key={key.toString()} style={styles.contactCard} onPress={()=>navigation.navigate('Profile', { firebaseRef: user.ref, collection: 'services' })}>
+                        <TouchableOpacity key={key.toString()} style={styles.contactCard} onPress={()=>navigation.navigate('Profile', { firebaseRef: user.ref, collection: user.collection })}>
                             <ColUI.UserCardInContacts selected={selected.includes(user.ref)} data={user} onAdd={()=>_handleSelection(user.ref)} />
                         </TouchableOpacity>
-                        
                     ))
                 }
 
