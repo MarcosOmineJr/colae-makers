@@ -144,8 +144,8 @@ class DraftProgress extends React.Component {
             response = await event.get();
             response = response.data();
 
-
-            if(response.photos && response.categories && response.keywords){
+            console.log('response.photos[0]: ',response.photos[0]);
+            if(response.photos[0] && response.categories && response.keywords){
                 s.done.push(true);
             } else {
                 s.done.push(false);
@@ -178,8 +178,7 @@ class DraftProgress extends React.Component {
             response = await event.get();
             response = response.data();
 
-
-            if(response.photos && response.categories && response.keywords){
+            if(response.photos[0] && response.categories && response.keywords){
                 s.done.push(true);
             } else {
                 s.done.push(false);
@@ -830,7 +829,7 @@ class EventType extends React.Component {
                 </View>
                 
                 <View style={EventTypeStyles.buttonsContainer}>
-                    <ColUI.Button blue loading={processing} label='salvar rascunho' onPress={()=>this._goBackToSteps()} />
+                    <ColUI.Button blue label='salvar rascunho' onPress={()=>this._goBackToSteps()} />
                     <ColUI.Button label='próximo' onPress={()=>this._proceedInSteps()} />
                 </View>
             </ScrollView>
