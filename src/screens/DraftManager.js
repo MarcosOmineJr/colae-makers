@@ -590,33 +590,46 @@ class EventType extends React.Component {
 
     async _proceedInSteps(){
         let s = this.state;
-        const { images } = s.data;
+        const { images, categories, keywords } = s.data;
         const { eventRef } = this.props.navigation.state.params;
+        const { user } = this.props;
 
         s.processing = true;
         this.setState(s);
 
         let imagesURL = [];
 
+
         //Salva as imagens no Cloud Storage:
-        images.forEach((image, key)=>{
-            if(typeof image == 'string'){
-                imagesURL.push(image);
-                this._uploadToFirebaseAndProceed(imagesURL);
-            } else {
-                firebase.storage().ref(`events/${eventRef}/image_${key.toString()}`).putFile(image.path).on(firebase.storage.TaskEvent.STATE_CHANGED, snapshot=>{
-                    if(snapshot.state === firebase.storage.TaskState.SUCCESS){
-                        firebase.storage().ref(`events/${eventRef}/image_${key.toString()}`).getDownloadURL()
-                            .then(url=>{
-                                imagesURL.push(url);
-                                this._uploadToFirebaseAndProceed(imagesURL);
-                            })
-                    }
-                },error=>{
-                    console.log('Erro ao fazer o upload de imagens: ', error.message);
-                })
-            }
-        })
+        if(images[0]){
+            images.forEach((image, key)=>{
+                if(typeof image == 'string'){
+                    imagesURL.push(image);
+                    this._uploadToFirebaseAndProceed(imagesURL);
+                } else {
+                    firebase.storage().ref(`events/${eventRef}/image_${key.toString()}`).putFile(image.path).on(firebase.storage.TaskEvent.STATE_CHANGED, snapshot=>{
+                        if(snapshot.state === firebase.storage.TaskState.SUCCESS){
+                            firebase.storage().ref(`events/${eventRef}/image_${key.toString()}`).getDownloadURL()
+                                .then(url=>{
+                                    //checa se a url já existe no array, porque por algum motivo o cloud storage
+                                    //está emitindo 2 eventos por imagem...
+                                    if(!imagesURL.includes(url)){
+                                        imagesURL.push(url);
+                                    }
+                                    this._uploadToFirebaseAndProceed(imagesURL);
+                                })
+                        }
+                    },error=>{
+                        console.log('Erro ao fazer o upload de imagens: ', error.message);
+                    })
+                }
+            })
+        } else {
+            await firebase.firestore().collection('users').doc(user.firebaseRef).collection('events').doc(eventRef).set({ categories: categories, keywords: keywords, photos: [] },{merge: true});
+            s.processing = false;
+            this.setState(s);
+            this.props.navigation.navigate('EventDescription', { eventRef: this.props.navigation.state.params.eventRef })
+        }
     }
 
     async _uploadToFirebaseAndGoBack(readyURLs){
