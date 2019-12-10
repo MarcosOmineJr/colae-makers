@@ -262,7 +262,7 @@ class SignUp3 extends React.Component {
 
 const SignUp4 = (props)=>{
 
-    const { navigation } = props;
+    const { navigation, userInfo } = props;
     const auth = firebase.auth();
     const firestore = firebase.firestore();
 
@@ -271,6 +271,7 @@ const SignUp4 = (props)=>{
     const [loginInfo, setLoginInfo] = useState({email: '', password: ''});
     const [confirmPassword, setConfirmPassword] = useState('');
     const [loading, setLoading] = useState(false);
+    const [sendData, setSendData] = useState({});
 
     async function _signOut(){
         try{
@@ -287,7 +288,6 @@ const SignUp4 = (props)=>{
                 try{
                 //Fazendo o upload da imagem de perfil no Storage:
                 async function fetchFirebase(){
-                    console.log('ta rodando isso?');
                     let imagem = data.profileimage.path;
                     firebase.storage().ref(`profileimages/${user.uid}/profileimage`).putFile(imagem.replace('file://','')).on(firebase.storage.TaskEvent.STATE_CHANGED,snapshot=>{
                         if(snapshot.state === firebase.storage.TaskState.SUCCESS){
@@ -295,13 +295,13 @@ const SignUp4 = (props)=>{
                                 .then((url)=>{
 
                                     //colocando em data a info certinha:
-                                    setData({ ...data, email: loginInfo.email, firebaseRef: user.uid, profileimage: url, usertype: 'promoter', participatedin:[], phone: data.whatsapp });
+                                    setData({...sendData, firebaseRef: user.uid});
 
                                     //recebendo o UID do usuário e criando o documento no Firestore:
-                                    firestore.collection('users').doc(user.uid).set({ ...data, email: loginInfo.email, firebaseRef: user.uid, profileimage: url, usertype: 'promoter', participatedin:[], phone: data.whatsapp });
+                                    firestore.collection('users').doc(user.uid).set({...sendData, firebaseRef: user.uid});
 
                                     //Guardando no Redux:
-                                    props.setUserInfo({ ...data, email: loginInfo.email, firebaseRef: user.uid, profileimage: url, usertype: 'promoter', participatedin:[], phone: data.whatsapp });
+                                    props.setUserInfo({...sendData, firebaseRef: user.uid});
 
                                     //Redirecionando para as rotas autenticadas:
                                     navigation.navigate('Authenticated');
@@ -313,18 +313,17 @@ const SignUp4 = (props)=>{
                     }
 
                     if(data.profileimage){
-                        console.log('profileimage: ', data.profileimage);
-                        console.log('entrou quando não deveria ter entrado...');
                         fetchFirebase();
                     } else {
+
                         //colocando em data a info certinha:
-                        setData({ ...data, email: loginInfo.email, firebaseRef: user.uid, profileimage:'', usertype: 'promoter', participatedin:[], phone: data.whatsapp });
+                        setData({...sendData, firebaseRef: user.uid});
 
                         //recebendo o UID do usuário e criando o documento no Firestore:
-                        firestore.collection('users').doc(user.uid).set({ ...data, email: loginInfo.email, firebaseRef: user.uid, profileimage: '', usertype: 'promoter', participatedin:[], phone: data.whatsapp });
+                        firestore.collection('users').doc(user.uid).set({...sendData, firebaseRef: user.uid});
 
                         //Guardando no Redux:
-                        props.setUserInfo({ ...data, email: loginInfo.email, firebaseRef: user.uid, profileimage: '', usertype: 'promoter', participatedin:[], phone: data.whatsapp });
+                        props.setUserInfo({...sendData, firebaseRef: user.uid});
 
                         //Redirecionando para as rotas autenticadas:
                         navigation.navigate('Authenticated');
@@ -334,13 +333,16 @@ const SignUp4 = (props)=>{
                 }
             }
         });
-    });
+    },[sendData]);
 
     async function _signUp(){
+        setSendData({ ...data, email: loginInfo.email, usertype: 'promoter', participatedin:[], phone: data.whatsapp });
+
         if(loginInfo.password == confirmPassword){
-            setLoading(true);
-            let usernameCheck = await firebase.firestore().collection('users').where('username', '==', data.username).get();
-            if(usernameCheck.empty){
+            //setLoading(true);
+            //A checagem de username deu ruim...
+            //let usernameCheck = await firebase.firestore().collection('users').where('username', '==', data.username).get();
+            //if(usernameCheck.empty){
                 try{
                     await auth.createUserWithEmailAndPassword(loginInfo.email, loginInfo.password);
                 } catch(error){
@@ -362,10 +364,10 @@ const SignUp4 = (props)=>{
                             setLoading(false);
                     }
                 }
-            } else {
+            /*} else {
                 Alert.alert('Opa!', 'Seu nome de usuário já está sendo usado');
                 setLoading(false);
-            }
+            }*/
         } else {
             Alert.alert('Esperaê!','A sua senha não coincide com a confirmação!');
             setLoading(false);
@@ -384,13 +386,13 @@ const SignUp4 = (props)=>{
                 setLoginInfo({...loginInfo, email: input });
                 break;
             case 'password':
-                    setLoginInfo({...loginInfo, password: input });
+                setLoginInfo({...loginInfo, password: input });
                 break;
         }
         if(data.username != '' && loginInfo.email != '' && loginInfo.password != '' && confirmPassword != ''){
             setDisabled(false);
         } else {
-            setDisabled(true); //mudar
+            setDisabled(true);
         }
     }
 
@@ -454,7 +456,8 @@ const styles = StyleSheet.create({
 });
 
 const mapStateToProps = (state)=>({
-    ColUITheme: state.themesReducer.ColUITheme
+    ColUITheme: state.themesReducer.ColUITheme,
+    userInfo: state.userReducer
 })
 const mapDispatchToProps = (dispatch)=>({
     setUserInfo: (userInfo) => dispatch({type: 'SET_USER_INFO', payload: userInfo})

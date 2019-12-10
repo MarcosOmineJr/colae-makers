@@ -32,6 +32,7 @@ class MyProfileScreen extends React.Component {
         this.authentication = firebase.auth();
         
         this.unsubscribe = this.authentication.onAuthStateChanged(user=>{
+            console.log('user recebido do Firebase:', user);
             if(!user){
                 props.navigation.navigate('Login');
             }
@@ -43,10 +44,6 @@ class MyProfileScreen extends React.Component {
     }
 
     componentDidMount(){
-        this._fetchFirestore();
-    }
-
-    componentDidUpdate(){
         this._fetchFirestore();
     }
 
@@ -65,13 +62,19 @@ class MyProfileScreen extends React.Component {
 
         const { user, navigation, ColUITheme } = this.props;
         const { userData } = this.state;
+        console.log('userData: ', userData);
 
         return (
             <ScrollView contentContainerStyle={styles.container}>
                 <ColUI.Card colSpan={6} contentContainerStyle={styles.card}>
                     <View style={styles.userInfoContainer}>
                         <View style={styles.profileImageContainer}>
-                            <Image source={{uri: userData.profileimage}} style={styles.profileImage} />
+                            {userData.profileimage != undefined && <Image source={{uri: userData.profileimage}} style={styles.profileImage} />}
+                            {userData.profileimage == undefined &&
+                                <View style={[styles.profileImage, {alignItems: 'center', justifyContent: 'center' }]}>
+                                    <Text style={{textAlign: 'center'}}>Sem imagem de perfil</Text>
+                                </View>
+                            }
                         </View>
                         <View style={styles.InfoContainer}>
                             <Text style={styles.name}>{ userData.name+' '+userData.lastname }</Text>

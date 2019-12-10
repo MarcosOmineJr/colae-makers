@@ -47,6 +47,7 @@ class Home extends React.Component {
     }
 
     componentDidMount(){
+        console.log('userData:', this.props.userData);
 
         this._fetchFirebase();
 

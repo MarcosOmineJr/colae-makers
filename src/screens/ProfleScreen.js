@@ -78,7 +78,8 @@ const ProfileScreen = (props)=>{
                 <View style={styles.basicInfoWrapper}>
                     <View style={styles.left}>
                         <View style={styles.imageWrapper}>
-                            <Image source={{uri: snapshot.profileimage}} style={[styles.profilephoto, { borderColor: ColUITheme.main }]} />
+                            {user.profileimage != undefined && <Image source={{uri: snapshot.profileimage}} style={[styles.profilephoto, { borderColor: ColUITheme.main }]} />}
+                            {user.profileimage == undefined && <View />}
                         </View>
                         <View style={styles.userTypeWrapper}>
                             { snapshot.usertype == 'cantor' && <Cantor width={30} height={30} style={styles.icon} />}

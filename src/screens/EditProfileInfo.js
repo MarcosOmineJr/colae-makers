@@ -119,7 +119,8 @@ const EditProfileInfo = props=>{
             <ScrollView contentContainerStyle={styles.container}>
                 <View style={styles.basicInfoContainer}>
                     <View style={styles.imageContainer}>
-                        <ColUI.ProfileImageInput edit source={profileimage.mime ? {uri: profileimage.path} : {uri: userData.profileimage}} onPress={ImageInputHandler} />
+                        {profileimage.path != undefined && <ColUI.ProfileImageInput edit source={profileimage.mime ? {uri: profileimage.path} : {uri: userData.profileimage}} onPress={ImageInputHandler} />}
+                        {profileimage.path == undefined && <ColUI.ProfileImageInput edit source={undefined} onPress={ImageInputHandler} />}
                     </View>
                     <View style={styles.inputsContainer}>
                         <ColUI.TextInput colSpan={3.8}label='Nome' value={`${basicInfo.name}`} onChangeText={(t)=>textInputHandler(t, 'name')} />
@@ -217,8 +218,8 @@ const styles = StyleSheet.create({
         paddingTop: 50
     },
     modalText:{
-        fontSize: 30,
-        fontWeight: 'bold',
+        fontSize: 20,
+        marginTop: '10%',
         textAlign: 'center'
     }
 });
