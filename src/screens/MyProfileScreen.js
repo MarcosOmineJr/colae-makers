@@ -103,7 +103,7 @@ class MyProfileScreen extends React.Component {
                     </ColUI.Card>
                 </TouchableOpacity>
                 <View style={styles.signOutButtonContainer}>
-                    <ColUI.Button colSpan={4} label='sair' onPress={()=>this._logOut()} />
+                    <ColUI.Button colSpan={4} label='sair' onPress={this._logOut} />
                 </View>
             </ScrollView>
         );

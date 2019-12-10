@@ -18,7 +18,7 @@ const { ColUI } = ColaeAPI;
 
 const ContactsForAdding = (props)=>{
 
-    const { ColUITheme, navigation } = props;
+    const { ColUITheme, navigation, user } = props;
     const [snapshot, setSnapshot] = useState([]);
     const [selected, setSelected] = useState([]);
 
@@ -37,8 +37,10 @@ const ContactsForAdding = (props)=>{
             });
             let producers = await firestore().collection('users').get();
             producers.forEach(r=>{
-                let responseAdd = {...r.data(), ref: r.id, collection: 'users' }
-                setSnapshot(snapshot=>snapshot.concat(responseAdd));
+                if(r.id != user.firebaseRef){
+                    let responseAdd = {...r.data(), ref: r.id, collection: 'users' }
+                    setSnapshot(snapshot=>snapshot.concat(responseAdd));
+                }
             })
         }
 
