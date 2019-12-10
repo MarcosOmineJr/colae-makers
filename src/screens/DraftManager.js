@@ -164,77 +164,84 @@ class DraftProgress extends React.Component {
         s.done = [];
 
         if(this.props.navigation.getParam('draftId', 'NO-ID') == 'NO-ID'){
-
+            console.log('entrou por tempDraft');
             //Se ele vier para essa tela sem um param draftID, ele conecta com o firestore pelo tempDraft;
             let event = firebase.firestore().collection('users').doc(user.firebaseRef).collection('events').doc(tempDraft.firestoreReferenceId)
             response = await event.get();
             response = response.data();
+            console.log('resposta: ', response);
 
-            if(response.photos){
-                if(response.photos[0] && response.categories && response.keywords){
+            if(response){
+                if(response.photos){
+                    if(response.photos[0] && response.categories && response.keywords){
+                        s.done.push(true);
+                    } else {
+                        s.done.push(false);
+                    }
+                } else {
+                    s.done.push(false);
+                }
+                if(response.description){
                     s.done.push(true);
                 } else {
                     s.done.push(false);
                 }
-            } else {
-                s.done.push(false);
-            }
-            if(response.description){
-                s.done.push(true);
-            } else {
-                s.done.push(false);
-            }
-            if(response.location && response.dates){
-                s.done.push(true);
-            } else {
-                s.done.push(false);
-            }
-            if(response.producers){
-                s.done.push(true);
-            } else {
-                s.done.push(false);
-            }
-            if(response.tickets){
-                s.done.push(true);
-            } else {
-                s.done.push(false);
+                if(response.location && response.dates){
+                    s.done.push(true);
+                } else {
+                    s.done.push(false);
+                }
+                if(response.producers){
+                    s.done.push(true);
+                } else {
+                    s.done.push(false);
+                }
+                if(response.tickets){
+                    s.done.push(true);
+                } else {
+                    s.done.push(false);
+                }
             }
 
             s.eventRef = tempDraft.firestoreReferenceId;
         } else {
-
+            
+            console.log('entrou por tempDraft');
             let event = firebase.firestore().collection('users').doc(user.firebaseRef).collection('events').doc(this.props.navigation.state.params.draftId);
             response = await event.get();
             response = response.data();
+            console.log('resposta: ', response);
 
-            if(response.photos){
-                if(response.photos[0] && response.categories && response.keywords){
+            if (response) {
+                if(response.photos){
+                    if(response.photos[0] && response.categories && response.keywords){
+                        s.done.push(true);
+                    } else {
+                        s.done.push(false);
+                    }
+                } else {
+                    s.done.push(false);
+                }
+                if(response.description){
                     s.done.push(true);
                 } else {
                     s.done.push(false);
                 }
-            } else {
-                s.done.push(false);
-            }
-            if(response.description){
-                s.done.push(true);
-            } else {
-                s.done.push(false);
-            }
-            if(response.location && response.dates){
-                s.done.push(true);
-            } else {
-                s.done.push(false);
-            }
-            if(response.producers){
-                s.done.push(true);
-            } else {
-                s.done.push(false);
-            }
-            if(response.tickets){
-                s.done.push(true);
-            } else {
-                s.done.push(false);
+                if(response.location && response.dates){
+                    s.done.push(true);
+                } else {
+                    s.done.push(false);
+                }
+                if(response.producers){
+                    s.done.push(true);
+                } else {
+                    s.done.push(false);
+                }
+                if(response.tickets){
+                    s.done.push(true);
+                } else {
+                    s.done.push(false);
+                }
             }
 
             s.eventRef = this.props.navigation.state.params.draftId;

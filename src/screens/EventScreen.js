@@ -1,6 +1,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { firebase } from '@react-native-firebase/firestore';
+import '@react-native-firebase/storage';
 import ColaeAPI from '../api';
 import { shadow } from '../api/components/styles';
 import { Button, Icon } from 'native-base';
@@ -80,9 +81,46 @@ class EventScreen extends React.Component {
     }
 
     async _deleteEvent(){
+        const { user } = this.props;
         const { firebaseRef } = this.props.navigation.state.params;
-        let event = firebase.firestore().doc('events/'+firebaseRef);
-        await event.delete();
+
+        //Seta a referência do owner do evento:
+        let owner = firebase.firestore().collection('users').doc(user.firebaseRef);
+
+        //Pega a referência do evento publicado:
+        let publishedEvent = firebase.firestore().doc('events/'+firebaseRef);
+
+        //deleta o evento do participatedin do owner:
+        await owner.update({ participatedin: firebase.firestore.FieldValue.arrayRemove(publishedEvent.id) });
+
+        //deleta o evento do participatedin de cada producer:
+        let eventData = await publishedEvent.get();
+        eventData = eventData.data();
+
+        eventData.producers.forEach(async (producer)=>{
+            //Vê em que collection esse usuário está (entre 'users' e 'services'):
+            let userRef = firebase.firestore().collection('services').doc(producer);
+            let user = await userRef.get();
+            if(!user.exists){
+                userRef = firebase.firestore().collection('users').doc(producer);
+            }
+            
+            //Remove do campo participatedin do usuário o evento criado na coleção 'events':
+            await userRef.update({ participatedin: firebase.firestore.FieldValue.arrayRemove(publishedEvent.id) });
+        })
+
+        //Deleta cada imagem do evento do Cloud Storage:
+        eventData.photos.forEach(async (photoURL)=>{
+            try{
+                let eventPhotosBucket = await firebase.storage().refFromURL(photoURL).delete();
+                console.log('O que a promise retorna no sucesso? ', eventPhotosBucket);
+            }catch(e){
+                console.log('Erro so deletar bucket: ', e.message);
+            }
+        })
+
+        //Finalmente deleta o evento:
+        await publishedEvent.delete();
         this.props.navigation.navigate('Active');
     }
 
