@@ -98,6 +98,7 @@ const ContactsForAdding = (props)=>{
                 {
                     snapshot.map((user, key)=>(
                         <TouchableOpacity key={key.toString()} style={styles.contactCard} onPress={()=>navigation.navigate('Profile', { firebaseRef: user.ref, collection: user.collection })}>
+                            
                             <ColUI.UserCardInContacts selected={selected.includes(user.ref)} data={user} onAdd={()=>_handleSelection(user.ref)} />
                         </TouchableOpacity>
                     ))

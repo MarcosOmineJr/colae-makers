@@ -1,5 +1,10 @@
 import React, {  } from 'react';
 import { connect } from 'react-redux';
+import Cantor from '../../assets/icons/cantor.svg';
+import DJ from '../../assets/icons/DJ.svg';
+import Palestrante from '../../assets/icons/palestrante.svg';
+import Promotor from '../../assets/icons/promotor.svg';
+import Servico from '../../assets/icons/servico.svg';
 import {
     StyleSheet,
     Dimensions,
@@ -27,8 +32,11 @@ const UserCardInContacts = (props)=>{
                     <Text style={styles.name} numberOfLines={1}>{`${data.name} ${data.lastname}`}</Text>
                 </View>
                 <View style={styles.profileType}>
-                    { false && data.usertype == 'palestrante' && <Icon type='MaterialIcons' name='add' style={[styles.icon, { color: ColUITheme.main }]} /> }
-                    { false && data.usertype == 'ator' && <Icon type='MaterialIcons' name='add' style={[styles.icon, { color: ColUITheme.main }]} /> }
+                    { data.usertype == 'cantor' && <Cantor width={30} height={30} style={styles.icon} />}
+                    { data.usertype == 'dj' && <DJ width={30} height={30} style={styles.icon} />}
+                    { data.usertype == 'palestrante' && <Palestrante width={30} height={30} style={styles.icon} />}
+                    { data.usertype == 'promoter' && <Promotor width={30} height={30} style={styles.icon} />}
+                    { data.usertype == 'servico' && <Servico width={30} height={30} style={styles.icon} />}
                     <Text numberOfLines={1} style={[styles.userType, { color: ColUITheme.gray.light }]}>{data.usertype}</Text>
                 </View>
             </View>

@@ -1,5 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { connect } from 'react-redux';
+import Cantor from '../../assets/icons/cantor.svg';
+import DJ from '../../assets/icons/DJ.svg';
+import Palestrante from '../../assets/icons/palestrante.svg';
+import Promotor from '../../assets/icons/promotor.svg';
+import Servico from '../../assets/icons/servico.svg';
 import {
     StyleSheet,
     Dimensions,
@@ -32,7 +37,11 @@ const UserCard = (props)=>{
                         </View>
                         <Text style={[userCardStyles.location, { color: ColUITheme.gray.light }]}> {`${data.from.city}, ${data.from.state}`} </Text>
                         <View style={userCardStyles.profileType}>
-                            { data.usertype == 'palestrante' && <Icon type='MaterialIcons' name='add' style={[userCardStyles.icon, { color: ColUITheme.main }]} /> }
+                            { data.usertype == 'cantor' && <Cantor width={30} height={30} style={userCardStyles.icon} />}
+                            { data.usertype == 'dj' && <DJ width={30} height={30} style={userCardStyles.icon} />}
+                            { data.usertype == 'palestrante' && <Palestrante width={30} height={30} style={userCardStyles.icon} />}
+                            { data.usertype == 'promoter' && <Promotor width={30} height={30} style={userCardStyles.icon} />}
+                            { data.usertype == 'servico' && <Servico width={30} height={30} style={userCardStyles.icon} />}
                             <Text numberOfLines={1} style={[userCardStyles.userType, { color: ColUITheme.gray.light }]}>{data.usertype}</Text>
                         </View>
                     </View>
@@ -112,7 +121,7 @@ const userCardStyles = StyleSheet.create({
         paddingBottom: 15
     },
     icon:{
-        fontSize: 35
+        marginRight: 10
     },
     userType:{
         fontWeight: 'bold',

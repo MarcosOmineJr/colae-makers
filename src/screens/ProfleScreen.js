@@ -3,6 +3,11 @@ import { connect } from 'react-redux';
 import firestore from '@react-native-firebase/firestore';
 import { shadow } from '../api/components/styles';
 import ColaeAPI from '../api';
+import Cantor from '../assets/icons/cantor.svg';
+import DJ from '../assets/icons/DJ.svg';
+import Palestrante from '../assets/icons/palestrante.svg';
+import Promotor from '../assets/icons/promotor.svg';
+import Servico from '../assets/icons/servico.svg';
 import {
     StyleSheet,
     Dimensions,
@@ -76,8 +81,11 @@ const ProfileScreen = (props)=>{
                             <Image source={{uri: snapshot.profileimage}} style={[styles.profilephoto, { borderColor: ColUITheme.main }]} />
                         </View>
                         <View style={styles.userTypeWrapper}>
-                            { false && snapshot.usertype == 'palestrante' && <Icon type='MaterialIcons' name='add' style={[styles.icon, { color: ColUITheme.main }]} /> }
-                            { false && snapshot.usertype == 'ator' && <Icon type='MaterialIcons' name='add' style={[styles.icon, { color: ColUITheme.main }]} /> }
+                            { snapshot.usertype == 'cantor' && <Cantor width={30} height={30} style={styles.icon} />}
+                            { snapshot.usertype == 'dj' && <DJ width={30} height={30} style={styles.icon} />}
+                            { snapshot.usertype == 'palestrante' && <Palestrante width={30} height={30} style={styles.icon} />}
+                            { snapshot.usertype == 'promoter' && <Promotor width={30} height={30} style={styles.icon} />}
+                            { snapshot.usertype == 'servico' && <Servico width={30} height={30} style={styles.icon} />}
                             <Text numberOfLines={1} style={[styles.userType, { color: ColUITheme.gray.light }]}>{snapshot.usertype}</Text>
                         </View>
                     </View>
@@ -182,7 +190,7 @@ const styles = StyleSheet.create({
         paddingRight: 15
     },
     icon:{
-        fontSize: 35
+        marginRight: '5%'
     },
     userType:{
         fontWeight: 'bold',
