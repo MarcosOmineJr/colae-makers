@@ -1448,8 +1448,13 @@ class EventTickets extends React.Component {
         let response = await firebase.firestore().collection('users').doc(user.firebaseRef).collection('events').doc(eventRef).get();
         response = response.data();
         
-        s.day = new Date(response.dates.from);
-        s.loading = false
+        if(response.dates){
+            s.day = new Date(response.dates.from);
+            s.loading = false
+        } else {
+            Alert.alert('Esperaê!','Para definir o valor dos ingressos você deve primeiro definir os dias em que seu evento acontecerá');
+            this.props.navigation.navigate('EventDate', { eventRef: eventRef });
+        }
 
         this.setState(s);
     }
