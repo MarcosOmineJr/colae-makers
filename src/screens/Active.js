@@ -7,7 +7,7 @@ import {
     StyleSheet,
     Dimensions,
     TouchableHighlight,
-    TouchableOpacity,
+    ActivityIndicator,
     RefreshControl
 } from 'react-native';
 import { Icon } from 'native-base';
@@ -28,7 +28,8 @@ class Home extends React.Component {
 
         this.state={
             events: [],
-            refreshing: false
+            refreshing: false,
+            loading: true
         }
         
         this.refreshColors = [
@@ -67,6 +68,8 @@ class Home extends React.Component {
     async _fetchFirebase(){
         const { refreshSnapshot, userData } = this.props;
         let s = this.state;
+        s.loading = true;
+        this.setState(s);
 
         let querySnapshot = await firebase.firestore().collection('events').where('owner','==', userData.firebaseRef).get();
         let data = [];
@@ -82,6 +85,7 @@ class Home extends React.Component {
         refreshSnapshot(data);
 
         s.events = data;
+        s.loading = false;
 
         this.setState(s);
     }
@@ -118,8 +122,16 @@ class Home extends React.Component {
 
     render(){
 
-        const { refreshing, events } = this.state;
+        const { refreshing, events, loading } = this.state;
+        const { ColUITheme } = this.props;
 
+        if(loading){
+            return (
+                <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }} >
+                    <ActivityIndicator size='large' color={ColUITheme.main} />
+                </View>
+            );
+        }
         return (
             <View style={styles.container}>
                 <NavigationEvents onDidFocus={()=>{this.props.setTempDraft(null); this._fetchFirebase()}} />
