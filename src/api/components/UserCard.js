@@ -17,7 +17,7 @@ const { height, width } = Dimensions.get('screen');
 
 const UserCard = (props)=>{
 
-    const { ColUITheme, data, navigation, style, onPress } = props;
+    const { ColUITheme, data, navigation, style, onPress, user } = props;
     
     if(data.type == 'user'){
         return (
@@ -36,10 +36,15 @@ const UserCard = (props)=>{
                             <Text numberOfLines={1} style={[userCardStyles.userType, { color: ColUITheme.gray.light }]}>{data.usertype}</Text>
                         </View>
                     </View>
-                    <TouchableOpacity style={userCardStyles.buttonContainer}>
-                        <Icon type='MaterialIcons' name='add' style={[userCardStyles.icon, { color: ColUITheme.main }]} />
-                        <Text style={[userCardStyles.followButtonText, { color: ColUITheme.main }]}>SEGUIR</Text>
-                    </TouchableOpacity>
+                    {data.firebaseRef != user.firebaseRef &&
+                        <TouchableOpacity style={userCardStyles.buttonContainer}>
+                            <Icon type='MaterialIcons' name='add' style={[userCardStyles.icon, { color: ColUITheme.main }]} />
+                            <Text style={[userCardStyles.followButtonText, { color: ColUITheme.main }]}>SEGUIR</Text>
+                        </TouchableOpacity>
+                    }
+                    {data.firebaseRef == user.firebaseRef &&
+                        <View style={userCardStyles.buttonContainer} />
+                    }
                 </Card>
             </TouchableOpacity>
         );
@@ -151,7 +156,8 @@ const eventCardStyles = StyleSheet.create({
 });
 
 const mapStateToProps = (state)=>({
-    ColUITheme: state.themesReducer.ColUITheme
+    ColUITheme: state.themesReducer.ColUITheme,
+    user: state.userReducer
 })
 
 export default connect(mapStateToProps)(UserCard);
