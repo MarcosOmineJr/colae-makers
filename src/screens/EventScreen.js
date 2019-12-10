@@ -89,12 +89,38 @@ class EventScreen extends React.Component {
     async _backToDraft(){
         const { user } = this.props;
         const { firebaseRef } = this.props.navigation.state.params;
+
+        //Seta a referência do owner do evento, já que vamos usar algumas vezes depois:
+        let owner = firebase.firestore().collection('users').doc(user.firebaseRef);
+
+        //Pega a referência e os dados do evento publicado:
         let publishedEvent = firebase.firestore().doc('events/'+firebaseRef);
         let peInfo = await publishedEvent.get();
         peInfo = peInfo.data();
-
-        let draft = firebase.firestore().collection('users').doc(user.firebaseRef).collection('events').doc();
+        
+        //cria novo rascunho no owner:
+        let draft = owner.collection('events').doc();
         await draft.set(peInfo);
+
+        //deleta o evento publicado:
+
+        //Deleta o evento do participatedin do owner:
+        await owner.update({ participatedin: firebase.firestore.FieldValue.arrayRemove(publishedEvent.id) });
+
+        //Deleta o evento do participatedin de cada um dos producers:
+        peInfo.producers.forEach(async (producer)=>{
+            //Vê em que collection esse usuário está (entre 'users' e 'services'):
+            let userRef = firebase.firestore().collection('services').doc(producer);
+            let user = await userRef.get();
+            if(!user.exists){
+                userRef = firebase.firestore().collection('users').doc(producer);
+            }
+            
+            //Remove do campo participatedin do usuário o evento criado na coleção 'events':
+            await userRef.update({ participatedin: firebase.firestore.FieldValue.arrayRemove(publishedEvent.id) });
+        })
+
+        //Finalmente deleta o evento de 'events' e redireciona para Drafts:
         await publishedEvent.delete();
         this.props.navigation.navigate('Drafts');
     }
