@@ -20,7 +20,7 @@ const { width, height } = Dimensions.get('screen');
 
 const ProfileScreen = (props)=>{
 
-    const { navigation, ColUITheme } = props;
+    const { navigation, ColUITheme, user } = props;
 
     const { firebaseRef, collection } = navigation.state.params;
 
@@ -33,11 +33,11 @@ const ProfileScreen = (props)=>{
             //Pronto! Agora ele abre o perfil independentemente de em que coleção o usuário está...
             let response = await firestore().collection('users').doc(firebaseRef).get();
             if(response.exists){
-                setSnapshot(response.data());
+                setSnapshot({...response.data(), firebaseRef: response.id });
                 setLoading(false);
             } else {
                 response = await firestore().collection('services').doc(firebaseRef).get();
-                setSnapshot(response.data());
+                setSnapshot({...response.data(), firebaseRef: response.id });
                 setLoading(false);
             }
             
@@ -69,7 +69,7 @@ const ProfileScreen = (props)=>{
 
     return (
         <ScrollView contentContainerStyle={styles.container}>
-            <View style={styles.basicInfoContainer}>
+            <View style={[styles.basicInfoContainer, snapshot.firebaseRef != user.firebaseRef ? {} : { flex:0.8 }]}>
                 <View style={styles.basicInfoWrapper}>
                     <View style={styles.left}>
                         <View style={styles.imageWrapper}>
@@ -111,10 +111,12 @@ const ProfileScreen = (props)=>{
                         }
                     </View>
                 </View>
-                <View style={styles.buttonsContainer}>
-                    <ColUI.Button label='seguir' onPress={()=>{}} />
-                    {snapshot.whatsapp != '' && <ColUI.Button blue label='enviar mensagem' onPress={()=>Linking.openURL('https://wa.me/'+snapshot.whatsapp)} />}
-                </View>
+                {snapshot.firebaseRef != user.firebaseRef &&
+                    <View style={styles.buttonsContainer}>
+                        <ColUI.Button label='seguir' onPress={()=>{}} />
+                        {snapshot.whatsapp != '' && <ColUI.Button blue label='enviar mensagem' onPress={()=>Linking.openURL('https://wa.me/'+snapshot.whatsapp)} />}
+                    </View>
+                }
             </View>
             <View style={styles.otherInfos}>
                 <Text style={[styles.title, { color: ColUITheme.gray.light }]}>Sobre</Text>
@@ -210,8 +212,8 @@ const styles = StyleSheet.create({
         fontWeight: 'bold'
     },
     contactsWrapper:{
-        position: 'absolute',
-        bottom: 0
+        justifyContent: 'flex-end',
+        paddingTop: '10%'
     },
     email:{
         textDecorationLine: 'underline',
@@ -268,7 +270,8 @@ const styles = StyleSheet.create({
 });
 
 const mapStateToProps = (state)=>({
-    ColUITheme: state.themesReducer.ColUITheme
+    ColUITheme: state.themesReducer.ColUITheme,
+    user: state.userReducer
 })
 
 export default connect(mapStateToProps)(ProfileScreen);
