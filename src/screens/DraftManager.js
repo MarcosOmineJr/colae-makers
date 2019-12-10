@@ -102,6 +102,7 @@ class DraftProgress extends React.Component {
 
         let youShallNotPass = false;
 
+        //checa se todos os campos obrigatórios estão preenchidos:
         s.done.forEach(v=>{
             if(!v){
                 youShallNotPass = true;
@@ -111,13 +112,38 @@ class DraftProgress extends React.Component {
         if(youShallNotPass){
             Alert.alert('Esperaê!', 'Você deve preencher todos os campos acima para poder publicar o evento!');
         } else {
-            s.processing = true;
+            s.processing = false;
             this.setState(s);
+
+            //pega a referência documento do rascunho:
             let draft = firebase.firestore().collection('users').doc(user.firebaseRef).collection('events').doc(s.eventRef);
-            let draftResponse = await draft.get();
-            let parsedDraftResponse = draftResponse.data();
+            let draftResponse = await draft.get(); //pega o conteúdo do documento
+            let parsedDraftResponse = draftResponse.data(); //dá um parse no conteúdo do documento
+
+            //Se tem coisas nele prossegue:
             if(parsedDraftResponse){
-                await firebase.firestore().collection('events').doc().set({...parsedDraftResponse, published: true, publishedAt: firebase.firestore.FieldValue.serverTimestamp() });
+                //Cria um novo documento em events com id aleatório:
+                let publishedEvent = firebase.firestore().collection('events').doc();
+
+                //Coloca as informações do rascunho nesse novo documento:
+                await firebase.firestore().collection('events').doc(publishedEvent.id).set({...parsedDraftResponse, published: true, publishedAt: firebase.firestore.FieldValue.serverTimestamp() });
+                
+                //coloca o evento no participatedin do criador do evento:
+                let owner = firebase.firestore().collection('users').doc(user.firebaseRef);
+                await owner.update({ participatedin: firebase.firestore.FieldValue.arrayUnion(publishedEvent.id) });
+
+                //Para cada usuário em producers:
+                parsedDraftResponse.producers.forEach(async (producer)=>{
+                    //Vê em que collection esse usuário está (entre 'users' e 'services'):
+                    let userRef = firebase.firestore().collection('services').doc(producer);
+                    let user = await userRef.get();
+                    if(!user.exists){
+                        userRef = firebase.firestore().collection('users').doc(producer);
+                    }
+
+                    //Coloca no campo participatedin do usuário o evento criado na coleção 'events':
+                    await userRef.update({ participatedin: firebase.firestore.FieldValue.arrayUnion(publishedEvent.id) });
+                })
                 //tem que apagar o outro agora:
                 await draft.delete()
 
