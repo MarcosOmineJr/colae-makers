@@ -10,7 +10,6 @@ import {
     ActivityIndicator,
     RefreshControl
 } from 'react-native';
-import { Icon } from 'native-base';
 import { connect } from 'react-redux';
 import { NavigationEvents } from 'react-navigation';
 import { firebase } from '@react-native-firebase/firestore';
@@ -47,7 +46,6 @@ class Home extends React.Component {
     }
 
     componentDidMount(){
-        console.log('userData:', this.props.userData);
 
         this._fetchFirebase();
 

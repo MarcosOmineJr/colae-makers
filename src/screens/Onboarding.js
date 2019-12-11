@@ -1,7 +1,5 @@
 import React from 'react';
-
 import { connect } from 'react-redux';
-
 import {
     SafeAreaView,
     View,
@@ -21,14 +19,14 @@ const { ColUI } = ColaeAPI;
 const { width, height } = Dimensions.get('window');
 
 const onboardingData = [
-    {image: 'https://images.unsplash.com/photo-1575081151297-19c23575e91b?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=634&q=800',
-    title: 'Encontre eventos próximos a você', description: 'Lorem Ipsum dolor sit amet, consectetur adipiscing elit, sed diam nonummy'},
-    {image: 'https://images.unsplash.com/photo-1531168556467-80aace0d0144?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=634&q=80',
-    title: 'Onboarding 2', description: 'Lorem Ipsum dolor sit amet, consectetur adipiscing elit, sed diam nonummy'},
-    {image: 'https://images.unsplash.com/photo-1484968309888-8d6b403bc1ec?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1050&q=80',
-    title: 'Onboarding 3', description: 'Lorem Ipsum dolor sit amet, consectetur adipiscing elit, sed diam nonummy'},
-    {image: 'https://images.unsplash.com/photo-1485601284679-a2f86e6f7dea?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1050&q=80',
-    title: 'Onboarding 4', description: 'Lorem Ipsum dolor sit amet, consectetur adipiscing elit, sed diam nonummy'}
+    {image: 'http://colaeapp.com/onboading/encontre_onboarding.png',
+    title: 'Encontre eventos próximos de você', description: ''},
+    {image: 'http://colaeapp.com/onboading/avalie_onboarding.png',
+    title: 'Avalie, comente e interaja', description: ''},
+    {image: 'http://colaeapp.com/onboading/conecte_onboarding.png',
+    title: 'Conecte-se com os amigos', description: ''},
+    {image: 'http://colaeapp.com/onboading/acompanhe_onboarding.png',
+    title: 'Acompanhe eventos de seu interesse', description: ''}
 ]
 
 class Onboarding extends React.Component {

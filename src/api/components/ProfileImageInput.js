@@ -74,7 +74,7 @@ class ProfileImageInput extends React.Component {
 
 ProfileImageInput.defaultProps = {
     onPress: ()=>{},
-    source: undefined,
+    source: {uri: 'https://firebasestorage.googleapis.com/v0/b/colae-makers.appspot.com/o/profileimages%2Fdefault2.png?alt=media&token=a8063f71-f368-433d-9ce6-6ab94e7017d2'},
     edit: false
 }
 

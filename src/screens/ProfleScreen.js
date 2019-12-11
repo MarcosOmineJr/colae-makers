@@ -22,6 +22,7 @@ import { Icon } from 'native-base';
 
 const { ColUI } = ColaeAPI;
 const { width, height } = Dimensions.get('screen');
+const defaultImage = 'https://firebasestorage.googleapis.com/v0/b/colae-makers.appspot.com/o/profileimages%2Fdefault2.png?alt=media&token=a8063f71-f368-433d-9ce6-6ab94e7017d2';
 
 const ProfileScreen = (props)=>{
 
@@ -79,7 +80,7 @@ const ProfileScreen = (props)=>{
                     <View style={styles.left}>
                         <View style={styles.imageWrapper}>
                             {user.profileimage != undefined && <Image source={{uri: snapshot.profileimage}} style={[styles.profilephoto, { borderColor: ColUITheme.main }]} />}
-                            {user.profileimage == undefined && <View />}
+                            {user.profileimage == undefined && <Image source={{uri: defaultImage}} style={[styles.profilephoto, { borderColor: ColUITheme.main }]} />}
                         </View>
                         <View style={styles.userTypeWrapper}>
                             { snapshot.usertype == 'cantor' && <Cantor width={30} height={30} style={styles.icon} />}

@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { firebase } from '@react-native-firebase/auth';
 import '@react-native-firebase/firestore';
+import { NavigationEvents } from 'react-navigation';
 import { connect } from 'react-redux';
-import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import {
     StyleSheet,
     View,
@@ -19,57 +19,81 @@ const { width, height } = Dimensions.get('window');
 
 const { ColUI } = ColaeAPI;
 
-const Login = (props)=>{
+class Login extends React.Component {
+    constructor(props){
+        super(props);
+        this.state = {
+            email: '',
+            password: '',
+            disabled: true,
+            loading: false
+        }
 
-    const { navigation, ColUITheme, setUserInfo } = props;
+        this.unsubscribe = undefined;
+        this.auth = firebase.auth();
+        this.uid = '';
 
-    const [disabled, setDisabled] = useState(true);
-    const [loginInfo, setLoginInfo] = useState({email: '', password: ''});
-    const [loading, setLoading] = useState(false);
+        this._handleInput = this._handleInput.bind(this);
+        this._login = this._login.bind(this);
+        this._signOut = this._signOut.bind(this);
+        this._signInToFirebase = this._signInToFirebase.bind(this);
+        this._putSubscription = this._putSubscription.bind(this);
+    }
 
-    const auth = firebase.auth();
-    const firestore = firebase.firestore();
-
-    useEffect(()=>{
-        return auth.onAuthStateChanged(user=>{
-
-            async function fetchFirebase(){
-                if(user){
-                    try{
-                        let userData = await firestore.doc('users/'+user.uid).get();
-                        userData = userData.data();
-                        setUserInfo({...userData, firebaseRef: user.uid });
-                        navigation.navigate('Authenticated');
-                    } catch(e){
-                        console.log('Erro:', e);
-                    }
+    _putSubscription(){
+        this._signOut();
+        this.unsubscribe = this.auth.onAuthStateChanged(user=>{
+            if(user){
+                this.uid = user.uid;
+                try{
+                    this._signInToFirebase();
+                }catch(e){
+                    console.log('Erro ao logar: ', e.message);
                 }
             }
-
-            fetchFirebase();
         })
-    }, []);
+    }
 
-    function _handleInput(input, mode){
+    async _signInToFirebase(){
+        let userData = await firebase.firestore().doc(`users/${this.uid}`).get();
+        userData = userData.data();
+        this.props.setUserInfo({...userData, firebaseRef: this.uid});
+        this.props.navigation.navigate('Authenticated');
+    }
+
+    async _signOut(){
+        try{
+            await this.auth.signOut();
+        }catch(error){
+            console.log('Erro ao deslogar:', error.message);
+        }
+    }
+
+    _handleInput(input, mode){
+        let s = this.state;
 
         if(mode == 'email'){
-            setLoginInfo({...loginInfo, email: input});
+            s.email = input;
         } else {
-            setLoginInfo({...loginInfo, password: input});
+            s.password = input;
         }
 
-        if(loginInfo.email != '' && loginInfo.password != ''){
-            setDisabled(false);
+        if(s.email != '' && s.password != ''){
+            s.disabled = false;
         } else {
-            setDisabled(true);
+            s.disabled = true;
         }
 
+        this.setState(s);
     };
 
-    async function _login(){
-        setLoading(true);
+    async _login(){
+        let s = this.state;
+        s.loading = true;
+        this.setState(s);
+
         try{
-            await auth.signInWithEmailAndPassword(loginInfo.email, loginInfo.password);
+            await this.auth.signInWithEmailAndPassword(s.email, s.password);
         } catch(error){
             switch(error.code){
                 case 'auth/invalid-email':
@@ -79,37 +103,38 @@ const Login = (props)=>{
                     Alert.alert('Peraê!','A senha digitada está errada!');
                     break;
                 default:
-                    alert(error.message);
+                    Alert.alert('Opa!', error.message);
             }
         }
     };
 
-    return (
-        <KeyboardAwareScrollView
-        resetScrollToCoords={{x:0, y:0}}
-        contentContainerStyle={styles.container}
-        scrollEnabled={false}
-        >
-            <ColaeAPI.ColUI.Background />
-            <View style={styles.cardContainer}>
-                <ColaeAPI.ColUI.Card contentContainerStyle={styles.card}>
-                    <Text style={{ fontSize: 40, color: ColUITheme.accent, marginBottom: '15%' }}>Login</Text>
-                    <ColUI.TextInput autoCapitalize='none' keyboardType='email-address' label='E-mail' style={{marginBottom: '10%'}} onChangeText={(t)=>{_handleInput(t, 'email')}} />
-                    <ColUI.TextInput secureTextEntry={true} label='Senha' onChangeText={(t)=>{_handleInput(t, 'password')}} />
-                </ColaeAPI.ColUI.Card>
-            </View>
-            <View style={styles.btnContainer}>
-                <ColaeAPI.ColUI.Button blue loading={loading} disabled={disabled} label='login' colSpan={4} onPress={()=>_login()} />
-                <Button transparent onPress={()=>navigation.navigate('ForgotPassword')} >
-                    <Text style={styles.btnLabel}>Esqueceu a senha?</Text>
-                </Button>
-                <Button transparent onPress={()=>navigation.navigate('SignUp')}>
-                    <Text style={styles.btnLabel}>Não tenho uma conta!</Text>
-                </Button>
-            </View>
+    render(){
+        const { navigation, ColUITheme } = this.props;
+        const { disabled, loading } = this.state;
 
-        </KeyboardAwareScrollView>
-    );
+        return (
+            <View style={styles.container}>
+                <NavigationEvents onWillBlur={()=>this.unsubscribe()} onDidFocus={this._putSubscription} />
+                <ColaeAPI.ColUI.Background />
+                <View style={styles.cardContainer}>
+                    <ColaeAPI.ColUI.Card contentContainerStyle={styles.card}>
+                        <Text style={{ fontSize: 40, color: ColUITheme.accent, marginBottom: '15%' }}>Login</Text>
+                        <ColUI.TextInput autoCapitalize='none' keyboardType='email-address' label='E-mail' style={{marginBottom: '10%'}} onChangeText={(t)=>{this._handleInput(t, 'email')}} />
+                        <ColUI.TextInput secureTextEntry={true} label='Senha' onChangeText={(t)=>{this._handleInput(t, 'password')}} />
+                    </ColaeAPI.ColUI.Card>
+                </View>
+                <View style={styles.btnContainer}>
+                    <ColaeAPI.ColUI.Button blue loading={loading} disabled={disabled} label='login' colSpan={4} onPress={()=>this._login()} />
+                    <Button transparent onPress={()=>navigation.navigate('ForgotPassword')} >
+                        <Text style={styles.btnLabel}>Esqueceu a senha?</Text>
+                    </Button>
+                    <Button transparent onPress={()=>navigation.navigate('SignUp')}>
+                        <Text style={styles.btnLabel}>Não tenho uma conta!</Text>
+                    </Button>
+                </View>
+            </View>
+        );
+    }
 }
 
 const styles = StyleSheet.create({

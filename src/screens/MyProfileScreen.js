@@ -1,6 +1,7 @@
 import React from 'react';
 import { firebase } from '@react-native-firebase/auth';
 import '@react-native-firebase/firestore';
+import { NavigationEvents } from 'react-navigation';
 import {
     Dimensions,
     StyleSheet,
@@ -18,6 +19,8 @@ const { width, height } = Dimensions.get('window');
 
 const { ColUI } = ColaeAPI;
 
+const defaultImage = 'https://firebasestorage.googleapis.com/v0/b/colae-makers.appspot.com/o/profileimages%2Fdefault2.png?alt=media&token=a8063f71-f368-433d-9ce6-6ab94e7017d2';
+
 class MyProfileScreen extends React.Component {
 
     constructor(props){
@@ -31,24 +34,19 @@ class MyProfileScreen extends React.Component {
 
         this.authentication = firebase.auth();
         
-        this.unsubscribe = this.authentication.onAuthStateChanged(user=>{
-            console.log('user recebido do Firebase:', user);
-            if(!user){
-                props.navigation.navigate('Login');
-            }
-        });
+        this.unsubscribe = undefined;
     }
 
     async _logOut(){
         this.authentication.signOut();
     }
 
-    componentDidMount(){
-        this._fetchFirestore();
-    }
-
-    componentWillUnmount(){
-        this.unsubscribe();
+    _putSubscription(){
+        this.unsubscribe = this.authentication.onAuthStateChanged(user=>{
+            if(!user){
+                this.props.navigation.navigate('Login');
+            }
+        });
     }
 
     async _fetchFirestore(){
@@ -62,18 +60,16 @@ class MyProfileScreen extends React.Component {
 
         const { user, navigation, ColUITheme } = this.props;
         const { userData } = this.state;
-        console.log('userData: ', userData);
 
         return (
             <ScrollView contentContainerStyle={styles.container}>
+                <NavigationEvents onDidFocus={()=>{this._putSubscription(); this._fetchFirestore();}} onWillBlur={()=>this.unsubscribe()} />
                 <ColUI.Card colSpan={6} contentContainerStyle={styles.card}>
                     <View style={styles.userInfoContainer}>
                         <View style={styles.profileImageContainer}>
                             {userData.profileimage != undefined && <Image source={{uri: userData.profileimage}} style={styles.profileImage} />}
                             {userData.profileimage == undefined &&
-                                <View style={[styles.profileImage, {alignItems: 'center', justifyContent: 'center' }]}>
-                                    <Text style={{textAlign: 'center'}}>Sem imagem de perfil</Text>
-                                </View>
+                                <Image source={{uri: defaultImage}} style={styles.profileImage} />
                             }
                         </View>
                         <View style={styles.InfoContainer}>

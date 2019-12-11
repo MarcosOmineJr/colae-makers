@@ -3,6 +3,7 @@ import { connect } from 'react-redux';
 import { firebase } from '@react-native-firebase/auth';
 import '@react-native-firebase/firestore';
 import '@react-native-firebase/storage';
+import { NavigationEvents } from 'react-navigation';
 import ImagePicker from 'react-native-image-crop-picker';
 import {
     StyleSheet,
@@ -29,7 +30,7 @@ class SignUp1 extends React.Component {
             disabled: true,
             imagePath: undefined,
             data:{
-                profileimage: undefined,
+                profileimage: 'https://firebasestorage.googleapis.com/v0/b/colae-makers.appspot.com/o/profileimages%2Fdefault2.png?alt=media&token=a8063f71-f368-433d-9ce6-6ab94e7017d2',
                 name: '',
                 lastname: '',
                 whatsapp: ''
@@ -112,7 +113,7 @@ class SignUp1 extends React.Component {
 
                 return countryCode+ddd+firstPart+secondPart;
             }
-            
+
             this.props.navigation.navigate('SU_Location', { data: {...s.data, whatsapp: removeWhatsAppThings(s.data.whatsapp) } });
         } else {
             Alert.alert('Esperaê!', 'Preencha todos os campos para poder prosseguir');
@@ -127,9 +128,9 @@ class SignUp1 extends React.Component {
             <View style={styles.container}>
                 <ColaeAPI.ColUI.Background />
                 <ColUI.Card contentContainerStyle={styles.card}>
-                    <ColUI.ProfileImageInput onPress={this._imageInputHandler} source={imagePath} />
-                    <ColUI.TextInput autoCapitalize='words' label='Nome' style={{marginBottom: '10%'}} onChangeText={(t)=>{this._handleInput(t, 'name')}} />
-                    <ColUI.TextInput autoCapitalize='words' label='Sobrenome' style={{marginBottom: '10%'}} onChangeText={(t)=>{this._handleInput(t, 'lastname')}} />
+                    <ColUI.ProfileImageInput edit onPress={this._imageInputHandler} source={imagePath} />
+                    <ColUI.TextInput label='Nome' style={{marginBottom: '10%'}} onChangeText={(t)=>{this._handleInput(t, 'name')}} />
+                    <ColUI.TextInput label='Sobrenome' style={{marginBottom: '10%'}} onChangeText={(t)=>{this._handleInput(t, 'lastname')}} />
                     <ColUI.TextInput label='WhatsApp' value={data.whatsapp} placeholder='(11) 91234-5678' keyboardType='numeric' style={{marginBottom: '10%'}} onChangeText={(t)=>{this._handleInput(t, 'whatsapp')}} />
                 </ColUI.Card>
                 <ColUI.Button blue disabled={disabled} colSpan={4} label='Próximo' onPress={this._nextPage} />
@@ -249,7 +250,7 @@ class SignUp3 extends React.Component {
                 <ColUI.Card contentContainerStyle={[styles.card, { paddingTop: '10%',alignItems: 'center', justifyContent: 'center' }]}>
                     <ColUI.Picker  state style={{marginBottom: '10%'}} pickerItems={states} value={data.from.state} onValueChange={(v)=>{this._handleInput(v, 'state')}} />
                     {false && cities && <ColUI.Picker  state style={{marginBottom: '10%'}} pickerItems={cities} value={test.city} onValueChange={(v)=>{this.setState({...this.state, test: {...this.state.test, city:v }})}} />}
-                    <ColUI.TextInput autoCapitalize='words' label='Cidade' onChangeText={(t)=>{this._handleInput(t, 'city')}} />
+                    <ColUI.TextInput label='Cidade' onChangeText={(t)=>{this._handleInput(t, 'city')}} />
                 </ColUI.Card>
                 <ColUI.Button blue disabled={disabled} colSpan={4} label='Próximo' onPress={this._nextPage} />
                 <Button transparent onPress={()=>this.props.navigation.navigate('Login')}>
@@ -260,108 +261,158 @@ class SignUp3 extends React.Component {
     }
 }
 
-const SignUp4 = (props)=>{
-
-    const { navigation, userInfo } = props;
-    const auth = firebase.auth();
-    const firestore = firebase.firestore();
-
-    const [disabled, setDisabled] = useState(true);
-    const [data, setData] = useState({...navigation.state.params.data, username:''});
-    const [loginInfo, setLoginInfo] = useState({email: '', password: ''});
-    const [confirmPassword, setConfirmPassword] = useState('');
-    const [loading, setLoading] = useState(false);
-    const [sendData, setSendData] = useState({});
-
-    async function _signOut(){
-        try{
-            await auth.signOut();
-        }catch(error){
-            console.log('Erro:', error.message);
+class SignUp4 extends React.Component{
+    
+    constructor(props){
+        super(props);
+        this.state = {
+            disabled: true,
+            loading: false,
+            data: {
+                ...props.navigation.state.params.data,
+                username: ''
+            },
+            loginInfo: {
+                email: '',
+                password: ''
+            },
+            confirmPassword: ''
         }
+
+        this.auth = firebase.auth();
+        this.unsubscribe = undefined;
+        this.uid = '';
+
+        this._handleInput = this._handleInput.bind(this);
+        this._signUp = this._signUp.bind(this);
+        this._signOut = this._signOut.bind(this);
+        this._saveOnStorageThenFirebase = this._saveOnStorageThenFirebase.bind(this);
+        this._saveOnFirebase = this._saveOnFirebase.bind(this);
+        this._putSubscription = this._putSubscription.bind(this);
     }
 
-    useEffect(()=>{
-        _signOut();
-        return auth.onAuthStateChanged((user)=>{
-            if(user){
-                try{
-                //Fazendo o upload da imagem de perfil no Storage:
-                async function fetchFirebase(){
-                    let imagem = data.profileimage.path;
-                    firebase.storage().ref(`profileimages/${user.uid}/profileimage`).putFile(imagem.replace('file://','')).on(firebase.storage.TaskEvent.STATE_CHANGED,snapshot=>{
-                        if(snapshot.state === firebase.storage.TaskState.SUCCESS){
-                            firebase.storage().ref(`profileimages/${user.uid}/profileimage`).getDownloadURL()
-                                .then((url)=>{
+    _putSubscription(){
+        this._signOut();
+        this.unsubscribe = this.auth.onAuthStateChanged((new_user)=>{
+            if(new_user){
+               try{
+                    this.uid = new_user.uid;
 
-                                    //colocando em data a info certinha:
-                                    setData({...sendData, firebaseRef: user.uid});
-
-                                    //recebendo o UID do usuário e criando o documento no Firestore:
-                                    firestore.collection('users').doc(user.uid).set({...sendData, firebaseRef: user.uid});
-
-                                    //Guardando no Redux:
-                                    props.setUserInfo({...sendData, firebaseRef: user.uid});
-
-                                    //Redirecionando para as rotas autenticadas:
-                                    navigation.navigate('Authenticated');
-                                });
-                            }
-                        },error=>{
-                            console.log('Erro:', error);
-                        });
-                    }
-
-                    if(data.profileimage){
-                        fetchFirebase();
+                    if(typeof this.state.data.profileimage !== 'string'){
+                        this._saveOnStorageThenFirebase();
                     } else {
-
-                        //colocando em data a info certinha:
-                        setData({...sendData, firebaseRef: user.uid});
-
-                        //recebendo o UID do usuário e criando o documento no Firestore:
-                        firestore.collection('users').doc(user.uid).set({...sendData, firebaseRef: user.uid});
-
-                        //Guardando no Redux:
-                        props.setUserInfo({...sendData, firebaseRef: user.uid});
-
-                        //Redirecionando para as rotas autenticadas:
-                        navigation.navigate('Authenticated');
+                        this._saveOnFirebase();
                     }
                 } catch(e){
-                    console.log('Erro:', e);
+                    console.log('Erro ao logar:', e);
                 }
             }
         });
-    },[sendData]);
+    }
 
-    async function _signUp(){
-        setSendData({ ...data, email: loginInfo.email, usertype: 'promoter', participatedin:[], phone: data.whatsapp });
+    async _saveOnStorageThenFirebase(){
+        let s = this.state;
+        let imagem = s.data.profileimage.path;
 
-        if(loginInfo.password == confirmPassword){
-            //setLoading(true);
+        //fazendo upload da imagem de perfil no storage:
+        firebase.storage().ref(`profileimages/${this.uid}/profileimage`).putFile(imagem.replace('file://','')).on(firebase.storage.TaskEvent.STATE_CHANGED,snapshot=>{
+            if(snapshot.state === firebase.storage.TaskState.SUCCESS){
+                firebase.storage().ref(`profileimages/${this.uid}/profileimage`).getDownloadURL()
+                    .then((url)=>{
+
+                        let prepData = { ...s.data, profileimage: url, email: s.loginInfo.email, firebaseRef: this.uid, usertype: 'promoter', participatedin:[], phone: s.data.whatsapp };
+
+                        //recebendo o UID do usuário e criando o documento no Firestore:
+                        firebase.firestore().collection('users').doc(this.uid).set(prepData).then(()=>{
+                            this.props.setUserInfo(prepData);
+
+
+                            //Redirecionando para as rotas autenticadas:
+                            this.props.navigation.navigate('Authenticated');
+                        });
+                    });
+                }
+            },error=>{
+                console.log('Erro ao fazer upload de imagem:', error);
+            });
+    }
+
+    async _saveOnFirebase(){
+        let s = this.state;
+        let prepData = { ...s.data, email: s.loginInfo.email, firebaseRef: this.uid, usertype: 'promoter', participatedin:[], phone: s.data.whatsapp };
+
+        //recebendo o UID do usuário e criando o documento no Firestore:
+        await firebase.firestore().collection('users').doc(this.uid).set(prepData);
+
+        //Guardando no Redux:
+        this.props.setUserInfo(prepData);
+
+
+        //Redirecionando para as rotas autenticadas:
+        this.props.navigation.navigate('Authenticated');
+    }
+
+    async _signOut(){
+        try{
+            await this.auth.signOut();
+        }catch(error){
+            console.log('Erro ao deslogar:', error.message);
+        }
+    }
+
+    _handleInput(input, mode){
+        let s = this.state;
+        switch(mode){
+            case 'username':
+                s.data.username = '@'+input;
+                break;
+            case 'confirmPassword':
+                s.confirmPassword = input;
+                break;
+            case 'email':
+                s.loginInfo.email = input;
+                break;
+            case 'password':
+                s.loginInfo.password = input;
+                break;
+        }
+        if(s.data.username != '' && s.loginInfo.email != '' && s.loginInfo.password != '' && s.confirmPassword != ''){
+            s.disabled = false;
+        } else {
+            s.disabled = true;
+        }
+        this.setState(s);
+    }
+
+    async _signUp(){
+        let s = this.state;
+
+
+        if(s.loginInfo.password == s.confirmPassword){
+            s.loading = true;
+            this.setState(s);
             //A checagem de username deu ruim...
-            //let usernameCheck = await firebase.firestore().collection('users').where('username', '==', data.username).get();
+            //let usernameCheck = await firebase.firestore().collection('users').where('username', '==', s.data.username).get();
             //if(usernameCheck.empty){
                 try{
-                    await auth.createUserWithEmailAndPassword(loginInfo.email, loginInfo.password);
+                    await this.auth.createUserWithEmailAndPassword(s.loginInfo.email, s.loginInfo.password);
                 } catch(error){
                     switch(error.code){
                         case 'auth/invalid-email':
                             Alert.alert('Esperaê!','Insira um endereço de e-mail válido');
-                            setLoading(false);
+                            s.loading = false;
                             break;
                         case 'auth/weak-password':
                             Alert.alert('Esperaê!','A senha precisa ter no mínimo 6 caracteres');
-                            setLoading(false);
+                            s.loading = false;
                             break;
                         case 'auth/email-already-in-use':
                             Alert.alert('Esperaê!','Esse endereço de e-mail já está cadastrado!');
-                            setLoading(false);
+                            s.loading = false;
                             break;
                         default:
                             Alert.alert('Esperaê!', error.message);
-                            setLoading(false);
+                            s.loading = false;
                     }
                 }
             /*} else {
@@ -370,50 +421,37 @@ const SignUp4 = (props)=>{
             }*/
         } else {
             Alert.alert('Esperaê!','A sua senha não coincide com a confirmação!');
-            setLoading(false);
+            s.loading = false;
         }
+
+        this.setState(s);
     }
 
-    function _handleInput(input, mode){
-        switch(mode){
-            case 'username':
-                setData({...data, username: '@'+input });
-                break;
-            case 'confirmPassword':
-                setConfirmPassword(input);
-                break;
-            case 'email':
-                setLoginInfo({...loginInfo, email: input });
-                break;
-            case 'password':
-                setLoginInfo({...loginInfo, password: input });
-                break;
-        }
-        if(data.username != '' && loginInfo.email != '' && loginInfo.password != '' && confirmPassword != ''){
-            setDisabled(false);
-        } else {
-            setDisabled(true);
-        }
-    }
+    render(){
 
-    return (
-        <View style={styles.container}>
-            <ColaeAPI.ColUI.Background />
-            <ColUI.Card contentContainerStyle={styles.card}>
-                <ColUI.TextInput autoCapitalize='none' label='Nome de usuário (deve ser único)' style={{marginBottom: '10%'}} onChangeText={(t)=>{_handleInput(t, 'username')}} />
-                <ColUI.TextInput autocapitalize='none' keyboardType='email-address' label='E-mail' style={{marginBottom: '10%'}} onChangeText={(t)=>{_handleInput(t, 'email')}} />
-                <ColUI.TextInput secureTextEntry={true} label='Senha' style={{marginBottom: '10%'}} onChangeText={(t)=>{_handleInput(t, 'password')}} />
-                <ColUI.TextInput secureTextEntry={true} label='Confirmar senha' style={{marginBottom: '10%'}} onChangeText={(t)=>{_handleInput(t, 'confirmPassword')}} />
-            </ColUI.Card>
-            <View style={styles.finishContainer}>
-                <ColUI.Button blue loading={loading} disabled={disabled} colSpan={4} label='finalizar cadastro' onPress={()=>_signUp()} />
-                <Text style={styles.warning}>Ao clicar em prosseguir você confirma que leu e concorda com os nossos <Text style={styles.inlineButton} onPress={()=>navigation.navigate('SU_Termos')}>Termos e Condições de Uso</Text> e <Text style={styles.inlineButton} onPress={()=>navigation.navigate('SU_Privacidade')}>Política de Privacidade</Text></Text>
+        const { navigation } = this.props;
+        const { loading, disabled } = this.state;
+
+        return (
+            <View style={styles.container}>
+                <NavigationEvents onWillBlur={()=>this.unsubscribe()} onDidFocus={this._putSubscription} />
+                <ColaeAPI.ColUI.Background />
+                <ColUI.Card contentContainerStyle={styles.card}>
+                    <ColUI.TextInput autoCapitalize='none' label='Nome de usuário (deve ser único)' style={{marginBottom: '10%'}} onChangeText={(t)=>{this._handleInput(t, 'username')}} />
+                    <ColUI.TextInput autoCapitalize='none' keyboardType='email-address' label='E-mail' style={{marginBottom: '10%'}} onChangeText={(t)=>{this._handleInput(t, 'email')}} />
+                    <ColUI.TextInput secureTextEntry={true} label='Senha' style={{marginBottom: '10%'}} onChangeText={(t)=>{this._handleInput(t, 'password')}} />
+                    <ColUI.TextInput secureTextEntry={true} label='Confirmar senha' style={{marginBottom: '10%'}} onChangeText={(t)=>{this._handleInput(t, 'confirmPassword')}} />
+                </ColUI.Card>
+                <View style={styles.finishContainer}>
+                    <ColUI.Button blue loading={loading} disabled={disabled} colSpan={4} label='finalizar cadastro' onPress={()=>this._signUp()} />
+                    <Text style={styles.warning}>Ao clicar em prosseguir você confirma que leu e concorda com os nossos <Text style={styles.inlineButton} onPress={()=>navigation.navigate('SU_Termos')}>Termos e Condições de Uso</Text> e <Text style={styles.inlineButton} onPress={()=>navigation.navigate('SU_Privacidade')}>Política de Privacidade</Text></Text>
+                </View>
+                <Button transparent onPress={()=>navigation.navigate('Login')}>
+                    <Text style={styles.btnLabel}>Já tenho uma conta!</Text>
+                </Button>
             </View>
-            <Button transparent onPress={()=>navigation.navigate('Login')}>
-                <Text style={styles.btnLabel}>Já tenho uma conta!</Text>
-            </Button>
-        </View>
-    );
+        );
+    }
 }
 
 const styles = StyleSheet.create({

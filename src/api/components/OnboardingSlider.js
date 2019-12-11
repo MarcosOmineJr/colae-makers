@@ -73,7 +73,7 @@ const styles = StyleSheet.create({
     },
     image:{
         height: '50%',
-        width: '80%'
+        width: '60%'
     },   
     pageIndicator:{
         position: 'absolute',
