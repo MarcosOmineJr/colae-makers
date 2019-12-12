@@ -19,13 +19,13 @@ const { ColUI } = ColaeAPI;
 const { width, height } = Dimensions.get('window');
 
 const onboardingData = [
-    {image: 'http://colaeapp.com/onboading/encontre_onboarding.png',
+    {image: 'https://firebasestorage.googleapis.com/v0/b/colae-makers.appspot.com/o/onboarding%2Fencontre_onboarding.png?alt=media&token=82235ce3-bd96-44ac-b7ae-fef3cb576174',
     title: 'Encontre eventos próximos de você', description: ''},
-    {image: 'http://colaeapp.com/onboading/avalie_onboarding.png',
+    {image: 'https://firebasestorage.googleapis.com/v0/b/colae-makers.appspot.com/o/onboarding%2Favalie_onboarding.png?alt=media&token=9e46dfd5-a60c-4628-8596-167ab0a17916',
     title: 'Avalie, comente e interaja', description: ''},
-    {image: 'http://colaeapp.com/onboading/conecte_onboarding.png',
+    {image: 'https://firebasestorage.googleapis.com/v0/b/colae-makers.appspot.com/o/onboarding%2Fconecte_onboarding.png?alt=media&token=61881920-c5c9-46e4-aa66-846ae62d42c8',
     title: 'Conecte-se com os amigos', description: ''},
-    {image: 'http://colaeapp.com/onboading/acompanhe_onboarding.png',
+    {image: 'https://firebasestorage.googleapis.com/v0/b/colae-makers.appspot.com/o/onboarding%2Facompanhe_onboarding.png?alt=media&token=72c4baf8-017a-4501-873a-2728f65d24c6',
     title: 'Acompanhe eventos de seu interesse', description: ''}
 ]
 
